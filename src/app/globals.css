@@ -2,26 +2,78 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* shadcn tokens — mapped to the ClearGroup dark theme */
+    --background:             240 20% 5%;
+    --foreground:             240 100% 99%;
+    --card:                   240 18% 8%;
+    --card-foreground:        240 100% 99%;
+    --popover:                240 18% 8%;
+    --popover-foreground:     240 100% 99%;
+    --primary:                239 84% 67%;
+    --primary-foreground:     240 100% 99%;
+    --secondary:              240 25% 15%;
+    --secondary-foreground:   240 100% 99%;
+    --muted:                  240 25% 15%;
+    --muted-foreground:       220 9% 66%;
+    --accent:                 240 25% 15%;
+    --accent-foreground:      240 100% 99%;
+    --destructive:            0 84% 60%;
+    --destructive-foreground: 240 100% 99%;
+    --border:                 240 25% 15%;
+    --input:                  240 25% 15%;
+    --ring:                   239 84% 67%;
+    --radius:                 0.5rem;
+
+    /* ClearGroup design system — use these via Tailwind cg-* classes */
+    --cg-bg:        #0A0A0F;
+    --cg-surface:   #111118;
+    --cg-border:    #1E1E2E;
+    --cg-primary:   #6366F1;
+    --cg-secondary: #8B5CF6;
+    --cg-text:      #F8F8FF;
+    --cg-muted:     #9CA3AF;
+    --cg-success:   #10B981;
+    --cg-warning:   #F59E0B;
+    --cg-danger:    #EF4444;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * { @apply border-border; }
+  body {
+    background-color: var(--cg-bg);
+    color: var(--cg-text);
+    @apply font-sans antialiased;
+  }
+  html { scroll-behavior: smooth; }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+/* ── Hero background ─────────────────────────────────── */
+.hero-radial-glow {
+  background: radial-gradient(ellipse at 50% 0%, rgba(99, 102, 241, 0.12) 0%, transparent 65%);
 }
+
+/* ── Dashboard card float ────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px);   }
+  50%       { transform: translateY(-10px); }
+}
+.animate-float { animation: float 3s ease-in-out infinite; }
+
+/* ── Background blobs ────────────────────────────────── */
+@keyframes blob {
+  0%, 100% { transform: translate(0, 0)      scale(1);    }
+  33%       { transform: translate(30px, -30px) scale(1.06); }
+  66%       { transform: translate(-20px, 20px) scale(0.95); }
+}
+.animate-blob       { animation: blob 9s  ease-in-out infinite; }
+.animate-blob-delay { animation: blob 11s ease-in-out infinite; animation-delay: -4s; }
+
+/* ── Primary button pulse glow ───────────────────────── */
+@keyframes button-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+  50%       { box-shadow: 0 0 40px rgba(99, 102, 241, 0.6), 0 0 80px rgba(99, 102, 241, 0.15); }
+}
+.animate-button-pulse { animation: button-pulse 3s ease-in-out infinite; }
