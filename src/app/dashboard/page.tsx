@@ -2,16 +2,26 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { motion, type Transition } from "framer-motion";
 import { AlertTriangle, Download, Share2 } from "lucide-react";
-import OverviewSection from "@/components/dashboard/OverviewSection";
-import TaskBoard       from "@/components/dashboard/TaskBoard";
+import OverviewSection  from "@/components/dashboard/OverviewSection";
+import TaskBoard        from "@/components/dashboard/TaskBoard";
+import DecisionLog      from "@/components/dashboard/DecisionLog";
+import BlockerAlerts    from "@/components/dashboard/BlockerAlerts";
+import DeadlineTracker  from "@/components/dashboard/DeadlineTracker";
+import OpenQuestions    from "@/components/dashboard/OpenQuestions";
 import type { AnalysisResult, AnalysisMetadata } from "@/types/analysis";
 
 const EMPTY_META: AnalysisMetadata = {
-  messagesAnalyzed: 0,
-  participants:     [],
-  analyzedAt:       new Date().toISOString(),
+  messagesAnalyzed: 0, participants: [], analyzedAt: new Date().toISOString(),
 };
+
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-40px" },
+  transition: { duration: 0.45, delay, ease: "easeOut" } as Transition,
+});
 
 export default function DashboardPage() {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
@@ -30,7 +40,6 @@ export default function DashboardPage() {
 
   if (!ready) return null;
 
-  // ── Empty state ────────────────────────────────────────────────────────────
   if (!analysis) return (
     <div className="flex flex-col items-center justify-center gap-3" style={{ minHeight: "100vh" }}>
       <div className="flex items-center justify-center rounded-full"
@@ -38,9 +47,7 @@ export default function DashboardPage() {
         <AlertTriangle size={28} style={{ color: "#F59E0B" }} />
       </div>
       <p className="font-bold text-white text-xl">No analysis found</p>
-      <p className="text-sm" style={{ color: "#8899AA" }}>
-        Please upload and analyze a WhatsApp chat first
-      </p>
+      <p className="text-sm" style={{ color: "#8899AA" }}>Please upload and analyze a WhatsApp chat first</p>
       <Link href="/upload"
         className="flex items-center justify-center font-semibold rounded-[10px]"
         style={{ marginTop: 8, padding: "10px 24px", fontSize: 14,
@@ -50,10 +57,8 @@ export default function DashboardPage() {
     </div>
   );
 
-  const today = new Date().toLocaleDateString("en-GB",
-    { day: "numeric", month: "short", year: "numeric" });
+  const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 
-  // ── Dashboard ──────────────────────────────────────────────────────────────
   return (
     <div style={{ padding: 32, paddingBottom: 80 }}>
 
@@ -71,16 +76,14 @@ export default function DashboardPage() {
         <div className="flex items-center gap-3">
           <button className="flex items-center gap-2 font-semibold"
             style={{ padding: "9px 16px", borderRadius: 8, fontSize: 13,
-              border: "1px solid #0ABFBC", color: "#0ABFBC",
-              background: "transparent", cursor: "pointer", transition: "background 0.15s" }}
+              border: "1px solid #0ABFBC", color: "#0ABFBC", background: "transparent", cursor: "pointer" }}
             onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(10,191,188,0.08)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}>
             <Download size={14} /> Export Report
           </button>
           <button className="flex items-center gap-2 font-semibold"
             style={{ padding: "9px 16px", borderRadius: 8, fontSize: 13,
-              border: "1px solid #1A2E3A", color: "#8899AA",
-              background: "transparent", cursor: "pointer", transition: "background 0.15s" }}
+              border: "1px solid #1A2E3A", color: "#8899AA", background: "transparent", cursor: "pointer" }}
             onMouseEnter={(e) => { e.currentTarget.style.background = "#111E26"; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}>
             <Share2 size={14} /> Share
@@ -88,11 +91,25 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <OverviewSection analysis={analysis} metadata={meta} />
+      {/* 1 — Overview stat cards */}
+      <motion.div {...fadeUp(0)}><OverviewSection analysis={analysis} metadata={meta} /></motion.div>
 
-      <div style={{ marginTop: 40 }}>
+      {/* 2 — Task Board (full width) */}
+      <motion.div {...fadeUp(0.05)} style={{ marginTop: 48 }}>
         <TaskBoard tasks={analysis.tasks} />
-      </div>
+      </motion.div>
+
+      {/* 3 — Decision Log (60%) + Blocker Alerts (40%) */}
+      <motion.div {...fadeUp(0.05)} className="flex flex-col lg:flex-row gap-6" style={{ marginTop: 48 }}>
+        <div style={{ flex: 3, minWidth: 0 }}><DecisionLog decisions={analysis.decisions} /></div>
+        <div style={{ flex: 2, minWidth: 0 }}><BlockerAlerts blockers={analysis.blockers} /></div>
+      </motion.div>
+
+      {/* 4 — Deadline Tracker (50%) + Open Questions (50%) */}
+      <motion.div {...fadeUp(0.05)} className="flex flex-col lg:flex-row gap-6" style={{ marginTop: 48 }}>
+        <div style={{ flex: 1, minWidth: 0 }}><DeadlineTracker deadlines={analysis.deadlines} /></div>
+        <div style={{ flex: 1, minWidth: 0 }}><OpenQuestions questions={analysis.openQuestions} /></div>
+      </motion.div>
 
     </div>
   );
