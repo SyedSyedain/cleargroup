@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildAnalysisPrompt } from "@/lib/analysisPrompt";
+import type { AnalysisResult, AnalysisMetadata } from "@/types/analysis";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -94,23 +95,21 @@ export async function POST(req: NextRequest) {
     }
 
     // Parse the JSON Gemini returned
-    let analysis: unknown;
+    let analysis: AnalysisResult;
     try {
-      analysis = JSON.parse(rawText);
+      analysis = JSON.parse(rawText) as AnalysisResult;
     } catch {
       console.error("[analyze] JSON parse failed. Raw text:", rawText.slice(0, 200));
       return NextResponse.json({ error: "AI returned invalid response" }, { status: 500 });
     }
 
-    return NextResponse.json({
-      success:  true,
-      analysis,
-      metadata: {
-        messagesAnalyzed: stats?.totalMessages ?? 0,
-        participants:     stats?.participants  ?? [],
-        analyzedAt:       new Date().toISOString(),
-      },
-    });
+    const metadata: AnalysisMetadata = {
+      messagesAnalyzed: stats?.totalMessages ?? 0,
+      participants:     stats?.participants  ?? [],
+      analyzedAt:       new Date().toISOString(),
+    };
+
+    return NextResponse.json({ success: true, analysis, metadata });
 
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";

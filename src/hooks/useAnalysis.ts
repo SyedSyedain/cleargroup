@@ -6,6 +6,7 @@
  * The 30-second AbortController covers the timeout requirement.
  */
 import { useState, useEffect, useRef } from "react";
+import type { AnalysisResult, AnalysisMetadata } from "@/types/analysis";
 
 interface StoredStats {
   totalMessages: number;
@@ -15,8 +16,8 @@ interface StoredStats {
 
 interface ApiResponse {
   success?:  boolean;
-  analysis?: unknown;
-  metadata?: unknown;
+  analysis?: AnalysisResult;
+  metadata?: AnalysisMetadata;
   error?:    string;
 }
 
