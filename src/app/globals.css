@@ -97,6 +97,17 @@
 }
 .page-fade-in { animation: page-fade-in 0.4s ease-out forwards; }
 
+/* ── Hero mesh blob drift (sea green / emerald) ──────── */
+@keyframes mesh-drift {
+  0%,  100% { transform: translate(0px,   0px)  scale(1);    }
+  25%        { transform: translate(50px, -40px) scale(1.06); }
+  50%        { transform: translate(-30px, 50px) scale(0.96); }
+  75%        { transform: translate(35px,  25px) scale(1.03); }
+}
+.animate-mesh-1 { animation: mesh-drift 20s ease-in-out infinite; }
+.animate-mesh-2 { animation: mesh-drift 24s ease-in-out infinite; animation-delay: -9s; }
+.animate-mesh-3 { animation: mesh-drift 18s ease-in-out infinite; animation-delay: -5s; }
+
 /* ── How it works — connector dash flow (SVG) ─────────── */
 @keyframes dash-flow {
   from { stroke-dashoffset: 18; }
