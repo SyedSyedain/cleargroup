@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { motion, type Transition } from "framer-motion";
 import { CheckCircle2, FileText, X, ArrowRight } from "lucide-react";
+import DateRangeFilter from "./DateRangeFilter";
 
 interface Props {
   file:      File;
@@ -22,9 +24,18 @@ const fadeUp = (delay: number) => ({
 });
 
 export default function UploadZoneUploaded({ file, onRemove, onAnalyze }: Props) {
+  const [range,       setRange]       = useState("3d");
+  const [customStart, setCustomStart] = useState<Date | undefined>();
+  const [customEnd,   setCustomEnd]   = useState<Date | undefined>();
+
+  const handleCustomDate = (start: Date, end: Date) => {
+    setCustomStart(start);
+    setCustomEnd(end);
+  };
+
   return (
-    <div className="flex flex-col gap-5"
-      style={{ width: "100%", minHeight: 380, borderRadius: 20, padding: "32px 24px",
+    <div className="flex flex-col gap-4"
+      style={{ width: "100%", minHeight: 380, borderRadius: 20, padding: "28px 24px",
         border: "1px solid #0ABFBC", background: "#0C1419" }}>
 
       {/* Checkmark — spring bounce in */}
@@ -42,7 +53,7 @@ export default function UploadZoneUploaded({ file, onRemove, onAnalyze }: Props)
       </motion.div>
 
       {/* File info card */}
-      <motion.div {...fadeUp(0.25)}
+      <motion.div {...fadeUp(0.2)}
         className="flex items-center gap-3 p-4 rounded-[10px]"
         style={{ background: "#111E26", border: "1px solid #1A2E3A" }}
       >
@@ -60,24 +71,22 @@ export default function UploadZoneUploaded({ file, onRemove, onAnalyze }: Props)
         </button>
       </motion.div>
 
-      {/* Date range selector — placeholder for next step */}
-      <motion.div {...fadeUp(0.4)}
-        className="p-4 rounded-[10px]"
-        style={{ background: "#111E26", border: "1px solid #1A2E3A" }}
-      >
-        <p className="text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: "#3A5060" }}>
-          Date Range
-        </p>
-        <p className="text-sm" style={{ color: "#3A5060" }}>
-          Analyse all messages &mdash; date filter coming next
-        </p>
+      {/* Date range filter */}
+      <motion.div {...fadeUp(0.35)}>
+        <DateRangeFilter
+          selectedRange={range}
+          onRangeChange={setRange}
+          customStart={customStart}
+          customEnd={customEnd}
+          onCustomDateChange={handleCustomDate}
+        />
       </motion.div>
 
       {/* Spacer */}
       <div className="flex-1" />
 
       {/* Analyze button */}
-      <motion.div {...fadeUp(0.55)}>
+      <motion.div {...fadeUp(0.5)}>
         <motion.button
           onClick={onAnalyze}
           initial="rest"
