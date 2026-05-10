@@ -98,7 +98,7 @@ export default function UploadZone({ onStepChange }: Props) {
   };
   const onAnalyze = () => setStateAndStep("processing");
 
-  if (state === "processing")                        return <UploadZoneProcessing />;
+  if (state === "processing" && parsedChat)          return <UploadZoneProcessing parsedChat={parsedChat} />;
   if (state === "uploaded" && file && parsedChat)    return (
     <UploadZoneUploaded file={file} parsedChat={parsedChat} onRemove={onRemove} onAnalyze={onAnalyze} />
   );
