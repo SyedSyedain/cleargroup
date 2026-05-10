@@ -5,43 +5,84 @@ import { motion } from "framer-motion";
 import UploadZoneIdle       from "./UploadZoneIdle";
 import UploadZoneUploaded   from "./UploadZoneUploaded";
 import UploadZoneProcessing from "./UploadZoneProcessing";
+import { parseWhatsAppChat } from "@/lib/parser";
+import { SAMPLE_CHAT }       from "@/lib/sampleChat";
+import type { ParsedChat }   from "@/types/chat";
 
 export type UploadState = "idle" | "dragging" | "uploaded" | "processing";
 
-export default function UploadZone() {
-  const [state, setState] = useState<UploadState>("idle");
-  const [file,  setFile]  = useState<File | null>(null);
-  const [error, setError] = useState("");
-  const [shake, setShake] = useState(false);
-  const inputRef          = useRef<HTMLInputElement>(null);
-  const dragCount         = useRef(0); // prevents flicker when hovering child elements
+interface Props {
+  onStepChange?: (step: 1 | 2 | 3) => void;
+}
+
+export default function UploadZone({ onStepChange }: Props) {
+  const [state,      setState]      = useState<UploadState>("idle");
+  const [file,       setFile]       = useState<File | null>(null);
+  const [parsedChat, setParsedChat] = useState<ParsedChat | null>(null);
+  const [error,      setError]      = useState("");
+  const [shake,      setShake]      = useState(false);
+  const inputRef  = useRef<HTMLInputElement>(null);
+  const dragCount = useRef(0);
+
+  const setStateAndStep = useCallback((newState: UploadState) => {
+    setState(newState);
+    if (onStepChange) {
+      const step = newState === "uploaded" ? 2 : newState === "processing" ? 3 : 1;
+      onStepChange(step as 1 | 2 | 3);
+    }
+  }, [onStepChange]);
+
+  const triggerError = useCallback((msg: string) => {
+    setError(msg);
+    setShake(true);
+    setTimeout(() => setShake(false), 500);
+  }, []);
 
   const accept = useCallback((f: File) => {
     if (!f.name.toLowerCase().endsWith(".txt")) {
-      setError("Please upload a .txt file exported from WhatsApp");
-      setShake(true);
-      setTimeout(() => setShake(false), 500);
+      triggerError("Please upload a .txt file exported from WhatsApp");
       return;
     }
-    setError("");
-    setFile(f);
-    setState("uploaded");
-  }, []);
+    if (f.size > 50 * 1024 * 1024) {
+      triggerError("File too large. Maximum 50MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      try {
+        const parsed = parseWhatsAppChat(text);
+        setParsedChat(parsed);
+        setFile(f);
+        setError("");
+        setStateAndStep("uploaded");
+      } catch {
+        triggerError(
+          "This doesn't look like a WhatsApp export. Please export your chat from WhatsApp and try again."
+        );
+      }
+    };
+    reader.readAsText(f, "utf-8");
+  }, [triggerError, setStateAndStep]);
 
-  const onDragEnter = (e: React.DragEvent) => {
-    e.preventDefault();
-    dragCount.current++;
-    setState("dragging");
-  };
+  const loadSample = useCallback(() => {
+    const parsed   = parseWhatsAppChat(SAMPLE_CHAT);
+    const blob     = new Blob([SAMPLE_CHAT], { type: "text/plain" });
+    const fakeFile = new File([blob], "WhatsApp Chat - Project Alpha.txt", { type: "text/plain" });
+    setParsedChat(parsed);
+    setFile(fakeFile);
+    setError("");
+    setStateAndStep("uploaded");
+  }, [setStateAndStep]);
+
+  const onDragEnter = (e: React.DragEvent) => { e.preventDefault(); dragCount.current++; setState("dragging"); };
   const onDragOver  = (e: React.DragEvent) => { e.preventDefault(); };
   const onDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
     if (--dragCount.current === 0) setState("idle");
   };
   const onDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    dragCount.current = 0;
-    setState("idle");
+    e.preventDefault(); dragCount.current = 0; setState("idle");
     const f = e.dataTransfer.files[0];
     if (f) accept(f);
   };
@@ -51,13 +92,16 @@ export default function UploadZone() {
   };
   const onBrowse  = useCallback(() => inputRef.current?.click(), []);
   const onRemove  = () => {
-    setFile(null); setState("idle"); setError("");
+    setFile(null); setParsedChat(null); setError("");
+    setStateAndStep("idle");
     if (inputRef.current) inputRef.current.value = "";
   };
-  const onAnalyze = () => setState("processing");
+  const onAnalyze = () => setStateAndStep("processing");
 
-  if (state === "processing")             return <UploadZoneProcessing />;
-  if (state === "uploaded" && file)       return <UploadZoneUploaded file={file} onRemove={onRemove} onAnalyze={onAnalyze} />;
+  if (state === "processing")                        return <UploadZoneProcessing />;
+  if (state === "uploaded" && file && parsedChat)    return (
+    <UploadZoneUploaded file={file} parsedChat={parsedChat} onRemove={onRemove} onAnalyze={onAnalyze} />
+  );
 
   return (
     <>
@@ -68,11 +112,10 @@ export default function UploadZone() {
       >
         <UploadZoneIdle
           isDragging={state === "dragging"}
-          onDragEnter={onDragEnter}
-          onDragOver={onDragOver}
-          onDragLeave={onDragLeave}
-          onDrop={onDrop}
+          onDragEnter={onDragEnter} onDragOver={onDragOver}
+          onDragLeave={onDragLeave} onDrop={onDrop}
           onClick={onBrowse}
+          onLoadSample={loadSample}
           error={error}
         />
       </motion.div>

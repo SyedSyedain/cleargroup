@@ -1,21 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, type Transition } from "framer-motion";
 import { CheckCircle2, FileText, X, ArrowRight } from "lucide-react";
 import DateRangeFilter from "./DateRangeFilter";
+import { filterMessagesByRange, formatChatForAI, getChatStats } from "@/lib/parser";
+import type { ParsedChat, FilterOptions } from "@/types/chat";
 
 interface Props {
-  file:      File;
-  onRemove:  () => void;
-  onAnalyze: () => void;
+  file:        File;
+  parsedChat:  ParsedChat;
+  onRemove:    () => void;
+  onAnalyze:   () => void;
 }
 
 const fmt = (b: number) =>
   b < 1024 ? `${b} B` : b < 1048576 ? `${(b / 1024).toFixed(0)} KB` : `${(b / 1048576).toFixed(1)} MB`;
-
-const fakeMsgCount = (b: number) =>
-  Math.max(120, Math.round(b / 195)).toLocaleString();
 
 const fadeUp = (delay: number) => ({
   initial: { opacity: 0, y: 12 },
@@ -23,14 +23,35 @@ const fadeUp = (delay: number) => ({
   transition: { delay, duration: 0.4, ease: "easeOut" } as Transition,
 });
 
-export default function UploadZoneUploaded({ file, onRemove, onAnalyze }: Props) {
-  const [range,       setRange]       = useState("3d");
+export default function UploadZoneUploaded({ file, parsedChat, onRemove, onAnalyze }: Props) {
+  const [range,       setRange]       = useState("last3d");
   const [customStart, setCustomStart] = useState<Date | undefined>();
   const [customEnd,   setCustomEnd]   = useState<Date | undefined>();
+
+  const filtered = useMemo(() => {
+    const opts: FilterOptions = { range: range as FilterOptions["range"], customStart, customEnd };
+    return filterMessagesByRange(parsedChat.messages, opts);
+  }, [parsedChat, range, customStart, customEnd]);
+
+  const stats = useMemo(() => getChatStats(filtered), [filtered]);
 
   const handleCustomDate = (start: Date, end: Date) => {
     setCustomStart(start);
     setCustomEnd(end);
+  };
+
+  const handleAnalyze = () => {
+    const formatted = formatChatForAI(filtered);
+    const statsForStorage = {
+      ...stats,
+      dateRange: {
+        start: stats.dateRange.start.toISOString(),
+        end:   stats.dateRange.end.toISOString(),
+      },
+    };
+    sessionStorage.setItem("chatData",  formatted);
+    sessionStorage.setItem("chatStats", JSON.stringify(statsForStorage));
+    onAnalyze();
   };
 
   return (
@@ -38,7 +59,7 @@ export default function UploadZoneUploaded({ file, onRemove, onAnalyze }: Props)
       style={{ width: "100%", minHeight: 380, borderRadius: 20, padding: "28px 24px",
         border: "1px solid #0ABFBC", background: "#0C1419" }}>
 
-      {/* Checkmark — spring bounce in */}
+      {/* Success icon */}
       <motion.div {...fadeUp(0)} className="flex flex-col items-center gap-3">
         <motion.div
           initial={{ scale: 0 }}
@@ -52,7 +73,7 @@ export default function UploadZoneUploaded({ file, onRemove, onAnalyze }: Props)
         <p className="font-semibold text-white text-lg">File uploaded successfully!</p>
       </motion.div>
 
-      {/* File info card */}
+      {/* File info card with real stats */}
       <motion.div {...fadeUp(0.2)}
         className="flex items-center gap-3 p-4 rounded-[10px]"
         style={{ background: "#111E26", border: "1px solid #1A2E3A" }}
@@ -61,7 +82,8 @@ export default function UploadZoneUploaded({ file, onRemove, onAnalyze }: Props)
         <div className="flex-1 min-w-0">
           <p className="text-white font-medium text-sm truncate">{file.name}</p>
           <p className="text-xs mt-0.5" style={{ color: "#8899AA" }}>
-            {fmt(file.size)} &bull; {fakeMsgCount(file.size)} messages found
+            {fmt(file.size)} &bull; {parsedChat.totalMessages.toLocaleString()} messages &bull;{" "}
+            {parsedChat.participants.length} participants
           </p>
         </div>
         <button onClick={onRemove}
@@ -71,7 +93,7 @@ export default function UploadZoneUploaded({ file, onRemove, onAnalyze }: Props)
         </button>
       </motion.div>
 
-      {/* Date range filter */}
+      {/* Date range filter with real counts */}
       <motion.div {...fadeUp(0.35)}>
         <DateRangeFilter
           selectedRange={range}
@@ -79,31 +101,42 @@ export default function UploadZoneUploaded({ file, onRemove, onAnalyze }: Props)
           customStart={customStart}
           customEnd={customEnd}
           onCustomDateChange={handleCustomDate}
+          filteredCount={filtered.length}
+          participantCount={stats.participants.length}
         />
       </motion.div>
 
-      {/* Spacer */}
       <div className="flex-1" />
 
       {/* Analyze button */}
       <motion.div {...fadeUp(0.5)}>
         <motion.button
-          onClick={onAnalyze}
+          onClick={handleAnalyze}
           initial="rest"
           whileHover="hover"
           whileTap={{ scale: 0.98 }}
+          disabled={filtered.length === 0}
           className="w-full flex items-center justify-center gap-2.5 font-semibold rounded-[10px] cursor-pointer"
           style={{ height: 52, fontSize: 16, color: "#060B0F",
-            background: "linear-gradient(135deg, #0ABFBC, #06D6A0)",
-            boxShadow: "0 4px 20px rgba(10,191,188,0.40)" }}
+            background: filtered.length === 0
+              ? "#1A2E3A"
+              : "linear-gradient(135deg, #0ABFBC, #06D6A0)",
+            boxShadow: filtered.length === 0 ? "none" : "0 4px 20px rgba(10,191,188,0.40)",
+            transition: "background 0.3s, box-shadow 0.3s" }}
         >
-          Analyze My Chat
-          <motion.span
-            variants={{ rest: { x: 0 }, hover: { x: 4, transition: { duration: 0.2 } } }}
-            className="flex items-center"
-          >
-            <ArrowRight size={18} />
-          </motion.span>
+          {filtered.length === 0 ? (
+            <span style={{ color: "#8899AA" }}>No messages in this range</span>
+          ) : (
+            <>
+              Analyze My Chat
+              <motion.span
+                variants={{ rest: { x: 0 }, hover: { x: 4, transition: { duration: 0.2 } } }}
+                className="flex items-center"
+              >
+                <ArrowRight size={18} />
+              </motion.span>
+            </>
+          )}
         </motion.button>
       </motion.div>
 

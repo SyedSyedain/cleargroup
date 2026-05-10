@@ -3,10 +3,10 @@
 import { motion, AnimatePresence } from "framer-motion";
 
 const PILLS = [
-  { id: "24h",    label: "Last 24 hours", estimate: "~47 messages"  },
-  { id: "3d",     label: "Last 3 days",   estimate: "~284 messages" },
-  { id: "1w",     label: "Last week",     estimate: "~891 messages" },
-  { id: "custom", label: "Custom range",  estimate: null            },
+  { id: "last24h", label: "Last 24 hours" },
+  { id: "last3d",  label: "Last 3 days"   },
+  { id: "last7d",  label: "Last week"      },
+  { id: "custom",  label: "Custom range"   },
 ] as const;
 
 interface Props {
@@ -15,6 +15,8 @@ interface Props {
   customStart?:        Date;
   customEnd?:          Date;
   onCustomDateChange?: (start: Date, end: Date) => void;
+  filteredCount?:      number;
+  participantCount?:   number;
 }
 
 const toValue = (d?: Date) => (d ? d.toISOString().split("T")[0] : "");
@@ -26,11 +28,10 @@ const inputStyle: React.CSSProperties = {
   transition: "border-color 0.15s ease",
 };
 
-// Date range filter — 4 selectable pills with sliding indicator + custom date picker
 export default function DateRangeFilter({
   selectedRange, onRangeChange, customStart, customEnd, onCustomDateChange,
+  filteredCount, participantCount,
 }: Props) {
-  const estimate = PILLS.find((p) => p.id === selectedRange)?.estimate ?? null;
 
   const handleDate = (field: "start" | "end", value: string) => {
     if (!onCustomDateChange || !value) return;
@@ -39,13 +40,14 @@ export default function DateRangeFilter({
     else                   onCustomDateChange(customStart ?? new Date(), d);
   };
 
+  const hint = filteredCount !== undefined
+    ? `Will analyze ${filteredCount.toLocaleString()} message${filteredCount !== 1 ? "s" : ""}${participantCount !== undefined ? ` from ${participantCount} participant${participantCount !== 1 ? "s" : ""}` : ""}`
+    : null;
+
   return (
     <div style={{ width: "100%", marginTop: 20, marginBottom: 4 }}>
 
-      {/* Label */}
-      <p style={{ fontSize: 13, color: "#8899AA", marginBottom: 10 }}>
-        Analyze messages from:
-      </p>
+      <p style={{ fontSize: 13, color: "#8899AA", marginBottom: 10 }}>Analyze messages from:</p>
 
       {/* Pill row */}
       <div className="flex flex-wrap gap-2">
@@ -77,7 +79,6 @@ export default function DateRangeFilter({
                 }
               }}
             >
-              {/* Sliding background indicator */}
               {active && (
                 <motion.div
                   layoutId="pill-highlight"
@@ -92,14 +93,12 @@ export default function DateRangeFilter({
         })}
       </div>
 
-      {/* Custom date picker — expands/collapses */}
+      {/* Custom date picker */}
       <AnimatePresence>
         {selectedRange === "custom" && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
+            initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25, ease: "easeOut" }}
             style={{ overflow: "hidden" }}
           >
             <div className="flex gap-3 mt-3">
@@ -121,16 +120,16 @@ export default function DateRangeFilter({
         )}
       </AnimatePresence>
 
-      {/* Estimate hint */}
+      {/* Real filtered count hint */}
       <AnimatePresence mode="wait">
-        {estimate && (
+        {hint && (
           <motion.p
-            key={selectedRange}
+            key={`${selectedRange}-${filteredCount}`}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
             style={{ fontSize: 12, color: "#6B7F8E", fontStyle: "italic", marginTop: 10 }}
           >
-            Will analyze {estimate}
+            {hint}
           </motion.p>
         )}
       </AnimatePresence>

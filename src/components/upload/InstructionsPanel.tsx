@@ -59,8 +59,8 @@ function StepItem({ icon, title, desc, typing, num }: Step & { num: number }) {
   );
 }
 
-// Left column — static guide panel, no interactivity needed
-export default function InstructionsPanel() {
+// Left column — guide panel with live step badge
+export default function InstructionsPanel({ step = 1 }: { step?: 1 | 2 | 3 }) {
   return (
     <div className="flex flex-col gap-8">
 
@@ -72,7 +72,7 @@ export default function InstructionsPanel() {
             style={{ background: "#0ABFBC" }} />
           <span className="relative inline-flex rounded-full w-2 h-2" style={{ background: "#0ABFBC" }} />
         </span>
-        <span className="text-[12px] font-semibold" style={{ color: "#0ABFBC" }}>Step 1 of 3</span>
+        <span className="text-[12px] font-semibold" style={{ color: "#0ABFBC" }}>Step {step} of 3</span>
       </div>
 
       {/* Headline */}
