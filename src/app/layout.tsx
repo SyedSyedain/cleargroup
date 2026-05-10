@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Providers          from "@/components/layout/Providers";
-import Navbar             from "@/components/layout/Navbar";
-import Footer             from "@/components/layout/Footer";
-import AnnouncementBanner from "@/components/layout/AnnouncementBanner";
+import Providers from "@/components/layout/Providers";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -17,7 +14,8 @@ export const metadata: Metadata = {
   description: "AI-powered WhatsApp group chat analyser",
 };
 
-// Root layout — mounts sticky Navbar and offsets page content below it
+// Root layout — minimal shell. Each page/section brings its own chrome.
+// Marketing pages use <MarketingLayout>; app pages use their own navbars.
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -26,12 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} font-sans antialiased page-fade-in`}>
-        <Providers>
-          <AnnouncementBanner />
-          <Navbar />
-          <main className="pt-16">{children}</main>
-          <Footer />
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
