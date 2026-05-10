@@ -66,7 +66,7 @@ const SCREENS = [<Screen1 key={1} />, <Screen2 key={2} />, <Screen3 key={3} />];
 const STEPS = [
   { num: 1, title: "Open WhatsApp",    sub: "Go to your group chat on your phone" },
   { num: 2, title: "Tap Export Chat",  sub: "Group name → Export Chat → Without Media" },
-  { num: 3, title: "Share the .txt",   sub: "Send it to yourself, then upload here" },
+  { num: 3, title: "Share the file",    sub: "A .txt or .zip file will be saved. Both formats work — upload either one" },
 ];
 
 export default function ExportGuide({ onClose }: { onClose: () => void }) {

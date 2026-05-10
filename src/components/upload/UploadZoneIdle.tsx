@@ -87,7 +87,7 @@ export default function UploadZoneIdle({
 
         <span className="px-3 py-1 rounded-full text-xs"
           style={{ background: "#111E26", border: "1px solid #1A2E3A", color: "#8899AA" }}>
-          .txt files only
+          .txt or .zip files
         </span>
 
         {error && (

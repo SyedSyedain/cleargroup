@@ -5,9 +5,10 @@ import { motion } from "framer-motion";
 import UploadZoneIdle       from "./UploadZoneIdle";
 import UploadZoneUploaded   from "./UploadZoneUploaded";
 import UploadZoneProcessing from "./UploadZoneProcessing";
-import { parseWhatsAppChat } from "@/lib/parser";
-import { SAMPLE_CHAT }       from "@/lib/sampleChat";
-import type { ParsedChat }   from "@/types/chat";
+import { parseWhatsAppChat }   from "@/lib/parser";
+import { extractChatFromFile } from "@/lib/fileExtractor";
+import { SAMPLE_CHAT }         from "@/lib/sampleChat";
+import type { ParsedChat }     from "@/types/chat";
 
 export type UploadState = "idle" | "dragging" | "uploaded" | "processing";
 
@@ -38,31 +39,30 @@ export default function UploadZone({ onStepChange }: Props) {
     setTimeout(() => setShake(false), 500);
   }, []);
 
-  const accept = useCallback((f: File) => {
-    if (!f.name.toLowerCase().endsWith(".txt")) {
-      triggerError("Please upload a .txt file exported from WhatsApp");
+  const accept = useCallback(async (f: File) => {
+    const name = f.name.toLowerCase();
+    if (!name.endsWith(".txt") && !name.endsWith(".zip")) {
+      triggerError("Please upload a WhatsApp export file (.txt or .zip format)");
       return;
     }
     if (f.size > 50 * 1024 * 1024) {
       triggerError("File too large. Maximum 50MB.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      try {
-        const parsed = parseWhatsAppChat(text);
-        setParsedChat(parsed);
-        setFile(f);
-        setError("");
-        setStateAndStep("uploaded");
-      } catch {
-        triggerError(
-          "This doesn't look like a WhatsApp export. Please export your chat from WhatsApp and try again."
-        );
-      }
-    };
-    reader.readAsText(f, "utf-8");
+    try {
+      const text   = await extractChatFromFile(f);
+      const parsed = parseWhatsAppChat(text);
+      setParsedChat(parsed);
+      setFile(f);
+      setError("");
+      setStateAndStep("uploaded");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      // Surface specific extraction errors; use generic message for parse failures
+      const isExtractError = msg.startsWith("Could not find") || msg.startsWith("Could not open") || msg.startsWith("Please upload");
+      triggerError(isExtractError ? msg
+        : "This doesn't look like a WhatsApp export. Please export your chat from WhatsApp and try again.");
+    }
   }, [triggerError, setStateAndStep]);
 
   const loadSample = useCallback(() => {
@@ -105,7 +105,7 @@ export default function UploadZone({ onStepChange }: Props) {
 
   return (
     <>
-      <input ref={inputRef} type="file" accept=".txt" className="hidden" onChange={onFileChange} />
+      <input ref={inputRef} type="file" accept=".txt,.zip" className="hidden" onChange={onFileChange} />
       <motion.div
         animate={shake ? { x: [0, -10, 10, -10, 10, 0] } : { x: 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
