@@ -18,30 +18,28 @@ const columns: Column[] = [
 ];
 
 const statusStyle: Record<TaskStatus, string> = {
-  "OVERDUE":     "bg-red-500/20    text-red-400   border border-red-500/30",
-  "IN PROGRESS": "bg-amber-500/20  text-amber-400 border border-amber-500/30",
-  "DONE":        "bg-green-500/20  text-green-400 border border-green-500/30",
+  "OVERDUE":     "bg-red-500/25    text-red-400   border border-red-500/50",
+  "IN PROGRESS": "bg-amber-500/25  text-amber-400 border border-amber-500/50",
+  "DONE":        "bg-green-500/25  text-green-400 border border-green-500/50",
 };
 
-// Single task card with person avatar + task name + status badge
 function TaskCard({ task, color, initial }: { task: Task; color: string; initial: string }) {
   return (
-    <div className="bg-cg-bg rounded-lg p-3 border border-cg-border">
-      <div className="flex items-start gap-2 mb-2">
+    <div className="bg-[#0D0D16] rounded-lg p-3 border border-[#1E1E2E]">
+      <div className="flex items-start gap-2 mb-2.5">
         <div className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold shrink-0 mt-0.5"
           style={{ backgroundColor: color }}>
           {initial}
         </div>
         <span className="text-cg-text text-[11px] font-medium leading-snug">{task.name}</span>
       </div>
-      <span className={`inline-block text-[9px] font-bold px-2 py-0.5 rounded-full ${statusStyle[task.status]}`}>
+      <span className={`inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full ${statusStyle[task.status]}`}>
         {task.status}
       </span>
     </div>
   );
 }
 
-// One person's column with header and their task cards
 function TaskColumn({ col }: { col: Column }) {
   return (
     <div className="flex-1 min-w-[130px]">
@@ -61,7 +59,7 @@ function TaskColumn({ col }: { col: Column }) {
   );
 }
 
-// Floating mock dashboard — fades in, then continuously floats up/down
+// Floating mock dashboard — sea green pulsing glow, fades in then floats
 export default function HeroDashboardCard() {
   return (
     <motion.div
@@ -70,10 +68,17 @@ export default function HeroDashboardCard() {
       transition={{ duration: 0.8, delay: 1.1, ease: "easeOut" }}
       className="relative w-full max-w-[680px] mx-auto mt-10 pb-10"
     >
-      {/* Main card */}
-      <div className="animate-float rounded-card border border-cg-border bg-cg-surface shadow-[0_0_70px_rgba(99,102,241,0.18)] overflow-hidden">
-
-        {/* macOS-style window title bar */}
+      {/* Main card with sea green pulsing glow */}
+      <motion.div
+        className="animate-float rounded-card border border-[#0ABFBC]/30 bg-cg-surface overflow-hidden"
+        animate={{ boxShadow: [
+          "0 0 40px rgba(10,191,188,0.18)",
+          "0 0 90px rgba(10,191,188,0.40)",
+          "0 0 40px rgba(10,191,188,0.18)",
+        ]}}
+        transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+      >
+        {/* macOS-style title bar */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-cg-border bg-cg-bg">
           <div className="flex items-center gap-1.5">
             <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
@@ -91,7 +96,7 @@ export default function HeroDashboardCard() {
             <TaskColumn key={col.person} col={col} />
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* Floating badge — bottom left */}
       <motion.div

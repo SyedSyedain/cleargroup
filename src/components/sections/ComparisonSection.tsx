@@ -17,13 +17,14 @@ export default function ComparisonSection() {
   const isDragging   = useRef(false);
   const isInView     = useInView(sectionRef, { once: true, amount: 0.1 });
   const sliderPos    = useMotionValue(50);                           // percent 0–100
-  const leftWidth    = useTransform(sliderPos, (p) => `${p}%`);
+  // Invert: drag right → more dashboard (right panel); drag left → more WhatsApp (left panel)
+  const leftWidth    = useTransform(sliderPos, (p) => `${100 - p}%`);
 
-  // Hint — auto-slides 50→40→50 after 1 s (desktop only)
+  // Hint — auto-slides to reveal more dashboard side, then resets
   useEffect(() => {
     if (typeof window !== "undefined" && window.innerWidth < 768) return;
     const t = setTimeout(() => {
-      animate(sliderPos, 40, { duration: 0.45, ease: "easeInOut" });
+      animate(sliderPos, 65, { duration: 0.45, ease: "easeInOut" });
       setTimeout(() => animate(sliderPos, 50, { duration: 0.45, ease: "easeInOut" }), 500);
     }, 1000);
     return () => clearTimeout(t);
