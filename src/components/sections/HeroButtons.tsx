@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight, PlayCircle } from "lucide-react";
+import Link from "next/link";
 
 const fadeUp = {
   initial:  { opacity: 0, y: 20 },
@@ -17,15 +18,17 @@ export default function HeroButtons() {
       className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center"
     >
       {/* Primary: gradient + pulse glow + moving arrow */}
-      <motion.button
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        transition={{ duration: 0.2 }}
-        className="group relative flex items-center gap-2 px-8 py-4 rounded-button bg-gradient-to-r from-cg-primary to-cg-secondary text-white font-semibold text-base animate-button-pulse w-full sm:w-auto justify-center"
-      >
-        Upload your chat — it&apos;s free
-        <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
-      </motion.button>
+      <Link href="/upload">
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ duration: 0.2 }}
+          className="group relative flex items-center gap-2 px-8 py-4 rounded-button bg-gradient-to-r from-cg-primary to-cg-secondary text-white font-semibold text-base animate-button-pulse w-full sm:w-auto justify-center cursor-pointer"
+        >
+          Upload your chat — it&apos;s free
+          <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
+        </motion.div>
+      </Link>
 
       {/* Secondary: outlined, fills on hover */}
       <motion.button

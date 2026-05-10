@@ -24,7 +24,7 @@ export default function NavActions() {
       {/* Filled gradient get-started button */}
       <motion.div {...hoverScale}>
         <Link
-          href="/login"
+          href="/upload"
           className="flex items-center px-5 py-2.5 rounded-button bg-gradient-to-r from-cg-primary to-cg-secondary text-white text-sm font-medium transition-shadow duration-200 hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]"
         >
           Get started free

@@ -50,7 +50,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 Sign in with Google
               </button>
               <Link
-                href="/login"
+                href="/upload"
                 onClick={onClose}
                 className="w-full flex items-center justify-center px-5 py-2.5 rounded-button bg-gradient-to-r from-cg-primary to-cg-secondary text-white text-sm font-medium"
               >

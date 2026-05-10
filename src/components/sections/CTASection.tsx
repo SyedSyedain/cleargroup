@@ -2,6 +2,7 @@
 
 import { motion, type Variants } from "framer-motion";
 import { ArrowRight, UserX, Shield, Lock } from "lucide-react";
+import Link from "next/link";
 import AnimatedSection, { AnimatedItem } from "@/components/ui/AnimatedSection";
 
 // Arrow slides right on hover — driven by parent variant propagation
@@ -52,18 +53,20 @@ export default function CTASection() {
 
           {/* Primary CTA button */}
           <AnimatedItem>
-            <motion.button
-              variants={btnVariants}
-              initial="rest"
-              whileHover="hover"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 sm:px-12 py-4 sm:py-5 text-base sm:text-[17px] font-bold text-white rounded-button cursor-pointer animate-button-pulse mb-8"
-              style={{ background: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)" }}
-            >
-              Upload your chat — free forever
-              <motion.span variants={arrowVariants} className="flex items-center">
-                <ArrowRight className="w-5 h-5" />
-              </motion.span>
-            </motion.button>
+            <Link href="/upload">
+              <motion.div
+                variants={btnVariants}
+                initial="rest"
+                whileHover="hover"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 sm:px-12 py-4 sm:py-5 text-base sm:text-[17px] font-bold text-white rounded-button cursor-pointer animate-button-pulse mb-8"
+                style={{ background: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)" }}
+              >
+                Upload your chat — free forever
+                <motion.span variants={arrowVariants} className="flex items-center">
+                  <ArrowRight className="w-5 h-5" />
+                </motion.span>
+              </motion.div>
+            </Link>
           </AnimatedItem>
 
           {/* Trust badges */}
