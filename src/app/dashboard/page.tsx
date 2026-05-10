@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, Download, Share2 } from "lucide-react";
 import OverviewSection from "@/components/dashboard/OverviewSection";
+import TaskBoard       from "@/components/dashboard/TaskBoard";
 import type { AnalysisResult, AnalysisMetadata } from "@/types/analysis";
 
 const EMPTY_META: AnalysisMetadata = {
@@ -88,6 +89,10 @@ export default function DashboardPage() {
       </div>
 
       <OverviewSection analysis={analysis} metadata={meta} />
+
+      <div style={{ marginTop: 40 }}>
+        <TaskBoard tasks={analysis.tasks} />
+      </div>
 
     </div>
   );
