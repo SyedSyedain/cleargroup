@@ -1,36 +1,154 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ClearGroup
 
-## Getting Started
+**AI-powered WhatsApp group chat analyser** — turn your WhatsApp project group into a clean dashboard in 30 seconds.
 
-First, run the development server:
+---
+
+## Tech Stack
+
+| Layer       | Technology                             |
+|-------------|----------------------------------------|
+| Framework   | Next.js 14 (App Router)                |
+| Language    | TypeScript                             |
+| Styling     | Tailwind CSS + custom design tokens    |
+| Animations  | Framer Motion                          |
+| Icons       | Lucide React                           |
+| Auth        | NextAuth v4 (Google OAuth)             |
+| Deployment  | Vercel                                 |
+
+---
+
+## Local Development
+
+### 1. Prerequisites
+
+- Node.js ≥ 18
+- npm ≥ 9
+
+### 2. Clone & install
+
+```bash
+git clone <your-repo-url>
+cd cleargroup
+npm install
+```
+
+### 3. Environment variables
+
+Create a `.env.local` file in the project root:
+
+```env
+# NextAuth
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_secret_here
+
+# Google OAuth (from console.cloud.google.com)
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+```
+
+### 4. Run dev server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 5. Build for production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## Deploy to Vercel
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Option A — Vercel CLI (recommended)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+# 1. Install Vercel CLI globally
+npm install -g vercel
 
-## Deploy on Vercel
+# 2. Login to Vercel
+vercel login
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# 3. Deploy (first time — sets up the project)
+vercel
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# 4. Deploy to production
+vercel --prod
+```
+
+Follow the interactive prompts on first run:
+- **Set up and deploy**: Yes
+- **Which scope**: your Vercel account
+- **Link to existing project**: No (create new)
+- **Project name**: cleargroup (or anything you like)
+- **Directory**: `./` (current directory)
+
+### Option B — GitHub + Vercel Dashboard
+
+1. Push this repo to GitHub
+2. Go to [vercel.com/new](https://vercel.com/new)
+3. Import your GitHub repo
+4. Vercel auto-detects Next.js — click **Deploy**
+
+### Add environment variables on Vercel
+
+After deploying, go to:  
+**Vercel Dashboard → Project → Settings → Environment Variables**
+
+Add all the same keys from `.env.local`:
+- `NEXTAUTH_SECRET`
+- `NEXTAUTH_URL` → set to your production URL, e.g. `https://cleargroup.vercel.app`
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+
+Then **redeploy** for the env vars to take effect:
+
+```bash
+vercel --prod
+```
+
+---
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── layout.tsx          # Root layout (Navbar + Footer)
+│   ├── page.tsx            # Home page (all sections)
+│   └── globals.css         # Tailwind + custom keyframes
+├── components/
+│   ├── layout/             # Navbar, Footer, MobileMenu, Providers
+│   ├── sections/           # HeroSection, TrustBar, HowItWorks, FeaturesSection,
+│   │                       # ComparisonSection, CTASection + sub-panels
+│   └── ui/                 # AnimatedSection, AnimatedItem
+└── constants/
+    ├── index.ts            # APP_NAME, ROUTES, NAV_LINKS
+    └── animations.ts       # Shared Framer Motion Variants
+```
+
+---
+
+## Design Tokens
+
+| Token           | Value     | Usage                     |
+|-----------------|-----------|---------------------------|
+| `--cg-bg`       | `#0A0A0F` | Page background           |
+| `--cg-surface`  | `#111118` | Card / panel backgrounds  |
+| `--cg-border`   | `#1E1E2E` | Borders                   |
+| `--cg-primary`  | `#6366F1` | Indigo — primary actions  |
+| `--cg-secondary`| `#8B5CF6` | Violet — accents          |
+| `--cg-text`     | `#F8F8FF` | Primary text              |
+| `--cg-muted`    | `#9CA3AF` | Secondary / muted text    |
+
+---
+
+## License
+
+MIT

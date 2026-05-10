@@ -1,0 +1,95 @@
+"use client";
+
+import { Star, Quote } from "lucide-react";
+import AnimatedSection, { AnimatedItem } from "@/components/ui/AnimatedSection";
+
+interface Testimonial {
+  quote:  string;
+  name:   string;
+  detail: string;
+}
+
+const testimonials: Testimonial[] = [
+  {
+    quote:  "Our group had 2,300+ messages before the deadline. ClearGroup pulled out every task in under 10 seconds.",
+    name:   "Arjun M.",
+    detail: "B.Tech CSE · final-year capstone",
+  },
+  {
+    quote:  "I could finally see who was actually doing what. Saved us from a complete mess two days before submission.",
+    name:   "Priya S.",
+    detail: "MBA · operations team lead",
+  },
+  {
+    quote:  "Pasted the export and got a full breakdown — tasks, decisions, blockers. Used it as our official project log.",
+    name:   "Rahul K.",
+    detail: "M.Tech · research group",
+  },
+];
+
+const metrics = [
+  { value: "500+",  label: "chats analyzed in beta" },
+  { value: "4.8★",  label: "avg rating from testers" },
+  { value: "< 15s", label: "to get your dashboard"   },
+];
+
+// Individual quote card
+function QuoteCard({ quote, name, detail }: Testimonial) {
+  return (
+    <div className="bg-cg-surface border border-cg-border rounded-card p-6 flex flex-col gap-4 h-full">
+      <Quote className="w-5 h-5 text-cg-primary opacity-60 shrink-0" />
+      <p className="text-cg-text text-small leading-relaxed flex-1">&ldquo;{quote}&rdquo;</p>
+      <div>
+        <p className="text-cg-text text-small font-semibold">{name}</p>
+        <p className="text-cg-muted text-[11px] mt-0.5">{detail}</p>
+      </div>
+    </div>
+  );
+}
+
+// Social proof bar — star rating badge, three testimonials, modest metrics
+export default function TrustBar() {
+  return (
+    <section className="border-y border-cg-border bg-cg-bg py-12">
+      <div className="max-w-container mx-auto px-6">
+
+        {/* Star rating badge + label */}
+        <AnimatedSection className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 bg-cg-surface border border-cg-border rounded-full px-4 py-1.5 mb-3">
+            <span className="flex gap-0.5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star key={i} className="w-3 h-3 fill-[#F59E0B] text-[#F59E0B]" />
+              ))}
+            </span>
+            <span className="text-cg-muted text-[11px] font-medium">
+              4.8 / 5 &mdash; early beta testers
+            </span>
+          </div>
+          <p className="text-cg-muted text-small">
+            What students said after their first upload
+          </p>
+        </AnimatedSection>
+
+        {/* Three testimonial cards */}
+        <AnimatedSection stagger className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+          {testimonials.map((t) => (
+            <AnimatedItem key={t.name}>
+              <QuoteCard {...t} />
+            </AnimatedItem>
+          ))}
+        </AnimatedSection>
+
+        {/* Metric strip */}
+        <div className="flex flex-col sm:flex-row justify-center gap-6 sm:gap-16 pt-8 border-t border-cg-border">
+          {metrics.map((m) => (
+            <div key={m.label} className="flex flex-col items-center gap-0.5">
+              <span className="text-xl font-bold text-cg-text tabular-nums">{m.value}</span>
+              <span className="text-cg-muted text-[11px] text-center">{m.label}</span>
+            </div>
+          ))}
+        </div>
+
+      </div>
+    </section>
+  );
+}

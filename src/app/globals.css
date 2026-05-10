@@ -4,7 +4,6 @@
 
 @layer base {
   :root {
-    /* shadcn tokens — mapped to the ClearGroup dark theme */
     --background:             240 20% 5%;
     --foreground:             240 100% 99%;
     --card:                   240 18% 8%;
@@ -26,7 +25,6 @@
     --ring:                   239 84% 67%;
     --radius:                 0.5rem;
 
-    /* ClearGroup design system — use these via Tailwind cg-* classes */
     --cg-bg:        #0A0A0F;
     --cg-surface:   #111118;
     --cg-border:    #1E1E2E;
@@ -50,30 +48,61 @@
   html { scroll-behavior: smooth; }
 }
 
-/* ── Hero background ─────────────────────────────────── */
+/* ── Hero background ──────────────────────────────────── */
 .hero-radial-glow {
-  background: radial-gradient(ellipse at 50% 0%, rgba(99, 102, 241, 0.12) 0%, transparent 65%);
+  background: radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.12) 0%, transparent 65%);
 }
 
-/* ── Dashboard card float ────────────────────────────── */
+/* ── Dashboard card float ─────────────────────────────── */
 @keyframes float {
   0%, 100% { transform: translateY(0px);   }
   50%       { transform: translateY(-10px); }
 }
 .animate-float { animation: float 3s ease-in-out infinite; }
 
-/* ── Background blobs ────────────────────────────────── */
+/* ── Background blobs ─────────────────────────────────── */
 @keyframes blob {
-  0%, 100% { transform: translate(0, 0)      scale(1);    }
-  33%       { transform: translate(30px, -30px) scale(1.06); }
-  66%       { transform: translate(-20px, 20px) scale(0.95); }
+  0%, 100% { transform: translate(0,0)        scale(1);    }
+  33%       { transform: translate(30px,-30px) scale(1.06); }
+  66%       { transform: translate(-20px,20px) scale(0.95); }
 }
 .animate-blob       { animation: blob 9s  ease-in-out infinite; }
 .animate-blob-delay { animation: blob 11s ease-in-out infinite; animation-delay: -4s; }
 
-/* ── Primary button pulse glow ───────────────────────── */
+/* ── Primary button pulse glow ────────────────────────── */
 @keyframes button-pulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
-  50%       { box-shadow: 0 0 40px rgba(99, 102, 241, 0.6), 0 0 80px rgba(99, 102, 241, 0.15); }
+  0%, 100% { box-shadow: 0 0 20px rgba(99,102,241,0.30); }
+  50%       { box-shadow: 0 0 40px rgba(99,102,241,0.60), 0 0 80px rgba(99,102,241,0.15); }
 }
 .animate-button-pulse { animation: button-pulse 3s ease-in-out infinite; }
+
+/* ── Trust bar college name ticker (mobile) ───────────── */
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-ticker { animation: ticker 28s linear infinite; }
+
+/* ── How it works — scanning shimmer (step 2) ─────────── */
+@keyframes scan {
+  0%   { transform: translateX(-150%); }
+  100% { transform: translateX(350%);  }
+}
+.animate-scan { animation: scan 1.8s ease-in-out infinite; }
+
+/* ── Page load fade-in ────────────────────────────────── */
+@keyframes page-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.page-fade-in { animation: page-fade-in 0.4s ease-out forwards; }
+
+/* ── How it works — connector dash flow (SVG) ─────────── */
+@keyframes dash-flow {
+  from { stroke-dashoffset: 18; }
+  to   { stroke-dashoffset: 0;  }
+}
+.animate-dash-flow {
+  stroke-dashoffset: 18;
+  animation: dash-flow 0.7s linear infinite;
+}

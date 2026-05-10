@@ -19,14 +19,14 @@ export const staggerItemVariants: Variants = {
 };
 
 // Button hover — slight scale-up on hover, scale-down on press
-export const buttonHoverVariants = {
+export const buttonHoverVariants: Variants = {
   rest:  { scale: 1 },
   hover: { scale: 1.02, transition: { duration: 0.2, ease: "easeInOut" } },
   tap:   { scale: 0.98 },
 };
 
 // Card hover — lifts the card 4px on hover
-export const cardHoverVariants = {
+export const cardHoverVariants: Variants = {
   rest:  { y: 0 },
   hover: { y: -4, transition: { duration: 0.3, ease: "easeOut" } },
 };
