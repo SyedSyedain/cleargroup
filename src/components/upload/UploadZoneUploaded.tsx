@@ -12,6 +12,7 @@ interface Props {
   parsedChat:  ParsedChat;
   onRemove:    () => void;
   onAnalyze:   () => void;
+  apiError?:   string;
 }
 
 const fmt = (b: number) =>
@@ -23,7 +24,7 @@ const fadeUp = (delay: number) => ({
   transition: { delay, duration: 0.4, ease: "easeOut" } as Transition,
 });
 
-export default function UploadZoneUploaded({ file, parsedChat, onRemove, onAnalyze }: Props) {
+export default function UploadZoneUploaded({ file, parsedChat, onRemove, onAnalyze, apiError }: Props) {
   const [range,       setRange]       = useState("last3d");
   const [customStart, setCustomStart] = useState<Date | undefined>();
   const [customEnd,   setCustomEnd]   = useState<Date | undefined>();
@@ -107,6 +108,16 @@ export default function UploadZoneUploaded({ file, parsedChat, onRemove, onAnaly
       </motion.div>
 
       <div className="flex-1" />
+
+      {/* API error card — shown when a previous analysis attempt failed */}
+      {apiError && (
+        <motion.div {...fadeUp(0.45)}
+          className="flex items-center gap-3 px-4 py-3 rounded-[10px]"
+          style={{ background: "#1A0A0A", border: "1px solid #3A1A1A" }}>
+          <span style={{ fontSize: 16 }}>⚠️</span>
+          <p className="text-sm leading-snug" style={{ color: "#FF6B6B" }}>{apiError}</p>
+        </motion.div>
+      )}
 
       {/* Analyze button */}
       <motion.div {...fadeUp(0.5)}>
