@@ -1,12 +1,11 @@
 "use client";
 
 /**
- * Reads the prepared chat data from sessionStorage, calls /api/analyze,
- * stores the result back into sessionStorage, and signals completion.
- * The 30-second AbortController covers the timeout requirement.
+ * Reads prepared chat data from sessionStorage, calls /api/analyze,
+ * stores the result, and signals completion or a typed error.
  */
-import { useState, useEffect, useRef } from "react";
-import type { AnalysisResult, AnalysisMetadata } from "@/types/analysis";
+import { useState, useEffect, useRef, useCallback } from "react";
+import type { AnalysisResult, AnalysisMetadata, ErrorType } from "@/types/analysis";
 
 interface StoredStats {
   totalMessages: number;
@@ -19,19 +18,32 @@ interface ApiResponse {
   analysis?: AnalysisResult;
   metadata?: AnalysisMetadata;
   error?:    string;
+  message?:  string;
 }
 
-export function useAnalysis(onError: (msg: string) => void) {
-  const [apiDone, setApiDone] = useState(false);
-  // Stable ref avoids stale-closure issues without adding onError to the dep array
+type OnError = (type: ErrorType, message: string) => void;
+
+function mapError(res: Response, data: ApiResponse): [ErrorType, string] {
+  if (res.status === 429)                             return ["rate_limit",    data.message ?? "Too many requests. Please wait a minute and try again."];
+  if (res.status === 400 && data.error === "Chat too short") return ["chat_too_short", data.message ?? "Not enough messages to analyze."];
+  return ["api_failed", data.error ?? "Analysis failed. Please try again."];
+}
+
+export function useAnalysis(onError: OnError) {
+  const [apiDone,     setApiDone]     = useState(false);
+  const [retryCount,  setRetryCount]  = useState(0);
   const onErrorRef = useRef(onError);
   useEffect(() => { onErrorRef.current = onError; }, [onError]);
+
+  const retry = useCallback(() => {
+    setApiDone(false);
+    setRetryCount((c) => c + 1);
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
     const timer      = setTimeout(() => controller.abort(), 30_000);
 
-    // Data was written to sessionStorage by UploadZoneUploaded.handleAnalyze()
     const chatData = sessionStorage.getItem("chatData") ?? "";
     let stats: StoredStats = { totalMessages: 0, participants: [], dateRange: { start: "", end: "" } };
     try {
@@ -61,21 +73,22 @@ export function useAnalysis(onError: (msg: string) => void) {
           sessionStorage.setItem("participants",   JSON.stringify(stats.participants));
           setApiDone(true);
         } else {
-          onErrorRef.current(data.error ?? "Analysis failed. Please try again.");
+          const [type, msg] = mapError(res, data);
+          onErrorRef.current(type, msg);
         }
       })
       .catch((err: Error) => {
         clearTimeout(timer);
-        onErrorRef.current(
-          err.name === "AbortError"
-            ? "Analysis is taking too long. Please try with a shorter date range."
-            : "Analysis failed. Please try again."
-        );
+        if (err.name === "AbortError") {
+          onErrorRef.current("timeout", "Analysis is taking longer than expected. Try selecting fewer messages.");
+        } else {
+          onErrorRef.current("network_error", "Connection failed. Check your internet and try again.");
+        }
       });
 
     return () => { controller.abort(); clearTimeout(timer); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // intentionally runs once on mount — reads from sessionStorage, not React state
+  }, [retryCount]); // re-runs on retry; reads from sessionStorage so no other deps needed
 
-  return { apiDone };
+  return { apiDone, retry };
 }

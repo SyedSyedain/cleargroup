@@ -6,8 +6,9 @@ import { useRouter } from "next/navigation";
 import { cleanNameForDisplay } from "@/lib/parser";
 import { useAnalysis } from "@/hooks/useAnalysis";
 import type { ParsedChat } from "@/types/chat";
+import type { ErrorType }  from "@/types/analysis";
 
-interface Props { parsedChat: ParsedChat; onError: (msg: string) => void; }
+interface Props { parsedChat: ParsedChat; onError: (type: ErrorType, message: string) => void; }
 
 const PHASE1_MS = 8_000;
 const STEPS = [

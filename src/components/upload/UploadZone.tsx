@@ -9,6 +9,7 @@ import { parseWhatsAppChat }   from "@/lib/parser";
 import { extractChatFromFile } from "@/lib/fileExtractor";
 import { SAMPLE_CHAT }         from "@/lib/sampleChat";
 import type { ParsedChat }     from "@/types/chat";
+import type { AnalysisError, ErrorType } from "@/types/analysis";
 
 export type UploadState = "idle" | "dragging" | "uploaded" | "processing";
 
@@ -22,7 +23,7 @@ export default function UploadZone({ onStepChange }: Props) {
   const [parsedChat,   setParsedChat]   = useState<ParsedChat | null>(null);
   const [error,        setError]        = useState("");
   const [shake,        setShake]        = useState(false);
-  const [processError, setProcessError] = useState("");
+  const [processError, setProcessError] = useState<AnalysisError | null>(null);
   const inputRef  = useRef<HTMLInputElement>(null);
   const dragCount = useRef(0);
 
@@ -93,17 +94,19 @@ export default function UploadZone({ onStepChange }: Props) {
   };
   const onBrowse  = useCallback(() => inputRef.current?.click(), []);
   const onRemove  = () => {
-    setFile(null); setParsedChat(null); setError(""); setProcessError("");
+    setFile(null); setParsedChat(null); setError(""); setProcessError(null);
     setStateAndStep("idle");
     if (inputRef.current) inputRef.current.value = "";
   };
   const onAnalyze = useCallback(() => {
-    setProcessError("");
+    setProcessError(null);
     setStateAndStep("processing");
   }, [setStateAndStep]);
 
-  const onProcessError = useCallback((msg: string) => {
-    setProcessError(msg);
+  const onDismissError = useCallback(() => setProcessError(null), []);
+
+  const onProcessError = useCallback((type: ErrorType, message: string) => {
+    setProcessError({ type, message });
     setStateAndStep("uploaded");
   }, [setStateAndStep]);
 
@@ -111,7 +114,8 @@ export default function UploadZone({ onStepChange }: Props) {
     return <UploadZoneProcessing parsedChat={parsedChat} onError={onProcessError} />;
   if (state === "uploaded" && file && parsedChat)
     return <UploadZoneUploaded file={file} parsedChat={parsedChat}
-              onRemove={onRemove} onAnalyze={onAnalyze} apiError={processError} />;
+              onRemove={onRemove} onAnalyze={onAnalyze}
+              apiError={processError} onDismissError={onDismissError} />;
 
   return (
     <>

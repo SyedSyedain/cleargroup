@@ -79,3 +79,16 @@ export interface StoredAnalysis {
   result:   AnalysisResult;
   metadata: AnalysisMetadata;
 }
+
+/** Typed error variants returned by the /api/analyze route and useAnalysis hook. */
+export type ErrorType =
+  | "api_failed"
+  | "chat_too_short"
+  | "rate_limit"
+  | "network_error"
+  | "timeout";
+
+export interface AnalysisError {
+  type:    ErrorType;
+  message: string;
+}

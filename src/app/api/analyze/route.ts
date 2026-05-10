@@ -57,6 +57,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "formattedChat is required" }, { status: 400 });
   }
 
+  // Case A — too few messages to analyze
+  if (formattedChat.length < 100) {
+    return NextResponse.json({
+      error:   "Chat too short",
+      message: "Please select a longer date range. Not enough messages found to analyze.",
+    }, { status: 400 });
+  }
+
   // Truncate if over Gemini's safe limit
   const MAX = 900_000;
   const chat = formattedChat.length > MAX
@@ -76,9 +84,17 @@ export async function POST(req: NextRequest) {
       }),
     });
 
+    // Case B — Gemini rate limit
+    if (geminiRes.status === 429) {
+      return NextResponse.json({
+        error:   "Rate limit reached",
+        message: "Too many requests. Please wait a minute and try again.",
+      }, { status: 429 });
+    }
+
     const geminiData = (await geminiRes.json()) as GeminiResponse;
 
-    // Surface Gemini-level errors
+    // Surface other Gemini-level errors
     if (geminiData.error) {
       console.error("[analyze] Gemini error:", geminiData.error);
       return NextResponse.json(
@@ -94,13 +110,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "AI returned empty response" }, { status: 500 });
     }
 
-    // Parse the JSON Gemini returned
+    // Case C — parse Gemini JSON; fall back to regex extraction
     let analysis: AnalysisResult;
     try {
       analysis = JSON.parse(rawText) as AnalysisResult;
     } catch {
-      console.error("[analyze] JSON parse failed. Raw text:", rawText.slice(0, 200));
-      return NextResponse.json({ error: "AI returned invalid response" }, { status: 500 });
+      const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          analysis = JSON.parse(jsonMatch[0]) as AnalysisResult;
+        } catch {
+          console.error("[analyze] Regex JSON extraction failed. Raw:", rawText.slice(0, 200));
+          return NextResponse.json({ error: "AI returned invalid response" }, { status: 500 });
+        }
+      } else {
+        console.error("[analyze] No JSON found in response. Raw:", rawText.slice(0, 200));
+        return NextResponse.json({ error: "AI returned invalid response" }, { status: 500 });
+      }
+    }
+
+    // Case D — required shape check
+    if (!Array.isArray(analysis.tasks)) {
+      console.error("[analyze] Missing tasks array in parsed response");
+      return NextResponse.json({ error: "Invalid AI response" }, { status: 500 });
     }
 
     const metadata: AnalysisMetadata = {
