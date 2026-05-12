@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { buildAnalysisPrompt } from "@/lib/analysisPrompt";
 import type { AnalysisResult, AnalysisMetadata } from "@/types/analysis";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 interface RequestStats {
   totalMessages: number;
@@ -22,7 +22,7 @@ interface GeminiResponse  {
   error?:      { code: number; message: string; status: string };
 }
 
-// ── Gemini config ─────────────────────────────────────────────────────────────
+// â”€â”€ Gemini config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const GEMINI_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
@@ -34,7 +34,7 @@ const GENERATION_CONFIG = {
   responseMimeType:  "application/json",
 } as const;
 
-// ── Route handler ─────────────────────────────────────────────────────────────
+// â”€â”€ Route handler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function POST(req: NextRequest) {
   // Guard: API key must be configured
@@ -57,14 +57,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "formattedChat is required" }, { status: 400 });
   }
 
-  // Case A — too few messages to analyze
-  if (formattedChat.length < 100) {
-    return NextResponse.json({
-      error:   "Chat too short",
-      message: "Please select a longer date range. Not enough messages found to analyze.",
-    }, { status: 400 });
-  }
-
   // Truncate if over Gemini's safe limit
   const MAX = 900_000;
   const chat = formattedChat.length > MAX
@@ -84,7 +76,7 @@ export async function POST(req: NextRequest) {
       }),
     });
 
-    // Case B — Gemini rate limit
+    // Case B â€” Gemini rate limit
     if (geminiRes.status === 429) {
       return NextResponse.json({
         error:   "Rate limit reached",
@@ -110,7 +102,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "AI returned empty response" }, { status: 500 });
     }
 
-    // Case C — parse Gemini JSON; fall back to regex extraction
+    // Case C â€” parse Gemini JSON; fall back to regex extraction
     let analysis: AnalysisResult;
     try {
       analysis = JSON.parse(rawText) as AnalysisResult;
@@ -129,7 +121,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Case D — required shape check
+    // Case D â€” required shape check
     if (!Array.isArray(analysis.tasks)) {
       console.error("[analyze] Missing tasks array in parsed response");
       return NextResponse.json({ error: "Invalid AI response" }, { status: 500 });
@@ -152,3 +144,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+

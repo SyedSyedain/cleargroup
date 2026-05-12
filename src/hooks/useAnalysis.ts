@@ -19,6 +19,7 @@ interface ApiResponse {
   metadata?: AnalysisMetadata;
   error?:    string;
   message?:  string;
+  details?:  string;
 }
 
 type OnError = (type: ErrorType, message: string) => void;
@@ -26,7 +27,7 @@ type OnError = (type: ErrorType, message: string) => void;
 function mapError(res: Response, data: ApiResponse): [ErrorType, string] {
   if (res.status === 429)                             return ["rate_limit",    data.message ?? "Too many requests. Please wait a minute and try again."];
   if (res.status === 400 && data.error === "Chat too short") return ["chat_too_short", data.message ?? "Not enough messages to analyze."];
-  return ["api_failed", data.error ?? "Analysis failed. Please try again."];
+  return ["api_failed", data.details ?? data.message ?? data.error ?? "Analysis failed. Please try again."];
 }
 
 export function useAnalysis(onError: OnError) {
