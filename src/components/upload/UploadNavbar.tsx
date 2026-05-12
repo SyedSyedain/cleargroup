@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Zap } from "lucide-react";
+import SignInButton from "@/components/auth/SignInButton";
 
 // Minimal 56px navbar for the upload flow — no landing nav clutter
 export default function UploadNavbar() {
@@ -19,12 +20,7 @@ export default function UploadNavbar() {
       </Link>
 
       {/* Sign in — sea green text button */}
-      <button
-        className="text-sm font-medium transition-colors duration-150 hover:text-white"
-        style={{ color: "#0ABFBC" }}
-      >
-        Sign in
-      </button>
+      <SignInButton compact />
     </nav>
   );
 }
