@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { ChevronDown, User } from "lucide-react";
 
@@ -58,7 +59,13 @@ export default function SignInButton({ compact = false }: Props) {
         }}
       >
         {session.user.image ? (
-          <img src={session.user.image} alt={session.user.name ?? "User"} className="w-7 h-7 rounded-full object-cover" />
+          <Image
+            src={session.user.image}
+            alt={session.user.name ?? "User"}
+            width={28}
+            height={28}
+            className="w-7 h-7 rounded-full object-cover"
+          />
         ) : (
           <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: "#0ABFBC", color: "#060B0F" }}>
             <User size={14} />
