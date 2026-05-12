@@ -12,9 +12,10 @@ interface Props {
   tasks:     Task[];   // filtered tasks to display
   allTasks:  Task[];   // all tasks for this person (for progress bar)
   onAddTask: (task: Task) => void;
+  highlighted?: boolean;
 }
 
-export default function PersonColumn({ name, tasks, allTasks, onAddTask }: Props) {
+export default function PersonColumn({ name, tasks, allTasks, onAddTask, highlighted = false }: Props) {
   const [adding,  setAdding]  = useState(false);
   const [newTask, setNewTask] = useState("");
 
@@ -64,7 +65,8 @@ export default function PersonColumn({ name, tasks, allTasks, onAddTask }: Props
 
       {/* Column body */}
       <div style={{ background: "#0C1419", border: "1px solid #1A2E3A",
-        borderRadius: 12, padding: 16, minHeight: 200 }}>
+        borderRadius: 12, padding: 16, minHeight: 200,
+        boxShadow: highlighted ? "0 0 0 1px #0ABFBC inset, 0 12px 24px rgba(10,191,188,0.15)" : "none" }}>
 
         <AnimatePresence mode="popLayout">
           {tasks.length > 0

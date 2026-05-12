@@ -16,7 +16,12 @@ const FILTERS: { id: Filter; label: string }[] = [
   { id: "overdue",     label: "Overdue"     },
 ];
 
-export default function TaskBoard({ tasks: initial }: { tasks: Task[] }) {
+interface TaskBoardProps {
+  tasks: Task[];
+  highlightAssignee?: string | null;
+}
+
+export default function TaskBoard({ tasks: initial, highlightAssignee = null }: TaskBoardProps) {
   const [filter,     setFilter]     = useState<Filter>("all");
   const [localTasks, setLocalTasks] = useState<Task[]>([]);
 
@@ -76,6 +81,7 @@ export default function TaskBoard({ tasks: initial }: { tasks: Task[] }) {
                 tasks={filtered.filter((t) => t.assignee === name)}
                 allTasks={allTasks.filter((t) => t.assignee === name)}
                 onAddTask={addTask}
+                highlighted={Boolean(highlightAssignee) && name.toLowerCase() === highlightAssignee?.toLowerCase()}
               />
             </motion.div>
           ))}
