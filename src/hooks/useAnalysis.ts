@@ -43,14 +43,20 @@ export function useAnalysis(onError: OnError) {
 
   useEffect(() => {
     const controller = new AbortController();
-    const timer      = setTimeout(() => controller.abort(), 30_000);
-
     const chatData = sessionStorage.getItem("chatData") ?? "";
     let stats: StoredStats = { totalMessages: 0, participants: [], dateRange: { start: "", end: "" } };
     try {
       const raw = sessionStorage.getItem("chatStats");
       if (raw) stats = JSON.parse(raw) as StoredStats;
     } catch { /* keep defaults */ }
+
+    // Allow larger chats enough time to finish model inference.
+    // 60-120s window based on selected message volume.
+    const timeoutMs = Math.min(
+      120_000,
+      Math.max(60_000, 45_000 + stats.totalMessages * 250)
+    );
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
 
     fetch("/api/analyze", {
       method:  "POST",
@@ -81,7 +87,10 @@ export function useAnalysis(onError: OnError) {
       .catch((err: Error) => {
         clearTimeout(timer);
         if (err.name === "AbortError") {
-          onErrorRef.current("timeout", "Analysis is taking longer than expected. Try selecting fewer messages.");
+          onErrorRef.current(
+            "timeout",
+            "Analysis is taking longer than expected. Please wait and retry, or reduce the date range."
+          );
         } else {
           onErrorRef.current("network_error", "Connection failed. Check your internet and try again.");
         }
