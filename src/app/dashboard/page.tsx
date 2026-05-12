@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -20,6 +20,7 @@ import {
   Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 import OverviewSection from "@/components/dashboard/OverviewSection";
 import TaskBoard from "@/components/dashboard/TaskBoard";
 import DecisionLog from "@/components/dashboard/DecisionLog";
@@ -29,6 +30,8 @@ import OpenQuestions from "@/components/dashboard/OpenQuestions";
 import ParticipationChart from "@/components/dashboard/ParticipationChart";
 import AskAI from "@/components/dashboard/AskAI";
 import NudgeModal from "@/components/dashboard/NudgeModal";
+import MembersPanel from "@/components/dashboard/MembersPanel";
+import Toast, { type ToastItem } from "@/components/ui/Toast";
 import type { AnalysisResult, AnalysisMetadata, Blocker } from "@/types/analysis";
 
 interface SectionProps {
@@ -36,6 +39,14 @@ interface SectionProps {
   title: string;
   icon: LucideIcon;
   children: ReactNode;
+}
+
+interface ProjectRow {
+  id: string;
+  owner_id: string | null;
+  invite_code: string;
+  analysis_result: AnalysisResult;
+  chat_stats: AnalysisMetadata;
 }
 
 const EMPTY_META: AnalysisMetadata = { messagesAnalyzed: 0, participants: [], analyzedAt: new Date().toISOString() };
@@ -88,64 +99,80 @@ function InviteBanner({ inviteCode, copyingCode, copyingLink, onCopyCode, onCopy
   onShareWhatsApp: () => void;
 }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
-      className="mt-4 rounded-xl px-6 py-4 flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:justify-between"
-      style={{ background: "linear-gradient(135deg, #0ABFBC15, #06D6A008)", border: "1px solid #0ABFBC30" }}
-    >
+    <motion.div initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="mt-4 rounded-xl px-6 py-4 flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:justify-between" style={{ background: "linear-gradient(135deg, #0ABFBC15, #06D6A008)", border: "1px solid #0ABFBC30" }}>
       <div className="flex items-start gap-3">
         <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "#0ABFBC20" }}><Users size={18} style={{ color: "#0ABFBC" }} /></div>
-        <div>
-          <p className="text-white font-medium">Share with your team</p>
-          <p style={{ color: "#7A9BAD", fontSize: 13 }}>Team members can view tasks and updates</p>
-        </div>
+        <div><p className="text-white font-medium">Share with your team</p><p style={{ color: "#7A9BAD", fontSize: 13 }}>Team members can view tasks and updates</p></div>
       </div>
-
       <div className="rounded-[10px] px-6 py-3 min-w-[240px] text-center" style={{ background: "#060B0F", border: "1px solid #0ABFBC" }}>
-        {inviteCode ? (
-          <p className="font-bold" style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: 28, letterSpacing: "0.15em", color: "#0ABFBC" }}>{inviteCode}</p>
-        ) : (
-          <div className="h-10 w-48 rounded animate-pulse mx-auto" style={{ background: "#111E26" }} />
-        )}
+        {inviteCode ? <p className="font-bold" style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: 28, letterSpacing: "0.15em", color: "#0ABFBC" }}>{inviteCode}</p> : <div className="h-10 w-48 rounded animate-pulse mx-auto" style={{ background: "#111E26" }} />}
       </div>
-
       <div className="flex items-center gap-2 flex-wrap">
-        <button onClick={() => void onCopyCode()} disabled={!inviteCode} className="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2" style={{ border: "1px solid #0ABFBC", color: "#0ABFBC", background: "transparent" }}>
-          <Copy size={14} /> {copyingCode ? "✓ Copied!" : "Copy code"}
-        </button>
-        <button onClick={() => void onCopyLink()} disabled={!inviteCode} className="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2" style={{ border: "1px solid #1A2E3A", color: "#E8F4F8", background: "#111E26" }}>
-          <Share2 size={14} /> {copyingLink ? "✓ Copied!" : "Share link"}
-        </button>
-        <button onClick={onShareWhatsApp} disabled={!inviteCode} className="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2" style={{ border: "1px solid #1A2E3A", color: "#E8F4F8", background: "#111E26" }}>
-          <MessageCircle size={14} /> WhatsApp
-        </button>
+        <button onClick={() => void onCopyCode()} disabled={!inviteCode} className="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2" style={{ border: "1px solid #0ABFBC", color: "#0ABFBC", background: "transparent" }}><Copy size={14} /> {copyingCode ? "✓ Copied!" : "Copy code"}</button>
+        <button onClick={() => void onCopyLink()} disabled={!inviteCode} className="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2" style={{ border: "1px solid #1A2E3A", color: "#E8F4F8", background: "#111E26" }}><Share2 size={14} /> {copyingLink ? "✓ Copied!" : "Share link"}</button>
+        <button onClick={onShareWhatsApp} disabled={!inviteCode} className="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2" style={{ border: "1px solid #1A2E3A", color: "#E8F4F8", background: "#111E26" }}><MessageCircle size={14} /> WhatsApp</button>
       </div>
     </motion.div>
   );
 }
 
 export default function DashboardPage() {
-  const [memberName, setMemberName] = useState<string | null>(null);
-
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [metadata, setMetadata] = useState<AnalysisMetadata>(EMPTY_META);
   const [hasData, setHasData] = useState<boolean | null>(null);
   const [selectedBlocker, setSelectedBlocker] = useState<Blocker | null>(null);
   const [inviteCode, setInviteCode] = useState<string | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
+  const [ownerId, setOwnerId] = useState<string | null>(null);
   const [projectSaved, setProjectSaved] = useState(false);
   const [copyingCode, setCopyingCode] = useState(false);
   const [copyingLink, setCopyingLink] = useState(false);
+  const [memberName, setMemberName] = useState<string | null>(null);
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
 
-  useEffect(() => {
-    const member = new URLSearchParams(window.location.search).get("member");
-    setMemberName(member);
+  const pushToast = useCallback((message: string, tone: "success" | "error") => {
+    setToasts((prev) => [...prev, { id: `${Date.now()}-${Math.random()}`, message, tone }]);
+  }, []);
+
+  const closeToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
   useEffect(() => {
     const started = Date.now();
+    const url = new URLSearchParams(window.location.search);
+    const projectIdFromUrl = url.get("project");
+    const memberNameFromUrl = url.get("member");
+
+    if (memberNameFromUrl) {
+      sessionStorage.setItem("memberName", memberNameFromUrl);
+      setMemberName(memberNameFromUrl);
+    } else {
+      setMemberName(sessionStorage.getItem("memberName"));
+    }
+
+    const loadProjectFromDatabase = async (id: string) => {
+      const { data } = await supabase.from("projects").select("*").eq("id", id).single<ProjectRow>();
+      if (data) {
+        setAnalysis(data.analysis_result);
+        setMetadata(data.chat_stats || EMPTY_META);
+        setProjectId(id);
+        setOwnerId(data.owner_id);
+        setProjectSaved(true);
+        const code = sessionStorage.getItem("inviteCode") || data.invite_code || "";
+        if (code) setInviteCode(code);
+      } else {
+        setHasData(false);
+      }
+      const wait = Math.max(500 - (Date.now() - started), 0);
+      window.setTimeout(() => setHasData(Boolean(data)), wait);
+    };
+
+    if (projectIdFromUrl) {
+      void loadProjectFromDatabase(projectIdFromUrl);
+      return;
+    }
+
     const analysisData = sessionStorage.getItem("analysisResult");
     const metaData = sessionStorage.getItem("chatStats");
     const savedCode = sessionStorage.getItem("inviteCode");
@@ -194,16 +221,16 @@ export default function DashboardPage() {
           setProjectSaved(true);
           sessionStorage.setItem("inviteCode", data.inviteCode);
           sessionStorage.setItem("projectId", data.projectId);
+          pushToast(`✓ Project saved • Share code: ${data.inviteCode}`, "success");
         }
       };
       void saveProjectToDatabase();
     }
-  }, [analysis, metadata, projectSaved]);
+  }, [analysis, metadata, projectSaved, pushToast]);
 
   useEffect(() => {
     if (!hasData) return;
-
-    const ids = ["overview", "tasks", "decisions", "blockers", "deadlines", "questions", "participation", "askai"];
+    const ids = ["overview", "tasks", "decisions", "blockers", "deadlines", "questions", "participation", "askai", "members"];
     const visibility = new Map<string, number>();
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => visibility.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0));
@@ -215,7 +242,6 @@ export default function DashboardPage() {
       const el = document.getElementById(id);
       if (el) observer.observe(el);
     });
-
     return () => observer.disconnect();
   }, [hasData]);
 
@@ -248,25 +274,11 @@ export default function DashboardPage() {
   };
 
   if (hasData === null) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-3" style={{ color: "#E8F4F8" }}>
-        <Loader2 className="animate-spin" size={34} style={{ color: "#0ABFBC" }} />
-        <p className="text-sm" style={{ color: "#7A9BAD" }}>Loading your analysis...</p>
-      </div>
-    );
+    return <div className="min-h-screen flex flex-col items-center justify-center gap-3" style={{ color: "#E8F4F8" }}><Loader2 className="animate-spin" size={34} style={{ color: "#0ABFBC" }} /><p className="text-sm" style={{ color: "#7A9BAD" }}>Loading your analysis...</p></div>;
   }
 
   if (!hasData || !analysis) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-3" style={{ minHeight: "100vh" }}>
-        <div className="flex items-center justify-center rounded-full" style={{ width: 64, height: 64, background: "#1A1200", border: "1px solid #5A4000" }}>
-          <AlertTriangle size={28} style={{ color: "#F59E0B" }} />
-        </div>
-        <p className="font-bold text-white text-xl">No analysis found</p>
-        <p className="text-sm" style={{ color: "#8899AA" }}>Please upload and analyze a WhatsApp chat first</p>
-        <Link href="/upload" className="flex items-center justify-center font-semibold rounded-[10px]" style={{ marginTop: 8, padding: "10px 24px", fontSize: 14, background: "linear-gradient(135deg,#0ABFBC,#06D6A0)", color: "#060B0F" }}>Go to Upload</Link>
-      </div>
-    );
+    return <div className="flex flex-col items-center justify-center gap-3" style={{ minHeight: "100vh" }}><div className="flex items-center justify-center rounded-full" style={{ width: 64, height: 64, background: "#1A1200", border: "1px solid #5A4000" }}><AlertTriangle size={28} style={{ color: "#F59E0B" }} /></div><p className="font-bold text-white text-xl">No analysis found</p><p className="text-sm" style={{ color: "#8899AA" }}>Please upload and analyze a WhatsApp chat first</p><Link href="/upload" className="flex items-center justify-center font-semibold rounded-[10px]" style={{ marginTop: 8, padding: "10px 24px", fontSize: 14, background: "linear-gradient(135deg,#0ABFBC,#06D6A0)", color: "#060B0F" }}>Go to Upload</Link></div>;
   }
 
   const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -279,47 +291,33 @@ export default function DashboardPage() {
           <p className="mt-1 text-sm" style={{ color: "#8899AA" }}>Analyzed {metadata.messagesAnalyzed.toLocaleString()} messages • {metadata.participants.length} participants • {today}</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 font-semibold" style={{ padding: "9px 16px", borderRadius: 8, fontSize: 13, border: "1px solid #0ABFBC", color: "#0ABFBC", background: "transparent", cursor: "pointer" }} onClick={() => downloadReport(analysis)}>
-            <Download size={14} /> Export Report
-          </button>
-          <button className="flex items-center gap-2 font-semibold" style={{ padding: "9px 16px", borderRadius: 8, fontSize: 13, border: "1px solid #1A2E3A", color: "#8899AA", background: "transparent", cursor: "pointer" }}>
-            <Share2 size={14} /> Share
-          </button>
+          <button className="flex items-center gap-2 font-semibold" style={{ padding: "9px 16px", borderRadius: 8, fontSize: 13, border: "1px solid #0ABFBC", color: "#0ABFBC", background: "transparent", cursor: "pointer" }} onClick={() => downloadReport(analysis)}><Download size={14} /> Export Report</button>
+          <button className="flex items-center gap-2 font-semibold" style={{ padding: "9px 16px", borderRadius: 8, fontSize: 13, border: "1px solid #1A2E3A", color: "#8899AA", background: "transparent", cursor: "pointer" }}><Share2 size={14} /> Share</button>
         </div>
       </div>
 
       <InviteBanner inviteCode={inviteCode} copyingCode={copyingCode} copyingLink={copyingLink} onCopyCode={copyCode} onCopyLink={copyLink} onShareWhatsApp={shareWhatsApp} />
 
+      <Section id="members" title="Team Members" icon={Users}><MembersPanel projectId={projectId} ownerId={ownerId} /></Section>
       <Section id="overview" title="Overview" icon={LayoutDashboard}><OverviewSection analysis={analysis} metadata={metadata} /></Section>
       <Section id="tasks" title="Task Board" icon={CheckSquare}><TaskBoard tasks={analysis.tasks} projectId={projectId} highlightAssignee={memberName} /></Section>
 
       <section className="pt-8" id="decisions">
-        <div className="mb-6" style={{ borderTop: "1px solid #1A2E3A", paddingTop: 24 }}>
-          <div className="flex items-center gap-2" style={{ color: "#E8F4F8" }}><Gavel size={18} style={{ color: "#0ABFBC" }} /><h2 className="font-semibold" style={{ fontSize: 18 }}>Decisions & Blockers</h2></div>
-        </div>
-        <motion.div whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 20 }} transition={{ duration: 0.4 }} viewport={{ once: true }} className="flex flex-col lg:flex-row gap-6">
-          <div style={{ flex: 3, minWidth: 0 }}><DecisionLog decisions={analysis.decisions} /></div>
-          <div style={{ flex: 2, minWidth: 0 }} id="blockers"><BlockerAlerts blockers={analysis.blockers} onGenerateNudge={setSelectedBlocker} /></div>
-        </motion.div>
+        <div className="mb-6" style={{ borderTop: "1px solid #1A2E3A", paddingTop: 24 }}><div className="flex items-center gap-2" style={{ color: "#E8F4F8" }}><Gavel size={18} style={{ color: "#0ABFBC" }} /><h2 className="font-semibold" style={{ fontSize: 18 }}>Decisions & Blockers</h2></div></div>
+        <motion.div whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 20 }} transition={{ duration: 0.4 }} viewport={{ once: true }} className="flex flex-col lg:flex-row gap-6"><div style={{ flex: 3, minWidth: 0 }}><DecisionLog decisions={analysis.decisions} /></div><div style={{ flex: 2, minWidth: 0 }} id="blockers"><BlockerAlerts blockers={analysis.blockers} onGenerateNudge={setSelectedBlocker} /></div></motion.div>
       </section>
 
       <Section id="deadlines" title="Deadline Tracker" icon={Calendar}><DeadlineTracker deadlines={analysis.deadlines} /></Section>
 
       <section className="pt-8" id="questions">
-        <div className="mb-6" style={{ borderTop: "1px solid #1A2E3A", paddingTop: 24 }}>
-          <div className="flex items-center gap-2" style={{ color: "#E8F4F8" }}><HelpCircle size={18} style={{ color: "#0ABFBC" }} /><h2 className="font-semibold" style={{ fontSize: 18 }}>Questions & Participation</h2></div>
-        </div>
-        <motion.div whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 20 }} transition={{ duration: 0.4 }} viewport={{ once: true }} className="flex flex-col lg:flex-row gap-6">
-          <div style={{ flex: 1, minWidth: 0 }}><OpenQuestions questions={analysis.openQuestions} /></div>
-          <div style={{ flex: 1, minWidth: 0 }} id="participation"><ParticipationChart analysis={analysis} /></div>
-        </motion.div>
+        <div className="mb-6" style={{ borderTop: "1px solid #1A2E3A", paddingTop: 24 }}><div className="flex items-center gap-2" style={{ color: "#E8F4F8" }}><HelpCircle size={18} style={{ color: "#0ABFBC" }} /><h2 className="font-semibold" style={{ fontSize: 18 }}>Questions & Participation</h2></div></div>
+        <motion.div whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 20 }} transition={{ duration: 0.4 }} viewport={{ once: true }} className="flex flex-col lg:flex-row gap-6"><div style={{ flex: 1, minWidth: 0 }}><OpenQuestions questions={analysis.openQuestions} /></div><div style={{ flex: 1, minWidth: 0 }} id="participation"><ParticipationChart analysis={analysis} /></div></motion.div>
       </section>
 
       <Section id="askai" title="Ask AI" icon={Bot}><AskAI analysis={analysis} /></Section>
 
       <NudgeModal isOpen={Boolean(nudgePayload)} personName={nudgePayload?.personName ?? "Member"} taskText={nudgePayload?.taskText ?? "your current task"} deadline={nudgePayload?.deadline ?? null} onClose={() => setSelectedBlocker(null)} />
-
-      {projectId && <span className="sr-only">{projectId}</span>}
+      <Toast toasts={toasts} onClose={closeToast} />
     </div>
   );
 }
