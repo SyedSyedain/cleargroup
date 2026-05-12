@@ -35,6 +35,20 @@ export default function Sidebar() {
     } catch { /* keep defaults */ }
   }, []);
 
+  useEffect(() => {
+    const onActive = (event: Event) => {
+      const custom = event as CustomEvent<{ id?: string }>;
+      if (custom.detail?.id) setActive(custom.detail.id);
+    };
+    window.addEventListener("cleargroup:active-section", onActive as EventListener);
+    return () => window.removeEventListener("cleargroup:active-section", onActive as EventListener);
+  }, []);
+
+  const handleNav = (id: string) => {
+    setActive(id);
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <aside className="flex flex-col"
       style={{ width: 240, height: "100vh", position: "sticky", top: 0,
@@ -65,7 +79,7 @@ export default function Sidebar() {
         {NAV.map(({ id, label, icon: Icon }) => {
           const on = active === id;
           return (
-            <button key={id} onClick={() => setActive(id)}
+            <button key={id} onClick={() => handleNav(id)}
               className="flex items-center gap-2.5 w-full text-left"
               style={{
                 padding: "10px 12px", borderRadius: 8, fontSize: 14,

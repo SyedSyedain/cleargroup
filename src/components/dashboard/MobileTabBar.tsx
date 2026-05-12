@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useEffect } from "react";
 import {
   LayoutDashboard, CheckSquare, MessageSquare, AlertTriangle, BarChart2,
 } from "lucide-react";
@@ -17,6 +18,20 @@ const TABS: { id: string; label: string; icon: LucideIcon }[] = [
 export default function MobileTabBar() {
   const [active, setActive] = useState("overview");
 
+  useEffect(() => {
+    const onActive = (event: Event) => {
+      const custom = event as CustomEvent<{ id?: string }>;
+      if (custom.detail?.id) setActive(custom.detail.id);
+    };
+    window.addEventListener("cleargroup:active-section", onActive as EventListener);
+    return () => window.removeEventListener("cleargroup:active-section", onActive as EventListener);
+  }, []);
+
+  const handleTab = (id: string) => {
+    setActive(id);
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <div
       className="fixed bottom-0 left-0 right-0 md:hidden flex items-center"
@@ -30,7 +45,7 @@ export default function MobileTabBar() {
         return (
           <button
             key={id}
-            onClick={() => setActive(id)}
+            onClick={() => handleTab(id)}
             className="flex flex-col items-center justify-center gap-0.5"
             style={{
               flex: 1, height: "100%", cursor: "pointer",
