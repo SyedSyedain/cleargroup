@@ -99,6 +99,7 @@ export default function JoinPage({ params }: JoinPageProps) {
     sessionStorage.setItem("projectId", data.projectId);
 
     const member = session?.user?.name || name.trim();
+    sessionStorage.setItem("memberName", member);
     router.push(`/dashboard?project=${data.projectId}&member=${encodeURIComponent(member)}`);
   };
 

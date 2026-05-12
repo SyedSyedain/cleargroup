@@ -291,7 +291,7 @@ export default function DashboardPage() {
       <InviteBanner inviteCode={inviteCode} copyingCode={copyingCode} copyingLink={copyingLink} onCopyCode={copyCode} onCopyLink={copyLink} onShareWhatsApp={shareWhatsApp} />
 
       <Section id="overview" title="Overview" icon={LayoutDashboard}><OverviewSection analysis={analysis} metadata={metadata} /></Section>
-      <Section id="tasks" title="Task Board" icon={CheckSquare}><TaskBoard tasks={analysis.tasks} highlightAssignee={memberName} /></Section>
+      <Section id="tasks" title="Task Board" icon={CheckSquare}><TaskBoard tasks={analysis.tasks} projectId={projectId} highlightAssignee={memberName} /></Section>
 
       <section className="pt-8" id="decisions">
         <div className="mb-6" style={{ borderTop: "1px solid #1A2E3A", paddingTop: 24 }}>
