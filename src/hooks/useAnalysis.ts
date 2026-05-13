@@ -51,10 +51,10 @@ export function useAnalysis(onError: OnError) {
     } catch { /* keep defaults */ }
 
     // Allow larger chats enough time to finish model inference.
-    // 60-120s window based on selected message volume.
+    // 120-300s window based on selected message volume.
     const timeoutMs = Math.min(
-      120_000,
-      Math.max(60_000, 45_000 + stats.totalMessages * 250)
+      300_000,
+      Math.max(120_000, 90_000 + stats.totalMessages * 500)
     );
     const timer = setTimeout(() => controller.abort(), timeoutMs);
 

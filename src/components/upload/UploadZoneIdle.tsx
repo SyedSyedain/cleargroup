@@ -6,52 +6,52 @@ import { UploadCloud, ChevronDown } from "lucide-react";
 import ExportGuide from "./ExportGuide";
 
 interface Props {
-  isDragging:   boolean;
-  onDragEnter:  (e: React.DragEvent) => void;
-  onDragOver:   (e: React.DragEvent) => void;
-  onDragLeave:  (e: React.DragEvent) => void;
-  onDrop:       (e: React.DragEvent) => void;
-  onClick:      () => void;
+  isDragging: boolean;
+  onDragEnter: (e: React.DragEvent) => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDragLeave: (e: React.DragEvent) => void;
+  onDrop: (e: React.DragEvent) => void;
+  onClick: () => void;
   onLoadSample: () => void;
-  error:        string;
+  error: string;
 }
 
 const CORNERS = ["top-3 left-3", "top-3 right-3", "bottom-3 left-3", "bottom-3 right-3"];
 
-export default function UploadZoneIdle({
-  isDragging, onDragEnter, onDragOver, onDragLeave, onDrop, onClick, onLoadSample, error,
-}: Props) {
+export default function UploadZoneIdle({ isDragging, onDragEnter, onDragOver, onDragLeave, onDrop, onClick, onLoadSample, error }: Props) {
   const [guideOpen, setGuideOpen] = useState(false);
 
   return (
     <motion.div
-      onDragEnter={onDragEnter} onDragOver={onDragOver}
-      onDragLeave={onDragLeave} onDrop={onDrop}
+      onDragEnter={onDragEnter}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
       onClick={onClick}
       whileHover={!isDragging ? "hover" : undefined}
       animate={isDragging ? "drag" : "idle"}
       variants={{
-        idle:  { scale: 1,     boxShadow: "none" },
+        idle: { scale: 1, boxShadow: "none" },
         hover: { scale: 1.005 },
-        drag:  { scale: 1.01, boxShadow: "0 0 0 4px #6366F120, 0 0 24px #6366F130" },
+        drag: { scale: 1.01, boxShadow: "0 0 0 4px #6366F120, 0 0 24px #6366F130" },
       }}
       transition={{ duration: 0.2 }}
       className="relative flex flex-col items-center justify-between cursor-pointer select-none overflow-hidden"
       style={{
-        width: "100%", minHeight: 380, borderRadius: 20, padding: "32px 24px",
+        width: "100%",
+        minHeight: 380,
+        borderRadius: 20,
+        padding: "32px 24px",
         border: `2px ${isDragging ? "solid" : "dashed"} ${isDragging ? "#6366F1" : "#1A2E3A"}`,
-        background: isDragging
-          ? "linear-gradient(135deg,rgba(99,102,241,0.03),rgba(139,92,246,0.03))"
-          : "#0C1419",
+        background: isDragging ? "linear-gradient(135deg,rgba(99,102,241,0.03),rgba(139,92,246,0.03))" : "#0C1419",
         transition: "border-color 0.25s ease, background 0.25s ease",
       }}
     >
-      {isDragging && CORNERS.map((pos) => (
-        <span key={pos} className={`absolute ${pos} w-2 h-2 rounded-full animate-ping`}
-          style={{ background: "#6366F1" }} />
-      ))}
+      {isDragging &&
+        CORNERS.map((pos) => (
+          <span key={pos} className={`absolute ${pos} w-2 h-2 rounded-full animate-ping`} style={{ background: "#6366F1" }} />
+        ))}
 
-      {/* Icon + text */}
       <div className="flex flex-col items-center gap-5 flex-1 justify-center py-4">
         <div className="relative flex items-center justify-center">
           <motion.div
@@ -61,14 +61,8 @@ export default function UploadZoneIdle({
             style={{ width: 104, height: 104, borderColor: "rgba(99,102,241,0.30)" }}
           />
           <motion.div
-            animate={isDragging
-              ? { y: -12, boxShadow: "0 0 24px #6366F160" }
-              : { y: [0, -6, 0], boxShadow: "0 0 0px transparent" }
-            }
-            transition={isDragging
-              ? { type: "spring", stiffness: 400, damping: 14 }
-              : { repeat: Infinity, duration: 3, ease: "easeInOut" }
-            }
+            animate={isDragging ? { y: -12, boxShadow: "0 0 24px #6366F160" } : { y: [0, -6, 0], boxShadow: "0 0 0px transparent" }}
+            transition={isDragging ? { type: "spring", stiffness: 400, damping: 14 } : { repeat: Infinity, duration: 3, ease: "easeInOut" }}
             className="relative flex items-center justify-center rounded-full"
             style={{ width: 80, height: 80, background: "#111E26" }}
           >
@@ -80,39 +74,22 @@ export default function UploadZoneIdle({
           <p className="font-semibold" style={{ fontSize: 20, color: isDragging ? "#6366F1" : "white" }}>
             {isDragging ? "Release to upload your chat" : "Drop your WhatsApp chat here"}
           </p>
-          {!isDragging && (
-            <p className="mt-1.5 text-sm" style={{ color: "#8899AA" }}>or click anywhere to browse files</p>
-          )}
+          {!isDragging && <p className="mt-1.5 text-sm" style={{ color: "#8899AA" }}>or click anywhere to browse files</p>}
         </div>
 
-        <span className="px-3 py-1 rounded-full text-xs"
-          style={{ background: "#111E26", border: "1px solid #1A2E3A", color: "#8899AA" }}>
+        <span className="px-3 py-1 rounded-full text-xs" style={{ background: "#111E26", border: "1px solid #1A2E3A", color: "#8899AA" }}>
           .txt or .zip files
         </span>
 
-        {error && (
-          <p className="text-sm font-medium text-center px-2" style={{ color: "#FF6B6B" }}>{error}</p>
-        )}
+        {error && <p className="text-sm font-medium text-center px-2" style={{ color: "#FF6B6B" }}>{error}</p>}
       </div>
 
-      {/* Bottom links â€” stop propagation so they don't open the file picker */}
       <div className="w-full flex flex-col items-center gap-3" onClick={(e) => e.stopPropagation()}>
-
-        {/* Sample chat link */}
-        <button
-          onClick={onLoadSample}
-          className="text-sm font-medium transition-colors duration-150"
-          style={{ color: "#6366F1" }}
-        >
-          Or try with a sample chat â†’
+        <button onClick={onLoadSample} className="text-sm font-medium transition-colors duration-150" style={{ color: "#6366F1" }}>
+          Or try with a sample chat -&gt;
         </button>
 
-        {/* Export guide accordion */}
-        <button
-          onClick={() => setGuideOpen((v) => !v)}
-          className="flex items-center gap-1.5 text-sm transition-colors duration-150"
-          style={{ color: "#8899AA" }}
-        >
+        <button onClick={() => setGuideOpen((v) => !v)} className="flex items-center gap-1.5 text-sm transition-colors duration-150" style={{ color: "#8899AA" }}>
           Don&apos;t know how to export?
           <motion.span animate={{ rotate: guideOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
             <ChevronDown size={14} />
@@ -122,15 +99,16 @@ export default function UploadZoneIdle({
         <AnimatePresence>
           {guideOpen && (
             <motion.div
-              initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }}
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
               className="overflow-hidden w-full"
             >
               <ExportGuide onClose={() => setGuideOpen(false)} />
             </motion.div>
           )}
         </AnimatePresence>
-
       </div>
     </motion.div>
   );
