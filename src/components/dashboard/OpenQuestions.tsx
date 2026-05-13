@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,10 +22,10 @@ function QuestionCard({ q, onResolve }: { q: OpenQuestion; onResolve: () => void
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <p className="text-white font-medium leading-snug mb-1" style={{ fontSize: 15 }}>{q.question}</p>
+        <p className="text-white font-medium leading-snug mb-1 break-words" style={{ fontSize: 15 }}>{q.question}</p>
         <p className="text-xs mb-1.5" style={{ color: "#8899AA" }}>Asked by {q.askedBy}</p>
         {q.evidence && (
-          <p className="text-xs italic leading-relaxed" style={{ color: "#3A5060" }}>{q.evidence}</p>
+          <p className="text-xs italic leading-relaxed break-words" style={{ color: "#3A5060" }}>{q.evidence}</p>
         )}
       </div>
 
@@ -66,8 +66,7 @@ export default function OpenQuestions({ questions }: { questions: OpenQuestion[]
           style={{ background: "#0C1419", border: "1px solid #1A2E3A", borderRadius: 12 }}>
           <CheckCircle2 size={28} style={{ color: "#06D6A0" }} />
           <p className="text-sm font-medium" style={{ color: "#06D6A0" }}>
-            All questions have been answered! ✅
-          </p>
+            All questions have been answered! ✅</p>
         </div>
       ) : (
         <AnimatePresence mode="popLayout">
@@ -79,3 +78,4 @@ export default function OpenQuestions({ questions }: { questions: OpenQuestion[]
     </div>
   );
 }
+

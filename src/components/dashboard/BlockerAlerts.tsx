@@ -43,7 +43,7 @@ function BlockerCard({ b, i, onGenerateNudge }: { b: Blocker; i: number; onGener
     <motion.div initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.35, delay: i * 0.07 }} style={{ background: SEV_BG[b.severity], borderTop: `1px solid ${color}28`, borderRight: `1px solid ${color}28`, borderBottom: `1px solid ${color}28`, borderLeft: `4px solid ${color}`, borderRadius: 10, padding: 20, marginBottom: 12 }}>
       <div className="flex items-center justify-between flex-wrap gap-2 mb-3"><span className="text-xs px-2.5 py-1 rounded-full font-semibold" style={{ background: `${color}18`, color, border: `1px solid ${color}30` }}>{SEV_LABEL[b.severity]}</span><span className="text-xs px-2.5 py-1 rounded-full" style={{ background: "#111E26", color: "#8899AA", border: "1px solid #1A2E3A" }}>{TYPE_LABEL[b.type]}</span></div>
       {b.involvedPerson && <div className="flex items-center gap-2 mb-2"><div className="flex items-center justify-center rounded-full font-bold text-white shrink-0" style={{ width: 28, height: 28, background: color, fontSize: 12 }}>{initial}</div><span className="text-white font-semibold text-sm">{b.involvedPerson}</span></div>}
-      <p className="text-sm leading-relaxed" style={{ color: "#8899AA" }}>{b.description}</p>
+      <p className="text-sm leading-relaxed break-words" style={{ color: "#8899AA" }}>{b.description}</p>
       {b.evidence && <EvidenceToggle evidence={b.evidence} />}
       <button className="mt-3 text-xs font-semibold" style={{ background: "none", border: "none", cursor: "pointer", color: "#0ABFBC" }} onClick={() => onGenerateNudge?.(b)}>Generate nudge message →</button>
     </motion.div>
