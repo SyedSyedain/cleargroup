@@ -35,6 +35,74 @@ function sanitizeModelJson(raw: string): string {
   return withoutFences;
 }
 
+function removeTrailingCommas(input: string): string {
+  return input.replace(/,\s*([}\]])/g, "$1");
+}
+
+function extractBalancedObjects(input: string): string[] {
+  const objects: string[] = [];
+  let start = -1;
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (let i = 0; i < input.length; i += 1) {
+    const ch = input[i];
+
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (ch === "\\") {
+        escaped = true;
+      } else if (ch === "\"") {
+        inString = false;
+      }
+      continue;
+    }
+
+    if (ch === "\"") {
+      inString = true;
+      continue;
+    }
+
+    if (ch === "{") {
+      if (depth === 0) start = i;
+      depth += 1;
+      continue;
+    }
+
+    if (ch === "}") {
+      if (depth > 0) depth -= 1;
+      if (depth === 0 && start >= 0) {
+        objects.push(input.slice(start, i + 1));
+        start = -1;
+      }
+    }
+  }
+
+  return objects;
+}
+
+function parseAnalysisResult(raw: string): AnalysisResult | null {
+  const cleaned = sanitizeModelJson(raw);
+  const candidates = [
+    cleaned,
+    removeTrailingCommas(cleaned),
+    ...extractBalancedObjects(cleaned),
+    ...extractBalancedObjects(removeTrailingCommas(cleaned)),
+  ];
+
+  for (const candidate of candidates) {
+    try {
+      return JSON.parse(candidate) as AnalysisResult;
+    } catch {
+      // try next candidate
+    }
+  }
+
+  return null;
+}
+
 // â”€â”€ Gemini config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const GEMINI_URL =
@@ -116,24 +184,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "AI returned empty response" }, { status: 500 });
     }
 
-    // Case C â€” parse Gemini JSON safely
-    const cleaned = sanitizeModelJson(rawText);
-    let analysis: AnalysisResult;
-    try {
-      analysis = JSON.parse(cleaned) as AnalysisResult;
-    } catch {
-      const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        try {
-          analysis = JSON.parse(jsonMatch[0]) as AnalysisResult;
-        } catch {
-          console.error("[analyze] Regex JSON extraction failed. Raw:", cleaned.slice(0, 300));
-          return NextResponse.json({ error: "AI returned invalid response" }, { status: 500 });
-        }
-      } else {
-        console.error("[analyze] No JSON found in response. Raw:", cleaned.slice(0, 300));
-        return NextResponse.json({ error: "AI returned invalid response" }, { status: 500 });
-      }
+    // Case C â€” parse Gemini JSON safely with multiple fallbacks
+    let analysis = parseAnalysisResult(rawText);
+    if (!analysis) {
+      // Last resort: ask model to convert its own output into strict JSON
+      const repairPrompt = `Convert the text below into one valid JSON object only. No markdown, no commentary.\n\n${rawText}`;
+      const repairRes = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: repairPrompt }] }],
+          generationConfig: GENERATION_CONFIG,
+        }),
+      });
+      const repairData = (await repairRes.json()) as GeminiResponse;
+      const repairedText = (repairData.candidates?.[0]?.content?.parts ?? []).map((part) => part?.text ?? "").join("").trim();
+      analysis = parseAnalysisResult(repairedText);
+    }
+
+    if (!analysis) {
+      console.error("[analyze] Invalid response after parse + repair. Raw:", rawText.slice(0, 300));
+      return NextResponse.json({ error: "AI returned invalid response" }, { status: 500 });
     }
 
     // Case D â€” required shape check
