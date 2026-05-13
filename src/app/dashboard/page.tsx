@@ -32,7 +32,17 @@ import AskAI from "@/components/dashboard/AskAI";
 import NudgeModal from "@/components/dashboard/NudgeModal";
 import MembersPanel from "@/components/dashboard/MembersPanel";
 import Toast, { type ToastItem } from "@/components/ui/Toast";
-import type { AnalysisResult, AnalysisMetadata, Blocker } from "@/types/analysis";
+import type {
+  AnalysisResult,
+  AnalysisMetadata,
+  Blocker,
+  Task,
+  Decision,
+  Deadline,
+  OpenQuestion,
+  ParticipationStat,
+  AnalysisSummary,
+} from "@/types/analysis";
 
 interface SectionProps {
   id: string;
@@ -50,6 +60,153 @@ interface ProjectRow {
 }
 
 const EMPTY_META: AnalysisMetadata = { messagesAnalyzed: 0, participants: [], analyzedAt: new Date().toISOString() };
+const EMPTY_SUMMARY: AnalysisSummary = {
+  overallStatus: "on_track",
+  progressPercentage: 0,
+  keyInsight: "No insight available yet.",
+  mostActiveParticipant: "Unknown",
+  leastActiveParticipant: null,
+  collaborationScore: 0,
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function toNumber(value: unknown, fallback = 0): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function toStringOr(value: unknown, fallback: string): string {
+  return typeof value === "string" ? value : fallback;
+}
+
+function normalizeTask(task: unknown, index: number): Task {
+  const row = isRecord(task) ? task : {};
+  const status = row.status;
+  const safeStatus: Task["status"] =
+    status === "pending" || status === "in_progress" || status === "done" || status === "overdue"
+      ? status
+      : "pending";
+  return {
+    id: toStringOr(row.id, `task_${index + 1}`),
+    assignee: toStringOr(row.assignee, "Unassigned"),
+    task: toStringOr(row.task, "Untitled task"),
+    status: safeStatus,
+    deadline: typeof row.deadline === "string" ? row.deadline : null,
+    confidence: toNumber(row.confidence, 0),
+    evidence: toStringOr(row.evidence, ""),
+  };
+}
+
+function normalizeDecision(decision: unknown, index: number): Decision {
+  const row = isRecord(decision) ? decision : {};
+  return {
+    id: toStringOr(row.id, `decision_${index + 1}`),
+    decision: toStringOr(row.decision, "No decision text"),
+    decidedBy: toStringOr(row.decidedBy, "group"),
+    timestamp: typeof row.timestamp === "string" ? row.timestamp : null,
+    evidence: toStringOr(row.evidence, ""),
+  };
+}
+
+function normalizeBlocker(blocker: unknown, index: number): Blocker {
+  const row = isRecord(blocker) ? blocker : {};
+  const type = row.type;
+  const safeType: Blocker["type"] =
+    type === "silent_member" || type === "unresolved_conflict" || type === "missing_response" || type === "unclear_ownership"
+      ? type
+      : "missing_response";
+  const severity = row.severity;
+  const safeSeverity: Blocker["severity"] =
+    severity === "low" || severity === "medium" || severity === "high" ? severity : "low";
+  return {
+    id: toStringOr(row.id, `blocker_${index + 1}`),
+    type: safeType,
+    description: toStringOr(row.description, "No blocker description"),
+    involvedPerson: typeof row.involvedPerson === "string" ? row.involvedPerson : null,
+    severity: safeSeverity,
+    evidence: toStringOr(row.evidence, ""),
+  };
+}
+
+function normalizeDeadline(deadline: unknown, index: number): Deadline {
+  const row = isRecord(deadline) ? deadline : {};
+  return {
+    id: toStringOr(row.id, `deadline_${index + 1}`),
+    description: toStringOr(row.description, "No deadline description"),
+    date: toStringOr(row.date, ""),
+    mentionedBy: toStringOr(row.mentionedBy, "Unknown"),
+    isConfirmed: typeof row.isConfirmed === "boolean" ? row.isConfirmed : false,
+  };
+}
+
+function normalizeQuestion(question: unknown, index: number): OpenQuestion {
+  const row = isRecord(question) ? question : {};
+  return {
+    id: toStringOr(row.id, `question_${index + 1}`),
+    question: toStringOr(row.question, "No question text"),
+    askedBy: toStringOr(row.askedBy, "Unknown"),
+    answered: typeof row.answered === "boolean" ? row.answered : false,
+    evidence: toStringOr(row.evidence, ""),
+  };
+}
+
+function normalizeParticipation(person: unknown): ParticipationStat {
+  const row = isRecord(person) ? person : {};
+  return {
+    name: toStringOr(row.name, "Unknown"),
+    messageCount: toNumber(row.messageCount, 0),
+    tasksAssigned: toNumber(row.tasksAssigned, 0),
+    tasksCompleted: toNumber(row.tasksCompleted, 0),
+    participationPercentage: toNumber(row.participationPercentage, 0),
+    lastActive: toStringOr(row.lastActive, ""),
+  };
+}
+
+function normalizeAnalysis(raw: unknown): AnalysisResult | null {
+  if (!isRecord(raw)) return null;
+  const summaryRaw = isRecord(raw.summary) ? raw.summary : {};
+  const participationStatsRaw = isRecord(raw.participationStats) ? raw.participationStats : {};
+  const perPersonRaw = Array.isArray(participationStatsRaw.perPerson) ? participationStatsRaw.perPerson : [];
+
+  const summaryStatus = summaryRaw.overallStatus;
+  const safeStatus: AnalysisSummary["overallStatus"] =
+    summaryStatus === "on_track" || summaryStatus === "at_risk" || summaryStatus === "critical"
+      ? summaryStatus
+      : "on_track";
+
+  return {
+    tasks: (Array.isArray(raw.tasks) ? raw.tasks : []).map(normalizeTask),
+    decisions: (Array.isArray(raw.decisions) ? raw.decisions : []).map(normalizeDecision),
+    blockers: (Array.isArray(raw.blockers) ? raw.blockers : []).map(normalizeBlocker),
+    deadlines: (Array.isArray(raw.deadlines) ? raw.deadlines : []).map(normalizeDeadline),
+    openQuestions: (Array.isArray(raw.openQuestions) ? raw.openQuestions : []).map(normalizeQuestion),
+    summary: {
+      overallStatus: safeStatus,
+      progressPercentage: toNumber(summaryRaw.progressPercentage, EMPTY_SUMMARY.progressPercentage),
+      keyInsight: toStringOr(summaryRaw.keyInsight, EMPTY_SUMMARY.keyInsight),
+      mostActiveParticipant: toStringOr(summaryRaw.mostActiveParticipant, EMPTY_SUMMARY.mostActiveParticipant),
+      leastActiveParticipant: typeof summaryRaw.leastActiveParticipant === "string" ? summaryRaw.leastActiveParticipant : null,
+      collaborationScore: toNumber(summaryRaw.collaborationScore, EMPTY_SUMMARY.collaborationScore),
+    },
+    participationStats: {
+      perPerson: perPersonRaw.map(normalizeParticipation),
+    },
+  };
+}
+
+function normalizeMetadata(raw: unknown): AnalysisMetadata {
+  if (!isRecord(raw)) return { ...EMPTY_META };
+  const participants = Array.isArray(raw.participants)
+    ? raw.participants.filter((p): p is string => typeof p === "string")
+    : [];
+  return {
+    messagesAnalyzed: toNumber(raw.messagesAnalyzed, 0),
+    participants,
+    analyzedAt: toStringOr(raw.analyzedAt, new Date().toISOString()),
+  };
+}
 
 function Section({ id, title, icon: Icon, children }: SectionProps) {
   return (
@@ -154,8 +311,13 @@ export default function DashboardPage() {
     const loadProjectFromDatabase = async (id: string) => {
       const { data } = await supabase.from("projects").select("*").eq("id", id).single<ProjectRow>();
       if (data) {
-        setAnalysis(data.analysis_result);
-        setMetadata(data.chat_stats || EMPTY_META);
+        const safeAnalysis = normalizeAnalysis(data.analysis_result);
+        if (!safeAnalysis) {
+          setHasData(false);
+          return;
+        }
+        setAnalysis(safeAnalysis);
+        setMetadata(normalizeMetadata(data.chat_stats));
         setProjectId(id);
         setOwnerId(data.owner_id);
         setProjectSaved(true);
@@ -190,14 +352,18 @@ export default function DashboardPage() {
       return;
     }
 
-    const parsedAnalysis = JSON.parse(analysisData) as AnalysisResult;
-    const parsedMeta = JSON.parse(metaData || "{}") as Partial<AnalysisMetadata>;
+    const parsedAnalysis = normalizeAnalysis(JSON.parse(analysisData));
+    const parsedMeta = normalizeMetadata(JSON.parse(metaData || "{}"));
     const wait = Math.max(500 - (Date.now() - started), 0);
 
     window.setTimeout(() => {
+      if (!parsedAnalysis) {
+        setHasData(false);
+        return;
+      }
       setAnalysis(parsedAnalysis);
-      setMetadata({ ...EMPTY_META, ...parsedMeta });
-      setHasData(true);
+      setMetadata(parsedMeta);
+      setHasData(Boolean(parsedAnalysis));
     }, wait);
   }, []);
 
