@@ -284,7 +284,7 @@ export default function DashboardPage() {
   const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 
   return (
-    <div style={{ padding: 32, paddingBottom: 96 }}>
+    <div className="mx-auto w-full max-w-[1480px]" style={{ padding: 32, paddingBottom: 96 }}>
       <div className="flex items-start justify-between flex-wrap gap-4 mb-2">
         <div>
           <h1 className="font-semibold text-white" style={{ fontSize: 24, letterSpacing: "-0.5px" }}>Project Overview</h1>
@@ -304,14 +304,14 @@ export default function DashboardPage() {
 
       <section className="pt-8" id="decisions">
         <div className="mb-6" style={{ borderTop: "1px solid #1A2E3A", paddingTop: 24 }}><div className="flex items-center gap-2" style={{ color: "#E8F4F8" }}><Gavel size={18} style={{ color: "#0ABFBC" }} /><h2 className="font-semibold" style={{ fontSize: 18 }}>Decisions & Blockers</h2></div></div>
-        <motion.div whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 20 }} transition={{ duration: 0.4 }} viewport={{ once: true }} className="flex flex-col lg:flex-row gap-6"><div style={{ flex: 3, minWidth: 0 }}><DecisionLog decisions={analysis.decisions} /></div><div style={{ flex: 2, minWidth: 0 }} id="blockers"><BlockerAlerts blockers={analysis.blockers} onGenerateNudge={setSelectedBlocker} /></div></motion.div>
+        <motion.div whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 20 }} transition={{ duration: 0.4 }} viewport={{ once: true }} className="grid grid-cols-1 xl:grid-cols-[1.8fr_1fr] gap-6"><div style={{ minWidth: 0 }}><DecisionLog decisions={analysis.decisions} /></div><div style={{ minWidth: 0 }} id="blockers"><BlockerAlerts blockers={analysis.blockers} onGenerateNudge={setSelectedBlocker} /></div></motion.div>
       </section>
 
       <Section id="deadlines" title="Deadline Tracker" icon={Calendar}><DeadlineTracker deadlines={analysis.deadlines} /></Section>
 
       <section className="pt-8" id="questions">
         <div className="mb-6" style={{ borderTop: "1px solid #1A2E3A", paddingTop: 24 }}><div className="flex items-center gap-2" style={{ color: "#E8F4F8" }}><HelpCircle size={18} style={{ color: "#0ABFBC" }} /><h2 className="font-semibold" style={{ fontSize: 18 }}>Questions & Participation</h2></div></div>
-        <motion.div whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 20 }} transition={{ duration: 0.4 }} viewport={{ once: true }} className="flex flex-col lg:flex-row gap-6"><div style={{ flex: 1, minWidth: 0 }}><OpenQuestions questions={analysis.openQuestions} /></div><div style={{ flex: 1, minWidth: 0 }} id="participation"><ParticipationChart analysis={analysis} /></div></motion.div>
+        <motion.div whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 20 }} transition={{ duration: 0.4 }} viewport={{ once: true }} className="grid grid-cols-1 xl:grid-cols-[1fr_1.35fr] gap-6"><div style={{ minWidth: 0 }}><OpenQuestions questions={analysis.openQuestions} /></div><div style={{ minWidth: 0 }} id="participation"><ParticipationChart analysis={analysis} /></div></motion.div>
       </section>
 
       <Section id="askai" title="Ask AI" icon={Bot}><AskAI analysis={analysis} /></Section>

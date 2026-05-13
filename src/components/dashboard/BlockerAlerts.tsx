@@ -28,7 +28,7 @@ function EvidenceToggle({ evidence }: { evidence: string }) {
   return (
     <div className="mt-2">
       <button onClick={() => setOpen((o) => !o)} style={{ background: "none", border: "none", cursor: "pointer", color: "#3A5060", fontSize: 12 }}>
-        {open ? "Hide evidence ?" : "Show evidence ?"}
+        {open ? "Hide evidence ↑" : "Show evidence ↓"}
       </button>
       <AnimatePresence>{open && <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} style={{ overflow: "hidden" }}><p className="text-xs mt-1.5 italic leading-relaxed" style={{ color: "#8899AA" }}>{evidence}</p></motion.div>}</AnimatePresence>
     </div>
@@ -45,7 +45,7 @@ function BlockerCard({ b, i, onGenerateNudge }: { b: Blocker; i: number; onGener
       {b.involvedPerson && <div className="flex items-center gap-2 mb-2"><div className="flex items-center justify-center rounded-full font-bold text-white shrink-0" style={{ width: 28, height: 28, background: color, fontSize: 12 }}>{initial}</div><span className="text-white font-semibold text-sm">{b.involvedPerson}</span></div>}
       <p className="text-sm leading-relaxed" style={{ color: "#8899AA" }}>{b.description}</p>
       {b.evidence && <EvidenceToggle evidence={b.evidence} />}
-      <button className="mt-3 text-xs font-semibold" style={{ background: "none", border: "none", cursor: "pointer", color: "#0ABFBC" }} onClick={() => onGenerateNudge?.(b)}>Generate nudge message ?</button>
+      <button className="mt-3 text-xs font-semibold" style={{ background: "none", border: "none", cursor: "pointer", color: "#0ABFBC" }} onClick={() => onGenerateNudge?.(b)}>Generate nudge message →</button>
     </motion.div>
   );
 }
@@ -54,7 +54,7 @@ export default function BlockerAlerts({ blockers, onGenerateNudge }: BlockerAler
   return (
     <div>
       <div className="flex items-center gap-2.5 mb-4"><AlertTriangle size={20} style={{ color: "#FFB347" }} /><h2 className="font-semibold text-white" style={{ fontSize: 20 }}>Blockers & Risks</h2></div>
-      {blockers.length === 0 ? <div className="flex items-center gap-3 p-5 rounded-xl" style={{ background: "rgba(6,214,160,0.08)", border: "1px solid rgba(6,214,160,0.25)" }}><span style={{ fontSize: 22 }}>??</span><p className="text-sm font-medium" style={{ color: "#06D6A0" }}>No blockers detected! Your project is on track.</p></div> : <div>{blockers.map((b, i) => <BlockerCard key={b.id} b={b} i={i} onGenerateNudge={onGenerateNudge} />)}</div>}
+      {blockers.length === 0 ? <div className="flex items-center gap-3 p-5 rounded-xl" style={{ background: "rgba(6,214,160,0.08)", border: "1px solid rgba(6,214,160,0.25)" }}><span style={{ fontSize: 22 }}>🎉</span><p className="text-sm font-medium" style={{ color: "#06D6A0" }}>No blockers detected! Your project is on track.</p></div> : <div>{blockers.map((b, i) => <BlockerCard key={b.id} b={b} i={i} onGenerateNudge={onGenerateNudge} />)}</div>}
     </div>
   );
 }
