@@ -22,6 +22,19 @@ interface GeminiResponse  {
   error?:      { code: number; message: string; status: string };
 }
 
+function sanitizeModelJson(raw: string): string {
+  const withoutFences = raw
+    .replace(/```json\s*/gi, "")
+    .replace(/```\s*/g, "")
+    .trim();
+
+  // Keep only outer JSON object when model adds prose before/after.
+  const start = withoutFences.indexOf("{");
+  const end = withoutFences.lastIndexOf("}");
+  if (start >= 0 && end > start) return withoutFences.slice(start, end + 1).trim();
+  return withoutFences;
+}
+
 // â”€â”€ Gemini config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const GEMINI_URL =
@@ -95,28 +108,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const rawText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+    const parts = geminiData.candidates?.[0]?.content?.parts ?? [];
+    const rawText = parts.map((part) => part?.text ?? "").join("").trim();
 
     if (!rawText) {
       console.error("[analyze] Empty response from Gemini");
       return NextResponse.json({ error: "AI returned empty response" }, { status: 500 });
     }
 
-    // Case C â€” parse Gemini JSON; fall back to regex extraction
+    // Case C â€” parse Gemini JSON safely
+    const cleaned = sanitizeModelJson(rawText);
     let analysis: AnalysisResult;
     try {
-      analysis = JSON.parse(rawText) as AnalysisResult;
+      analysis = JSON.parse(cleaned) as AnalysisResult;
     } catch {
-      const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+      const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         try {
           analysis = JSON.parse(jsonMatch[0]) as AnalysisResult;
         } catch {
-          console.error("[analyze] Regex JSON extraction failed. Raw:", rawText.slice(0, 200));
+          console.error("[analyze] Regex JSON extraction failed. Raw:", cleaned.slice(0, 300));
           return NextResponse.json({ error: "AI returned invalid response" }, { status: 500 });
         }
       } else {
-        console.error("[analyze] No JSON found in response. Raw:", rawText.slice(0, 200));
+        console.error("[analyze] No JSON found in response. Raw:", cleaned.slice(0, 300));
         return NextResponse.json({ error: "AI returned invalid response" }, { status: 500 });
       }
     }
