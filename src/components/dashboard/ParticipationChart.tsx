@@ -112,9 +112,24 @@ export default function ParticipationChart({ analysis }: Props) {
 
       <div className="mt-8 grid grid-cols-1 xl:grid-cols-[1.4fr_1fr] gap-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-w-0">
-          <div className="rounded-xl p-4" style={{ background: "#111E26", border: "1px solid #1A2E3A" }}><Crown size={18} style={{ color: "#FFB347" }} /><p className="text-xs mt-2" style={{ color: "#7A9BAD" }}>Most Active</p><p className="text-white font-semibold mt-1">{analysis.summary.mostActiveParticipant}</p><p className="text-xs" style={{ color: "#7A9BAD" }}>{people[0]?.messageCount ?? 0} messages</p></div>
-          <div className="rounded-xl p-4" style={{ background: "#111E26", border: "1px solid #1A2E3A" }}><Trophy size={18} style={{ color: "#0ABFBC" }} /><p className="text-xs mt-2" style={{ color: "#7A9BAD" }}>Tasks Champion</p><p className="text-white font-semibold mt-1">{champion?.name ?? "No data"}</p><p className="text-xs" style={{ color: "#7A9BAD" }}>{champion?.tasksCompleted ?? 0} completed</p></div>
-          <div className="rounded-xl p-4" style={{ background: "#111E26", border: "1px solid #1A2E3A" }}><UserRound size={18} style={{ color: "#7A9BAD" }} /><p className="text-xs mt-2" style={{ color: "#7A9BAD" }}>Needs Engagement</p><p className="text-white font-semibold mt-1">{least ?? "Balanced team"}</p><p className="text-xs" style={{ color: "#7A9BAD" }}>{least ? `Only ${leastStats?.messageCount ?? 0} messages` : "Everyone participated equally 🎉"}</p></div>
+          <div className="rounded-xl p-4 min-w-0" style={{ background: "#111E26", border: "1px solid #1A2E3A" }}>
+            <Crown size={18} style={{ color: "#FFB347" }} />
+            <p className="text-xs mt-2" style={{ color: "#7A9BAD" }}>Most Active</p>
+            <p className="text-white font-semibold mt-1 leading-snug break-words">{analysis.summary.mostActiveParticipant}</p>
+            <p className="text-xs mt-1" style={{ color: "#7A9BAD" }}>{people[0]?.messageCount ?? 0} messages</p>
+          </div>
+          <div className="rounded-xl p-4 min-w-0" style={{ background: "#111E26", border: "1px solid #1A2E3A" }}>
+            <Trophy size={18} style={{ color: "#0ABFBC" }} />
+            <p className="text-xs mt-2" style={{ color: "#7A9BAD" }}>Tasks Champion</p>
+            <p className="text-white font-semibold mt-1 leading-snug break-words">{champion?.name ?? "No data"}</p>
+            <p className="text-xs mt-1" style={{ color: "#7A9BAD" }}>{champion?.tasksCompleted ?? 0} completed</p>
+          </div>
+          <div className="rounded-xl p-4 min-w-0" style={{ background: "#111E26", border: "1px solid #1A2E3A" }}>
+            <UserRound size={18} style={{ color: "#7A9BAD" }} />
+            <p className="text-xs mt-2" style={{ color: "#7A9BAD" }}>Needs Engagement</p>
+            <p className="text-white font-semibold mt-1 leading-snug break-words">{least ?? "Balanced team"}</p>
+            <p className="text-xs mt-1" style={{ color: "#7A9BAD" }}>{least ? `Only ${leastStats?.messageCount ?? 0} messages` : "Everyone participated equally 🎉"}</p>
+          </div>
         </div>
         <div className="rounded-xl p-5 flex items-center justify-center" style={{ background: "#111E26", border: "1px solid #1A2E3A" }}><Ring score={analysis.summary.collaborationScore} /></div>
       </div>
