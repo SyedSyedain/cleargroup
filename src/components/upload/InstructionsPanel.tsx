@@ -5,19 +5,19 @@ import type { ReactNode } from "react";
 function WhatsAppIcon() {
   return (
     <div className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0"
-      style={{ background: "#25D366" }}>
+      style={{ background: "#6366F1" }}>
       <span className="text-white font-bold text-base leading-none">W</span>
     </div>
   );
 }
 
-// Typing indicator — three bouncing dots
+// Typing indicator â€” three bouncing dots
 function TypingDots() {
   return (
     <div className="flex items-center gap-1 mt-2">
       {[0, 150, 300].map((delay) => (
         <span key={delay} className="w-1.5 h-1.5 rounded-full animate-bounce inline-block"
-          style={{ background: "#0ABFBC", animationDelay: `${delay}ms` }} />
+          style={{ background: "#6366F1", animationDelay: `${delay}ms` }} />
       ))}
     </div>
   );
@@ -28,14 +28,14 @@ interface Step { icon: ReactNode; title: string; desc: string; typing?: boolean;
 const steps: Step[] = [
   { icon: <WhatsAppIcon />,
     title: "Export from WhatsApp",
-    desc:  "Open your group → tap ⋮ → 'Export Chat' → 'Without Media'",
+    desc:  "Open your group â†’ tap â‹® â†’ 'Export Chat' â†’ 'Without Media'",
     typing: true },
-  { icon: <FileText className="w-5 h-5 shrink-0" style={{ color: "#0ABFBC" }} />,
+  { icon: <FileText className="w-5 h-5 shrink-0" style={{ color: "#6366F1" }} />,
     title: "You get a .txt file",
     desc:  "WhatsApp saves it to your phone. Send it to yourself or upload directly." },
-  { icon: <Sparkles className="w-5 h-5 shrink-0" style={{ color: "#0ABFBC" }} />,
+  { icon: <Sparkles className="w-5 h-5 shrink-0" style={{ color: "#6366F1" }} />,
     title: "AI does the rest",
-    desc:  "Tasks, decisions, blockers — all extracted in under 30 seconds." },
+    desc:  "Tasks, decisions, blockers â€” all extracted in under 30 seconds." },
 ];
 
 function StepItem({ icon, title, desc, typing, num }: Step & { num: number }) {
@@ -59,7 +59,7 @@ function StepItem({ icon, title, desc, typing, num }: Step & { num: number }) {
   );
 }
 
-// Left column — guide panel with live step badge
+// Left column â€” guide panel with live step badge
 export default function InstructionsPanel({ step = 1 }: { step?: 1 | 2 | 3 }) {
   return (
     <div className="flex flex-col gap-8">
@@ -69,17 +69,17 @@ export default function InstructionsPanel({ step = 1 }: { step?: 1 | 2 | 3 }) {
         style={{ background: "#0C1419", border: "1px solid #1A2E3A" }}>
         <span className="relative flex w-2 h-2 shrink-0">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-70"
-            style={{ background: "#0ABFBC" }} />
-          <span className="relative inline-flex rounded-full w-2 h-2" style={{ background: "#0ABFBC" }} />
+            style={{ background: "#6366F1" }} />
+          <span className="relative inline-flex rounded-full w-2 h-2" style={{ background: "#6366F1" }} />
         </span>
-        <span className="text-[12px] font-semibold" style={{ color: "#0ABFBC" }}>Step {step} of 3</span>
+        <span className="text-[12px] font-semibold" style={{ color: "#6366F1" }}>Step {step} of 3</span>
       </div>
 
       {/* Headline */}
       <div>
         <h1 className="font-bold leading-[1.1] mb-4" style={{ fontSize: "clamp(32px, 4vw, 44px)" }}>
           <span className="text-white">Upload your</span><br />
-          <span style={{ background: "linear-gradient(135deg, #0ABFBC 0%, #06D6A0 100%)",
+          <span style={{ background: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)",
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
             WhatsApp chat
           </span>
@@ -96,7 +96,7 @@ export default function InstructionsPanel({ step = 1 }: { step?: 1 | 2 | 3 }) {
       {/* Privacy promise */}
       <div className="flex items-start gap-3 p-4 rounded-[10px]"
         style={{ background: "#0C1419", border: "1px solid #1A2E3A" }}>
-        <Lock className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#0ABFBC" }} />
+        <Lock className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#6366F1" }} />
         <p className="text-[13px] leading-relaxed" style={{ color: "#8899AA" }}>
           Your chat is processed and immediately discarded. We never store your messages.
         </p>
@@ -105,11 +105,11 @@ export default function InstructionsPanel({ step = 1 }: { step?: 1 | 2 | 3 }) {
       {/* Testimonial mini */}
       <div className="flex items-start gap-3 pt-2">
         <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-sm font-bold text-white"
-          style={{ background: "#0ABFBC" }}>A</div>
+          style={{ background: "#6366F1" }}>A</div>
         <div>
           <div className="flex items-center gap-2 mb-0.5">
             <span className="text-white text-sm font-semibold">Arjun M.</span>
-            <span className="text-[12px]" style={{ color: "#8899AA" }}>· B.Tech CSE</span>
+            <span className="text-[12px]" style={{ color: "#8899AA" }}>Â· B.Tech CSE</span>
           </div>
           <p className="text-[13px] leading-relaxed mb-1.5" style={{ color: "#8899AA" }}>
             &ldquo;Saved us 2 hours before our deadline submission&rdquo;

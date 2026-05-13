@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,7 +14,7 @@ interface Props {
 
 function template(name: string, taskText: string, deadline: string | null) {
   const line = deadline ? `Deadline is ${deadline}.` : "No strict deadline yet, but a quick update would help.";
-  return `Hey ${name}! 👋 Just checking in on the project. You mentioned you'd handle ${taskText}. ${line} Let us know if you need any help! 🙏`;
+  return `Hey ${name}! ?? Just checking in on the project. You mentioned you'd handle ${taskText}. ${line} Let us know if you need any help! ??`;
 }
 
 export default function NudgeModal({ isOpen, personName, taskText, deadline, onClose }: Props) {
@@ -42,11 +42,11 @@ export default function NudgeModal({ isOpen, personName, taskText, deadline, onC
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "#00000080" }} onClick={onClose}>
           <motion.div initial={{ opacity: 0, y: 20, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 16, scale: 0.98 }} transition={{ duration: 0.25 }} className="w-full max-w-[480px] rounded-2xl p-8 relative" style={{ background: "#0C1419", border: "1px solid #1A2E3A" }} onClick={(e) => e.stopPropagation()}>
             <button onClick={onClose} className="absolute right-4 top-4" style={{ color: "#7A9BAD" }}><X size={18} /></button>
-            <div className="flex items-center gap-3 mb-4"><div className="w-10 h-10 rounded-full flex items-center justify-center font-semibold" style={{ background: "#0ABFBC", color: "#060B0F" }}>{personName.slice(0, 1).toUpperCase()}</div><h3 className="text-white font-semibold text-lg">Message for {personName}</h3></div>
+            <div className="flex items-center gap-3 mb-4"><div className="w-10 h-10 rounded-full flex items-center justify-center font-semibold" style={{ background: "#6366F1", color: "#060B0F" }}>{personName.slice(0, 1).toUpperCase()}</div><h3 className="text-white font-semibold text-lg">Message for {personName}</h3></div>
             <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={6} className="w-full rounded-xl p-4 text-sm leading-relaxed resize-none outline-none border" style={{ background: "#111E26", borderColor: "#1A2E3A", color: "#E8F4F8" }} />
             <div className="mt-5 flex flex-wrap gap-3">
-              <button onClick={() => void copy()} className="px-4 py-2.5 rounded-lg font-medium" style={{ background: "#0ABFBC", color: "#060B0F" }}>{copied ? "✓ Copied!" : "Copy to clipboard"}</button>
-              <button onClick={openWhatsapp} className="px-4 py-2.5 rounded-lg font-medium flex items-center gap-2" style={{ background: "#25D366", color: "#060B0F" }}><MessageCircle size={16} />Open WhatsApp</button>
+              <button onClick={() => void copy()} className="px-4 py-2.5 rounded-lg font-medium" style={{ background: "#6366F1", color: "#060B0F" }}>{copied ? "? Copied!" : "Copy to clipboard"}</button>
+              <button onClick={openWhatsapp} className="px-4 py-2.5 rounded-lg font-medium flex items-center gap-2" style={{ background: "#6366F1", color: "#060B0F" }}><MessageCircle size={16} />Open WhatsApp</button>
             </div>
           </motion.div>
         </motion.div>

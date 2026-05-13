@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
@@ -8,16 +8,16 @@ import type { AnalysisResult, ParticipationStat } from "@/types/analysis";
 interface Props { analysis: AnalysisResult; }
 
 const BAR_GRADIENTS = [
-  "linear-gradient(90deg,#0ABFBC,#06D6A0)",
+  "linear-gradient(90deg,#6366F1,#8B5CF6)",
   "linear-gradient(90deg,#8B5CF6,#3B82F6)",
   "linear-gradient(90deg,#FFB347,#F97316)",
 ] as const;
 
 const scoreLabel = (score: number) => {
-  if (score >= 90) return "Excellent teamwork! 🏆";
-  if (score >= 70) return "Good collaboration 👍";
+  if (score >= 90) return "Excellent teamwork! ??";
+  if (score >= 70) return "Good collaboration ??";
   if (score >= 50) return "Room for improvement";
-  return "Needs attention ⚠️";
+  return "Needs attention ??";
 };
 
 function Counter({ value }: { value: number }) {
@@ -55,7 +55,7 @@ function Ring({ score }: { score: number }) {
             cy={size / 2}
             r={radius}
             fill="none"
-            stroke="#0ABFBC"
+            stroke="#6366F1"
             strokeWidth={stroke}
             strokeLinecap="round"
             strokeDasharray={c}
@@ -92,14 +92,14 @@ export default function ParticipationChart({ analysis }: Props) {
     <motion.section
       initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} viewport={{ once: true }}
       className="rounded-2xl p-6" style={{ background: "#0C1419", border: "1px solid #1A2E3A" }}>
-      <div className="flex items-center gap-2 mb-1"><BarChart3 size={20} style={{ color: "#0ABFBC" }} /><h2 className="text-white font-semibold text-xl">Participation Analysis</h2></div>
+      <div className="flex items-center gap-2 mb-1"><BarChart3 size={20} style={{ color: "#6366F1" }} /><h2 className="text-white font-semibold text-xl">Participation Analysis</h2></div>
       <p className="text-sm mb-6" style={{ color: "#7A9BAD" }}>Who contributed what to this project</p>
 
       <div className="space-y-4">
         {people.map((person, index) => (
           <motion.div key={person.name} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: index * 0.08 }}>
             <div className="w-full sm:w-[180px] sm:min-w-[180px] flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center font-semibold" style={{ background: "#0ABFBC", color: "#060B0F" }}>{person.name.slice(0, 1).toUpperCase()}</div>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center font-semibold" style={{ background: "#6366F1", color: "#060B0F" }}>{person.name.slice(0, 1).toUpperCase()}</div>
               <div className="min-w-0"><p className="text-white text-sm font-medium truncate">{person.name}</p><p className="text-xs" style={{ color: "#7A9BAD" }}>{person.messageCount} messages</p></div>
             </div>
             <div className="w-full sm:flex-1 h-2 rounded" style={{ background: "#1A2E3A" }}>
@@ -119,7 +119,7 @@ export default function ParticipationChart({ analysis }: Props) {
             <p className="text-xs mt-1" style={{ color: "#7A9BAD" }}>{people[0]?.messageCount ?? 0} messages</p>
           </div>
           <div className="rounded-xl p-4 min-w-0" style={{ background: "#111E26", border: "1px solid #1A2E3A" }}>
-            <Trophy size={18} style={{ color: "#0ABFBC" }} />
+            <Trophy size={18} style={{ color: "#6366F1" }} />
             <p className="text-xs mt-2" style={{ color: "#7A9BAD" }}>Tasks Champion</p>
             <p className="text-white font-semibold mt-1 leading-snug break-words">{champion?.name ?? "No data"}</p>
             <p className="text-xs mt-1" style={{ color: "#7A9BAD" }}>{champion?.tasksCompleted ?? 0} completed</p>
@@ -128,7 +128,7 @@ export default function ParticipationChart({ analysis }: Props) {
             <UserRound size={18} style={{ color: "#7A9BAD" }} />
             <p className="text-xs mt-2" style={{ color: "#7A9BAD" }}>Needs Engagement</p>
             <p className="text-white font-semibold mt-1 leading-snug break-words">{least ?? "Balanced team"}</p>
-            <p className="text-xs mt-1" style={{ color: "#7A9BAD" }}>{least ? `Only ${leastStats?.messageCount ?? 0} messages` : "Everyone participated equally 🎉"}</p>
+            <p className="text-xs mt-1" style={{ color: "#7A9BAD" }}>{least ? `Only ${leastStats?.messageCount ?? 0} messages` : "Everyone participated equally ??"}</p>
           </div>
         </div>
         <div className="rounded-xl p-5 flex items-center justify-center" style={{ background: "#111E26", border: "1px solid #1A2E3A" }}><Ring score={analysis.summary.collaborationScore} /></div>

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -10,7 +10,7 @@ function EvidenceToggle({ evidence }: { evidence: string }) {
   return (
     <div className="mt-2">
       <button onClick={() => setOpen((o) => !o)} style={{ background: "none", border: "none", cursor: "pointer", color: "#3A5060", fontSize: 12 }}>
-        {open ? "Hide evidence ↑" : "Show evidence ↓"}
+        {open ? "Hide evidence ?" : "Show evidence ?"}
       </button>
       <AnimatePresence>
         {open && (
@@ -28,18 +28,18 @@ function DecisionItem({ d, i, isLast }: { d: Decision; i: number; isLast: boolea
   return (
     <motion.div className="relative" style={{ paddingLeft: 28, paddingBottom: isLast ? 0 : 24 }} initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.35, delay: i * 0.07 }}>
       {!isLast && <div style={{ position: "absolute", left: 5, top: 16, bottom: 0, width: 2, background: "#1A2E3A" }} />}
-      <div style={{ position: "absolute", left: 0, top: 4, width: 12, height: 12, background: "#0ABFBC", borderRadius: "50%", zIndex: 1 }} />
+      <div style={{ position: "absolute", left: 0, top: 4, width: 12, height: 12, background: "#6366F1", borderRadius: "50%", zIndex: 1 }} />
 
       <div style={{ background: "#0C1419", border: "1px solid #1A2E3A", borderRadius: 10, padding: 16 }}>
         <div className="flex items-center justify-between mb-2">
-          <span className="font-semibold uppercase tracking-wider" style={{ fontSize: 11, color: "#0ABFBC" }}>✅ Decision</span>
+          <span className="font-semibold uppercase tracking-wider" style={{ fontSize: 11, color: "#6366F1" }}>? Decision</span>
           {d.timestamp && <span className="text-xs" style={{ color: "#3A5060" }}>{d.timestamp}</span>}
         </div>
         <p className="text-white font-medium leading-snug mb-3 break-words" style={{ fontSize: 15 }}>{d.decision}</p>
         <div className="flex items-center gap-2">
           <span className="text-xs" style={{ color: "#8899AA" }}>Decided by:</span>
-          <div className="flex items-center justify-center rounded-full font-bold text-white shrink-0" style={{ width: 22, height: 22, background: "#0ABFBC", fontSize: 11 }}>{initial}</div>
-          <span className="text-sm font-medium" style={{ color: "#0ABFBC" }}>{d.decidedBy}</span>
+          <div className="flex items-center justify-center rounded-full font-bold text-white shrink-0" style={{ width: 22, height: 22, background: "#6366F1", fontSize: 11 }}>{initial}</div>
+          <span className="text-sm font-medium" style={{ color: "#6366F1" }}>{d.decidedBy}</span>
         </div>
         {d.evidence && <EvidenceToggle evidence={d.evidence} />}
       </div>
@@ -50,7 +50,7 @@ function DecisionItem({ d, i, isLast }: { d: Decision; i: number; isLast: boolea
 export default function DecisionLog({ decisions }: { decisions: Decision[] }) {
   return (
     <div>
-      <div className="flex items-center gap-2.5 mb-1"><Gavel size={20} style={{ color: "#0ABFBC" }} /><h2 className="font-semibold text-white" style={{ fontSize: 20 }}>Decision Log</h2></div>
+      <div className="flex items-center gap-2.5 mb-1"><Gavel size={20} style={{ color: "#6366F1" }} /><h2 className="font-semibold text-white" style={{ fontSize: 20 }}>Decision Log</h2></div>
       <p className="text-sm mb-6" style={{ color: "#8899AA" }}>{decisions.length} decision{decisions.length !== 1 ? "s" : ""} made in this chat</p>
 
       {decisions.length === 0 ? (

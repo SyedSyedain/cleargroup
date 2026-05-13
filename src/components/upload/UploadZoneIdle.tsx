@@ -33,22 +33,22 @@ export default function UploadZoneIdle({
       variants={{
         idle:  { scale: 1,     boxShadow: "none" },
         hover: { scale: 1.005 },
-        drag:  { scale: 1.01, boxShadow: "0 0 0 4px #0ABFBC20, 0 0 24px #0ABFBC30" },
+        drag:  { scale: 1.01, boxShadow: "0 0 0 4px #6366F120, 0 0 24px #6366F130" },
       }}
       transition={{ duration: 0.2 }}
       className="relative flex flex-col items-center justify-between cursor-pointer select-none overflow-hidden"
       style={{
         width: "100%", minHeight: 380, borderRadius: 20, padding: "32px 24px",
-        border: `2px ${isDragging ? "solid" : "dashed"} ${isDragging ? "#0ABFBC" : "#1A2E3A"}`,
+        border: `2px ${isDragging ? "solid" : "dashed"} ${isDragging ? "#6366F1" : "#1A2E3A"}`,
         background: isDragging
-          ? "linear-gradient(135deg,rgba(10,191,188,0.03),rgba(6,214,160,0.03))"
+          ? "linear-gradient(135deg,rgba(99,102,241,0.03),rgba(139,92,246,0.03))"
           : "#0C1419",
         transition: "border-color 0.25s ease, background 0.25s ease",
       }}
     >
       {isDragging && CORNERS.map((pos) => (
         <span key={pos} className={`absolute ${pos} w-2 h-2 rounded-full animate-ping`}
-          style={{ background: "#0ABFBC" }} />
+          style={{ background: "#6366F1" }} />
       ))}
 
       {/* Icon + text */}
@@ -58,11 +58,11 @@ export default function UploadZoneIdle({
             animate={{ rotate: 360 }}
             transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
             className="absolute rounded-full border-2 border-dashed"
-            style={{ width: 104, height: 104, borderColor: "rgba(10,191,188,0.30)" }}
+            style={{ width: 104, height: 104, borderColor: "rgba(99,102,241,0.30)" }}
           />
           <motion.div
             animate={isDragging
-              ? { y: -12, boxShadow: "0 0 24px #0ABFBC60" }
+              ? { y: -12, boxShadow: "0 0 24px #6366F160" }
               : { y: [0, -6, 0], boxShadow: "0 0 0px transparent" }
             }
             transition={isDragging
@@ -72,12 +72,12 @@ export default function UploadZoneIdle({
             className="relative flex items-center justify-center rounded-full"
             style={{ width: 80, height: 80, background: "#111E26" }}
           >
-            <UploadCloud size={32} style={{ color: "#0ABFBC" }} />
+            <UploadCloud size={32} style={{ color: "#6366F1" }} />
           </motion.div>
         </div>
 
         <div className="text-center">
-          <p className="font-semibold" style={{ fontSize: 20, color: isDragging ? "#0ABFBC" : "white" }}>
+          <p className="font-semibold" style={{ fontSize: 20, color: isDragging ? "#6366F1" : "white" }}>
             {isDragging ? "Release to upload your chat" : "Drop your WhatsApp chat here"}
           </p>
           {!isDragging && (
@@ -95,16 +95,16 @@ export default function UploadZoneIdle({
         )}
       </div>
 
-      {/* Bottom links — stop propagation so they don't open the file picker */}
+      {/* Bottom links â€” stop propagation so they don't open the file picker */}
       <div className="w-full flex flex-col items-center gap-3" onClick={(e) => e.stopPropagation()}>
 
         {/* Sample chat link */}
         <button
           onClick={onLoadSample}
           className="text-sm font-medium transition-colors duration-150"
-          style={{ color: "#0ABFBC" }}
+          style={{ color: "#6366F1" }}
         >
-          Or try with a sample chat →
+          Or try with a sample chat â†’
         </button>
 
         {/* Export guide accordion */}

@@ -50,7 +50,7 @@ export default function MobileTabBar() {
             style={{
               flex: 1, height: "100%", cursor: "pointer",
               background: "transparent", border: "none",
-              color: on ? "#0ABFBC" : "#3A5060",
+              color: on ? "#6366F1" : "#3A5060",
               transition: "color 0.15s",
             }}
           >

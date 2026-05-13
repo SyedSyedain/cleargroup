@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -36,7 +36,7 @@ export default function SignInButton({ compact = false }: Props) {
           padding: compact ? "8px 12px" : "10px 14px",
           background: "transparent",
           border: "1px solid #1A2E3A",
-          color: "#0ABFBC",
+          color: "#6366F1",
           fontSize: compact ? 13 : 14,
         }}
       >
@@ -67,7 +67,7 @@ export default function SignInButton({ compact = false }: Props) {
             className="w-7 h-7 rounded-full object-cover"
           />
         ) : (
-          <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: "#0ABFBC", color: "#060B0F" }}>
+          <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: "#6366F1", color: "#060B0F" }}>
             <User size={14} />
           </div>
         )}

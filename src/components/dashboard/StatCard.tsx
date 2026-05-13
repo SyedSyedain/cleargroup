@@ -84,7 +84,7 @@ export default function StatCard({
           style={{ height: 6, background: "#1A2E3A" }}>
           <div className="h-full rounded-full"
             style={{ width: `${barW}%`,
-              background: "linear-gradient(90deg,#0ABFBC,#06D6A0)",
+              background: "linear-gradient(90deg,#6366F1,#8B5CF6)",
               transition: "width 0.8s ease" }} />
         </div>
       )}

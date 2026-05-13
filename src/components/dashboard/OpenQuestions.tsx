@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -32,9 +32,9 @@ function QuestionCard({ q, onResolve }: { q: OpenQuestion; onResolve: () => void
       {/* Resolve button */}
       <button onClick={onResolve}
         className="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg"
-        style={{ border: "1px solid rgba(10,191,188,0.3)", color: "#0ABFBC",
+        style={{ border: "1px solid rgba(99,102,241,0.3)", color: "#6366F1",
           background: "transparent", cursor: "pointer", transition: "background 0.15s", whiteSpace: "nowrap" }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(10,191,188,0.08)"; }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(99,102,241,0.08)"; }}
         onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}>
         Mark Resolved
       </button>
@@ -64,9 +64,9 @@ export default function OpenQuestions({ questions }: { questions: OpenQuestion[]
       {visible.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-10"
           style={{ background: "#0C1419", border: "1px solid #1A2E3A", borderRadius: 12 }}>
-          <CheckCircle2 size={28} style={{ color: "#06D6A0" }} />
-          <p className="text-sm font-medium" style={{ color: "#06D6A0" }}>
-            All questions have been answered! ✅</p>
+          <CheckCircle2 size={28} style={{ color: "#8B5CF6" }} />
+          <p className="text-sm font-medium" style={{ color: "#8B5CF6" }}>
+            All questions have been answered! ?</p>
         </div>
       ) : (
         <AnimatePresence mode="popLayout">

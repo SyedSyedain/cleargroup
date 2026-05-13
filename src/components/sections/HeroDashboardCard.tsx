@@ -59,7 +59,7 @@ function TaskColumn({ col }: { col: Column }) {
   );
 }
 
-// Floating mock dashboard — sea green pulsing glow, fades in then floats
+// Floating mock dashboard â€” sea green pulsing glow, fades in then floats
 export default function HeroDashboardCard() {
   return (
     <motion.div
@@ -70,11 +70,11 @@ export default function HeroDashboardCard() {
     >
       {/* Main card with sea green pulsing glow */}
       <motion.div
-        className="animate-float rounded-card border border-[#0ABFBC]/30 bg-cg-surface overflow-hidden"
+        className="animate-float rounded-card border border-[#6366F1]/30 bg-cg-surface overflow-hidden"
         animate={{ boxShadow: [
-          "0 0 40px rgba(10,191,188,0.18)",
-          "0 0 90px rgba(10,191,188,0.40)",
-          "0 0 40px rgba(10,191,188,0.18)",
+          "0 0 40px rgba(99,102,241,0.18)",
+          "0 0 90px rgba(99,102,241,0.40)",
+          "0 0 40px rgba(99,102,241,0.18)",
         ]}}
         transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
       >
@@ -86,11 +86,11 @@ export default function HeroDashboardCard() {
             <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
           </div>
           <span className="text-cg-muted text-[11px] font-medium mx-auto pr-12">
-            ClearGroup — Project Alpha
+            ClearGroup â€” Project Alpha
           </span>
         </div>
 
-        {/* Task board — 3 person columns */}
+        {/* Task board â€” 3 person columns */}
         <div className="flex gap-3 p-4 overflow-x-auto">
           {columns.map((col) => (
             <TaskColumn key={col.person} col={col} />
@@ -98,7 +98,7 @@ export default function HeroDashboardCard() {
         </div>
       </motion.div>
 
-      {/* Floating badge — bottom left */}
+      {/* Floating badge â€” bottom left */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -109,7 +109,7 @@ export default function HeroDashboardCard() {
         <span className="text-cg-text text-xs font-semibold whitespace-nowrap">5 tasks extracted</span>
       </motion.div>
 
-      {/* Floating badge — bottom right */}
+      {/* Floating badge â€” bottom right */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}

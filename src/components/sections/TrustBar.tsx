@@ -9,17 +9,17 @@ interface Testimonial { quote: string; name: string; detail: string; initial: st
 
 const testimonials: Testimonial[] = [
   { quote:   "Our group had 2,300+ messages before the deadline. ClearGroup pulled out every task in under 10 seconds.",
-    name:    "Arjun M.", detail: "B.Tech CSE · final-year capstone", initial: "A" },
+    name:    "Arjun M.", detail: "B.Tech CSE Â· final-year capstone", initial: "A" },
   { quote:   "I could finally see who was actually doing what. Saved us from a complete mess two days before submission.",
-    name:    "Priya S.", detail: "MBA · operations team lead",       initial: "P" },
-  { quote:   "Pasted the export and got a full breakdown — tasks, decisions, blockers. Used it as our official project log.",
-    name:    "Rahul K.", detail: "M.Tech · research group",          initial: "R" },
+    name:    "Priya S.", detail: "MBA Â· operations team lead",       initial: "P" },
+  { quote:   "Pasted the export and got a full breakdown â€” tasks, decisions, blockers. Used it as our official project log.",
+    name:    "Rahul K.", detail: "M.Tech Â· research group",          initial: "R" },
 ];
 
 type Metric = { raw: string; label: string; target: number; decimals: number; prefix: string; suffix: string; from: number };
 const metrics: Metric[] = [
   { raw: "500+",  label: "chats analyzed in beta",  target: 500, decimals: 0, prefix: "",   suffix: "+", from: 0  },
-  { raw: "4.8★",  label: "avg rating from testers", target: 4.8, decimals: 1, prefix: "",   suffix: "★", from: 0  },
+  { raw: "4.8â˜…",  label: "avg rating from testers", target: 4.8, decimals: 1, prefix: "",   suffix: "â˜…", from: 0  },
   { raw: "< 15s", label: "to get your dashboard",   target: 15,  decimals: 0, prefix: "< ", suffix: "s", from: 30 },
 ];
 
@@ -57,7 +57,7 @@ function QuoteCard({ quote, name, detail, initial }: Testimonial) {
       {/* Avatar + name */}
       <div className="flex items-center gap-3">
         <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 font-bold text-sm text-white"
-          style={{ background: "#0ABFBC" }}>
+          style={{ background: "#6366F1" }}>
           {initial}
         </div>
         <div>
@@ -71,7 +71,7 @@ function QuoteCard({ quote, name, detail, initial }: Testimonial) {
   );
 }
 
-// Social proof bar — star rating, testimonials with avatars, count-up metrics
+// Social proof bar â€” star rating, testimonials with avatars, count-up metrics
 export default function TrustBar() {
   return (
     <section className="border-y border-cg-border bg-cg-bg py-12">

@@ -60,9 +60,9 @@ export default function DateRangeFilter({
               className="relative cursor-pointer"
               style={{
                 padding: "8px 16px", borderRadius: 100, fontSize: 13,
-                border: `1px solid ${active ? "#0ABFBC" : "#1A2E3A"}`,
+                border: `1px solid ${active ? "#6366F1" : "#1A2E3A"}`,
                 background: "#111E26",
-                color: active ? "#0ABFBC" : "#8899AA",
+                color: active ? "#6366F1" : "#8899AA",
                 fontWeight: active ? 500 : 400,
                 transition: "border-color 0.2s, color 0.2s",
               }}
@@ -83,7 +83,7 @@ export default function DateRangeFilter({
                 <motion.div
                   layoutId="pill-highlight"
                   className="absolute inset-0 rounded-full"
-                  style={{ background: "#0ABFBC15" }}
+                  style={{ background: "#6366F115" }}
                   transition={{ type: "spring", stiffness: 500, damping: 35 }}
                 />
               )}
@@ -110,7 +110,7 @@ export default function DateRangeFilter({
                     defaultValue={toValue(i === 0 ? customStart : customEnd)}
                     onChange={(e) => handleDate(i === 0 ? "start" : "end", e.target.value)}
                     style={inputStyle}
-                    onFocus={(e)  => { e.currentTarget.style.borderColor = "#0ABFBC"; }}
+                    onFocus={(e)  => { e.currentTarget.style.borderColor = "#6366F1"; }}
                     onBlur={(e)   => { e.currentTarget.style.borderColor = "#1A2E3A"; }}
                   />
                 </div>

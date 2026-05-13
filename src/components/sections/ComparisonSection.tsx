@@ -5,7 +5,7 @@ import { motion, useMotionValue, useTransform, animate, useInView, type Variants
 import ComparisonChatPanel from "./ComparisonChatPanel";
 import ComparisonDashPanel from "./ComparisonDashPanel";
 
-// Staggered fade-up for section elements — headline/labels/container/subtext
+// Staggered fade-up for section elements â€” headline/labels/container/subtext
 const fadeUp = (delay: number): Variants => ({
   hidden:  { opacity: 0, y: 24 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut", delay } },
@@ -16,11 +16,11 @@ export default function ComparisonSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const isDragging   = useRef(false);
   const isInView     = useInView(sectionRef, { once: true, amount: 0.1 });
-  const sliderPos    = useMotionValue(50);                           // percent 0–100
-  // Invert: drag right → more dashboard (right panel); drag left → more WhatsApp (left panel)
+  const sliderPos    = useMotionValue(50);                           // percent 0â€“100
+  // Invert: drag right â†’ more dashboard (right panel); drag left â†’ more WhatsApp (left panel)
   const leftWidth    = useTransform(sliderPos, (p) => `${100 - p}%`);
 
-  // Hint — auto-slides to reveal more dashboard side, then resets
+  // Hint â€” auto-slides to reveal more dashboard side, then resets
   useEffect(() => {
     if (typeof window !== "undefined" && window.innerWidth < 768) return;
     const t = setTimeout(() => {
@@ -71,7 +71,7 @@ export default function ComparisonSection() {
           className="flex justify-between items-center mb-3"
         >
           <div className="flex items-center gap-2">
-            <span className="text-xl">🤯</span>
+            <span className="text-xl">ðŸ¤¯</span>
             <span className="hidden sm:inline text-sm font-medium" style={{ color: "rgba(255,255,255,0.55)" }}>Your group right now</span>
             <span className="text-[11px] font-semibold px-3 py-1 rounded-full"
               style={{ background: "#FF6B6B22", color: "#FF6B6B", border: "1px solid #FF6B6B44" }}>
@@ -80,11 +80,11 @@ export default function ComparisonSection() {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-semibold px-3 py-1 rounded-full"
-              style={{ background: "#0ABFBC22", color: "#0ABFBC", border: "1px solid #0ABFBC44" }}>
+              style={{ background: "#6366F122", color: "#6366F1", border: "1px solid #6366F144" }}>
               30s to process
             </span>
             <span className="hidden sm:inline text-sm font-medium" style={{ color: "rgba(255,255,255,0.55)" }}>After ClearGroup</span>
-            <span className="text-xl">✅</span>
+            <span className="text-xl">âœ…</span>
           </div>
         </motion.div>
 
@@ -95,35 +95,35 @@ export default function ComparisonSection() {
           className="relative flex overflow-hidden h-[400px] sm:h-[460px] md:h-[520px]"
           style={{ borderRadius: 16, border: "1px solid #1A2E3A" }}
         >
-          {/* Left panel — Before (WhatsApp) */}
+          {/* Left panel â€” Before (WhatsApp) */}
           <motion.div className="overflow-hidden shrink-0 h-full" style={{ width: leftWidth }}>
             <ComparisonChatPanel />
           </motion.div>
 
-          {/* Right panel — After (Dashboard) */}
+          {/* Right panel â€” After (Dashboard) */}
           <div className="overflow-hidden flex-1 h-full">
             <ComparisonDashPanel />
           </div>
 
-          {/* Divider line — desktop only */}
+          {/* Divider line â€” desktop only */}
           <motion.div
             className="absolute top-0 bottom-0 pointer-events-none hidden md:block"
-            style={{ left: leftWidth, translateX: "-1px", width: 2, background: "#0ABFBC", zIndex: 20 }}
+            style={{ left: leftWidth, translateX: "-1px", width: 2, background: "#6366F1", zIndex: 20 }}
           />
 
-          {/* Drag handle — desktop only */}
+          {/* Drag handle â€” desktop only */}
           <motion.div
             className="absolute top-1/2 hidden md:flex items-center justify-center cursor-col-resize touch-none"
             style={{ left: leftWidth, translateX: "-50%", translateY: "-50%", width: 40, height: 40,
-              background: "#0ABFBC", border: "3px solid white", borderRadius: "50%", zIndex: 30 }}
+              background: "#6366F1", border: "3px solid white", borderRadius: "50%", zIndex: 30 }}
             onMouseDown={() => { isDragging.current = true; }}
             onTouchStart={() => { isDragging.current = true; }}
             whileHover={{ scale: 1.1, transition: { duration: 0.15 } }}
-            animate={{ boxShadow: ["0 0 8px #0ABFBC80", "0 0 20px #0ABFBC", "0 0 8px #0ABFBC80"] }}
+            animate={{ boxShadow: ["0 0 8px #6366F180", "0 0 20px #6366F1", "0 0 8px #6366F180"] }}
             transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
           >
             <span style={{ color: "#060B0F", fontSize: 13, fontWeight: 700, userSelect: "none", lineHeight: 1 }}>
-              ← →
+              â† â†’
             </span>
           </motion.div>
         </motion.div>

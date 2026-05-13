@@ -12,13 +12,13 @@ interface Props { parsedChat: ParsedChat; onError: (type: ErrorType, message: st
 
 const PHASE1_MS = 8_000;
 const STEPS = [
-  "📖 Reading your chat messages...",
-  "🔍 Identifying who said what...",
-  "✅ Extracting task assignments...",
-  "📅 Finding deadlines and dates...",
-  "⚠️  Detecting blockers...",
-  "🧠 Understanding context...",
-  "✨ Almost done...",
+  "ðŸ“– Reading your chat messages...",
+  "ðŸ” Identifying who said what...",
+  "âœ… Extracting task assignments...",
+  "ðŸ“… Finding deadlines and dates...",
+  "âš ï¸  Detecting blockers...",
+  "ðŸ§  Understanding context...",
+  "âœ¨ Almost done...",
 ];
 const R = 44, CIRC = 2 * Math.PI * R;
 
@@ -34,19 +34,19 @@ export default function UploadZoneProcessing({ parsedChat, onError }: Props) {
   const { apiDone }           = useAnalysis(onError);
 
   const milestones = useMemo(() => [
-    { at: 25,  pill: `👥 ${parsedChat.participants.length} members found`                },
-    { at: 50,  pill: `💬 ${parsedChat.totalMessages.toLocaleString()} messages scanned` },
-    { at: 75,  pill: "✅ Detecting tasks..."  },
-    { at: 100, pill: "🎯 Analysis complete!" },
+    { at: 25,  pill: `ðŸ‘¥ ${parsedChat.participants.length} members found`                },
+    { at: 50,  pill: `ðŸ’¬ ${parsedChat.totalMessages.toLocaleString()} messages scanned` },
+    { at: 75,  pill: "âœ… Detecting tasks..."  },
+    { at: 100, pill: "ðŸŽ¯ Analysis complete!" },
   ], [parsedChat]);
 
   const preview = useMemo(() =>
     parsedChat.messages.slice(0, 6).map((m) => ({
       name: cleanNameForDisplay(m.sender),
-      text: m.content.length > 55 ? m.content.slice(0, 55) + "…" : m.content,
+      text: m.content.length > 55 ? m.content.slice(0, 55) + "â€¦" : m.content,
     })), [parsedChat]);
 
-  // Phase 1: drive 0 → 85% over PHASE1_MS, then hold
+  // Phase 1: drive 0 â†’ 85% over PHASE1_MS, then hold
   useEffect(() => {
     const t0 = Date.now();
     phaseRef.current = setInterval(() => {
@@ -57,7 +57,7 @@ export default function UploadZoneProcessing({ parsedChat, onError }: Props) {
     return () => { if (phaseRef.current) clearInterval(phaseRef.current); };
   }, []);
 
-  // Phase 3: API responded → clear interval and jump to 100%
+  // Phase 3: API responded â†’ clear interval and jump to 100%
   useEffect(() => {
     if (!apiDone) return;
     if (phaseRef.current) { clearInterval(phaseRef.current); phaseRef.current = null; }
@@ -96,15 +96,15 @@ export default function UploadZoneProcessing({ parsedChat, onError }: Props) {
   }, [done, router]);
 
   const paused    = pct >= 85 && !apiDone && !done;
-  const statusMsg = done ? null : paused ? "🧠 Deep analysis in progress..." : STEPS[step];
+  const statusMsg = done ? null : paused ? "ðŸ§  Deep analysis in progress..." : STEPS[step];
 
   return (
     <div className="flex flex-col gap-5"
       style={{ width: "100%", minHeight: 380, borderRadius: 20, padding: "32px 24px",
         background: "#0C1419",
         boxShadow: done
-          ? "0 0 0 1px #06D6A0, 0 0 30px #06D6A030"
-          : "0 0 0 1px #0ABFBC, 0 0 20px #0ABFBC20",
+          ? "0 0 0 1px #8B5CF6, 0 0 30px #8B5CF630"
+          : "0 0 0 1px #6366F1, 0 0 20px #6366F120",
         transition: "box-shadow 0.6s ease" }}>
 
       {/* Ring + percentage */}
@@ -118,7 +118,7 @@ export default function UploadZoneProcessing({ parsedChat, onError }: Props) {
             className="absolute inset-0">
             <svg viewBox="0 0 100 100" className="w-full h-full">
               <circle cx="50" cy="50" r={R} fill="none"
-                stroke={paused ? "#F59E0B" : "#0ABFBC"} strokeWidth="7"
+                stroke={paused ? "#F59E0B" : "#6366F1"} strokeWidth="7"
                 strokeLinecap="round"
                 strokeDasharray={`${CIRC * 0.72} ${CIRC * 0.28}`}
                 transform="rotate(-90 50 50)" />
@@ -127,7 +127,7 @@ export default function UploadZoneProcessing({ parsedChat, onError }: Props) {
           {done
             ? <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 300, damping: 18 }}
-                className="relative text-2xl">✅</motion.span>
+                className="relative text-2xl">âœ…</motion.span>
             : <span className="relative font-bold tabular-nums"
                 style={{ fontSize: 22, color: paused ? "#F59E0B" : "white" }}>{pct}%</span>
           }
@@ -149,10 +149,10 @@ export default function UploadZoneProcessing({ parsedChat, onError }: Props) {
           <motion.div className="h-full rounded-full" animate={{ width: `${pct}%` }}
             transition={{ duration: 0.2 }}
             style={{ background: done
-              ? "linear-gradient(90deg,#06D6A0,#0ABFBC)"
+              ? "linear-gradient(90deg,#8B5CF6,#6366F1)"
               : paused
                 ? "linear-gradient(90deg,#F59E0B,#FBBF24)"
-                : "linear-gradient(90deg,#0ABFBC,#06D6A0)" }} />
+                : "linear-gradient(90deg,#6366F1,#8B5CF6)" }} />
         </div>
       </div>
 
@@ -168,13 +168,13 @@ export default function UploadZoneProcessing({ parsedChat, onError }: Props) {
             className="relative overflow-hidden flex items-center gap-2 px-3 py-2 rounded-lg"
             style={{ background: "#111E26" }}>
             <span className="text-[10px] font-bold shrink-0 truncate max-w-[80px]"
-              style={{ color: "#0ABFBC" }}>{b.name}:</span>
+              style={{ color: "#6366F1" }}>{b.name}:</span>
             <span className="text-[11px] truncate flex-1" style={{ color: "#8899AA" }}>{b.text}</span>
             <motion.div
               initial={{ x: "-100%" }} animate={{ x: "500%" }}
               transition={{ duration: 0.7, delay: i * 0.25, ease: "easeInOut" }}
               className="absolute inset-y-0 w-8 pointer-events-none"
-              style={{ background: "linear-gradient(90deg,transparent,rgba(10,191,188,0.22),transparent)" }}
+              style={{ background: "linear-gradient(90deg,transparent,rgba(99,102,241,0.22),transparent)" }}
             />
           </motion.div>
         ))}
@@ -189,7 +189,7 @@ export default function UploadZoneProcessing({ parsedChat, onError }: Props) {
               transition={{ type: "spring", stiffness: 400, damping: 20 }}
               className="text-xs px-3 py-1 rounded-full font-medium"
               style={{ background: "#111E26", border: "1px solid #1A2E3A",
-                color: pill.includes("complete") ? "#0ABFBC" : "#8899AA" }}>
+                color: pill.includes("complete") ? "#6366F1" : "#8899AA" }}>
               {pill}
             </motion.span>
           ))}

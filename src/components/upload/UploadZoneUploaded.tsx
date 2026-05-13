@@ -61,7 +61,7 @@ export default function UploadZoneUploaded({ file, parsedChat, onRemove, onAnaly
   return (
     <div className="flex flex-col gap-4"
       style={{ width: "100%", minHeight: 380, borderRadius: 20, padding: "28px 24px",
-        border: "1px solid #0ABFBC", background: "#0C1419" }}>
+        border: "1px solid #6366F1", background: "#0C1419" }}>
 
       {/* Success icon */}
       <motion.div {...fadeUp(0)} className="flex flex-col items-center gap-3">
@@ -70,9 +70,9 @@ export default function UploadZoneUploaded({ file, parsedChat, onRemove, onAnaly
           animate={{ scale: [0, 1.2, 1] }}
           transition={{ duration: 0.5, ease: "easeOut", times: [0, 0.6, 1] }}
           className="flex items-center justify-center rounded-full"
-          style={{ width: 64, height: 64, background: "#06D6A018", border: "2px solid #06D6A0" }}
+          style={{ width: 64, height: 64, background: "#8B5CF618", border: "2px solid #8B5CF6" }}
         >
-          <CheckCircle2 size={28} style={{ color: "#06D6A0" }} />
+          <CheckCircle2 size={28} style={{ color: "#8B5CF6" }} />
         </motion.div>
         <p className="font-semibold text-white text-lg">File uploaded successfully!</p>
       </motion.div>
@@ -82,7 +82,7 @@ export default function UploadZoneUploaded({ file, parsedChat, onRemove, onAnaly
         className="flex items-center gap-3 p-4 rounded-[10px]"
         style={{ background: "#111E26", border: "1px solid #1A2E3A" }}
       >
-        <FileText size={22} style={{ color: "#0ABFBC", flexShrink: 0 }} />
+        <FileText size={22} style={{ color: "#6366F1", flexShrink: 0 }} />
         <div className="flex-1 min-w-0">
           <p className="text-white font-medium text-sm truncate">{file.name}</p>
           <p className="text-xs mt-0.5" style={{ color: "#8899AA" }}>
@@ -112,7 +112,7 @@ export default function UploadZoneUploaded({ file, parsedChat, onRemove, onAnaly
 
       <div className="flex-1" />
 
-      {/* Typed error card — shown when a previous analysis attempt failed */}
+      {/* Typed error card â€” shown when a previous analysis attempt failed */}
       {apiError && (
         <motion.div {...fadeUp(0.45)}>
           <AnalysisErrorCard
@@ -136,8 +136,8 @@ export default function UploadZoneUploaded({ file, parsedChat, onRemove, onAnaly
           style={{ height: 52, fontSize: 16, color: "#060B0F",
             background: filtered.length === 0
               ? "#1A2E3A"
-              : "linear-gradient(135deg, #0ABFBC, #06D6A0)",
-            boxShadow: filtered.length === 0 ? "none" : "0 4px 20px rgba(10,191,188,0.40)",
+              : "linear-gradient(135deg, #6366F1, #8B5CF6)",
+            boxShadow: filtered.length === 0 ? "none" : "0 4px 20px rgba(99,102,241,0.40)",
             transition: "background 0.3s, box-shadow 0.3s" }}
         >
           {filtered.length === 0 ? (

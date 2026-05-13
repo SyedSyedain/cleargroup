@@ -45,17 +45,17 @@ function DeadlineCard({ dl, i }: { dl: Deadline; i: number }) {
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs px-2 py-0.5 rounded-full font-medium"
             style={{
-              background: dl.isConfirmed ? "rgba(6,214,160,0.12)" : "rgba(255,179,71,0.12)",
-              color:      dl.isConfirmed ? "#06D6A0" : "#FFB347",
-              border:     dl.isConfirmed ? "1px solid rgba(6,214,160,0.25)" : "1px solid rgba(255,179,71,0.25)",
+              background: dl.isConfirmed ? "rgba(139,92,246,0.12)" : "rgba(255,179,71,0.12)",
+              color:      dl.isConfirmed ? "#8B5CF6" : "#FFB347",
+              border:     dl.isConfirmed ? "1px solid rgba(139,92,246,0.25)" : "1px solid rgba(255,179,71,0.25)",
             }}>
-            {dl.isConfirmed ? "✓ Confirmed" : "Unconfirmed"}
+            {dl.isConfirmed ? "âœ“ Confirmed" : "Unconfirmed"}
           </span>
           {days !== null && (
             <span className="text-xs px-2 py-0.5 rounded-full font-medium"
               style={{
-                background: isPast ? "rgba(255,107,107,0.12)" : "rgba(10,191,188,0.12)",
-                color:      isPast ? "#FF6B6B" : "#0ABFBC",
+                background: isPast ? "rgba(255,107,107,0.12)" : "rgba(99,102,241,0.12)",
+                color:      isPast ? "#FF6B6B" : "#6366F1",
               }}>
               {isPast ? `${Math.abs(days)} days ago` : days === 0 ? "Today!" : `In ${days} days`}
             </span>
@@ -72,7 +72,7 @@ export default function DeadlineTracker({ deadlines }: { deadlines: Deadline[] }
   return (
     <div>
       <div className="flex items-center gap-2.5 mb-4">
-        <Calendar size={20} style={{ color: "#0ABFBC" }} />
+        <Calendar size={20} style={{ color: "#6366F1" }} />
         <h2 className="font-semibold text-white" style={{ fontSize: 20 }}>Deadlines</h2>
       </div>
 
@@ -85,7 +85,7 @@ export default function DeadlineTracker({ deadlines }: { deadlines: Deadline[] }
             const d        = new Date(dl.date);
             return (
               <div key={dl.id} className="shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold"
-                style={{ background: upcoming ? "#0ABFBC" : "#1A2E3A",
+                style={{ background: upcoming ? "#6366F1" : "#1A2E3A",
                   color: upcoming ? "#060B0F" : "#8899AA", whiteSpace: "nowrap" }}>
                 {d.toLocaleString("default", { month: "short", day: "numeric" })}
               </div>

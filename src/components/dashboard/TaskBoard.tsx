@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -71,9 +71,9 @@ export default function TaskBoard({ tasks, projectId, highlightAssignee = null }
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <h2 className="font-semibold text-white" style={{ fontSize: 20 }}>Task Board</h2>
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full" title="Updates in real-time for all team members" style={{ background: "#0ABFBC15", border: "1px solid #0ABFBC30" }}>
-            <Radio size={12} style={{ color: "#06D6A0" }} />
-            <span style={{ color: "#0ABFBC", fontSize: 12, fontWeight: 600 }}>Live</span>
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full" title="Updates in real-time for all team members" style={{ background: "#6366F115", border: "1px solid #6366F130" }}>
+            <Radio size={12} style={{ color: "#8B5CF6" }} />
+            <span style={{ color: "#6366F1", fontSize: 12, fontWeight: 600 }}>Live</span>
             <CircleHelp size={11} style={{ color: "#7A9BAD" }} />
           </div>
         </div>
@@ -82,7 +82,7 @@ export default function TaskBoard({ tasks, projectId, highlightAssignee = null }
           {FILTERS.map(({ id, label }) => {
             const on = filter === id;
             return (
-              <button key={id} onClick={() => setFilter(id)} className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-150" style={{ background: on ? "#0ABFBC" : "#111E26", color: on ? "#060B0F" : "#8899AA", border: on ? "1px solid #0ABFBC" : "1px solid #1A2E3A", cursor: "pointer" }}>
+              <button key={id} onClick={() => setFilter(id)} className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-150" style={{ background: on ? "#6366F1" : "#111E26", color: on ? "#060B0F" : "#8899AA", border: on ? "1px solid #6366F1" : "1px solid #1A2E3A", cursor: "pointer" }}>
                 {label}
               </button>
             );
@@ -119,10 +119,10 @@ export default function TaskBoard({ tasks, projectId, highlightAssignee = null }
           <p className="text-sm" style={{ color: "#8899AA" }}>
             <span className="text-white font-semibold">{done}</span> of <span className="text-white font-semibold">{allTasks.length}</span> tasks completed • <span style={{ color: "#FFB347" }}>{pending} pending</span> • <span style={{ color: "#FF6B6B" }}>{overdue} overdue</span>
           </p>
-          <span className="font-bold" style={{ fontSize: 14, color: "#0ABFBC" }}>{pct}%</span>
+          <span className="font-bold" style={{ fontSize: 14, color: "#6366F1" }}>{pct}%</span>
         </div>
         <div className="rounded-full overflow-hidden" style={{ height: 6, background: "#1A2E3A" }}>
-          <motion.div className="h-full rounded-full" style={{ background: "linear-gradient(90deg,#0ABFBC,#06D6A0)" }} initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.8, ease: "easeOut" }} />
+          <motion.div className="h-full rounded-full" style={{ background: "linear-gradient(90deg,#6366F1,#8B5CF6)" }} initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.8, ease: "easeOut" }} />
         </div>
       </div>
     </div>

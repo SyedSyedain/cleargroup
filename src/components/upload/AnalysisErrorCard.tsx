@@ -25,7 +25,7 @@ export default function AnalysisErrorCard({ type, message, onRetry, onDismiss }:
   const cfg = CONFIG[type];
   const [countdown, setCountdown] = useState(type === "rate_limit" ? RATE_LIMIT_SECS : 0);
 
-  // Rate-limit countdown — auto-retries when it hits 0
+  // Rate-limit countdown â€” auto-retries when it hits 0
   useEffect(() => {
     if (type !== "rate_limit") return;
     if (countdown <= 0) { onRetry(); return; }
@@ -50,7 +50,7 @@ export default function AnalysisErrorCard({ type, message, onRetry, onDismiss }:
         {/* Warning icon */}
         <div className="flex items-center justify-center rounded-full shrink-0"
           style={{ width: 32, height: 32, background: "#2A0A0A", border: "1px solid #5A1A1A" }}>
-          <span style={{ fontSize: 14 }}>⚠️</span>
+          <span style={{ fontSize: 14 }}>âš ï¸</span>
         </div>
 
         <div className="flex-1 min-w-0">
@@ -58,7 +58,7 @@ export default function AnalysisErrorCard({ type, message, onRetry, onDismiss }:
           <p className="text-sm leading-relaxed mb-3" style={{ color: "#8899AA" }}>
             {message}
             {type === "rate_limit" && countdown > 0 && (
-              <span style={{ color: "#F59E0B" }}> Retrying in {countdown}s…</span>
+              <span style={{ color: "#F59E0B" }}> Retrying in {countdown}sâ€¦</span>
             )}
           </p>
 
@@ -82,8 +82,8 @@ export default function AnalysisErrorCard({ type, message, onRetry, onDismiss }:
               className="transition-colors duration-150"
               style={{ padding: "7px 16px", borderRadius: 8, fontSize: 12,
                 fontWeight: 600, background: "transparent",
-                border: "1px solid #0ABFBC", color: "#0ABFBC", cursor: "pointer" }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(10,191,188,0.08)"; }}
+                border: "1px solid #6366F1", color: "#6366F1", cursor: "pointer" }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(99,102,241,0.08)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
             >
               {cfg.action}

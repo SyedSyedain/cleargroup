@@ -57,7 +57,7 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="flex items-center gap-2.5 mb-3">
         <div className="flex items-center justify-center rounded-lg shrink-0"
-          style={{ width: 32, height: 32, background: "linear-gradient(135deg,#0ABFBC,#06D6A0)" }}>
+          style={{ width: 32, height: 32, background: "linear-gradient(135deg,#6366F1,#8B5CF6)" }}>
           <span className="font-bold" style={{ fontSize: 12, color: "#060B0F" }}>CG</span>
         </div>
         <span className="font-bold text-white" style={{ fontSize: 16, letterSpacing: "-0.3px" }}>ClearGroup</span>
@@ -66,7 +66,7 @@ export default function Sidebar() {
       {/* Project badge */}
       <div className="flex items-center gap-2 mb-6 pl-1">
         <span className="text-xs px-2 py-0.5 rounded-full font-medium"
-          style={{ background: "rgba(10,191,188,0.12)", color: "#0ABFBC", border: "1px solid rgba(10,191,188,0.2)" }}>
+          style={{ background: "rgba(99,102,241,0.12)", color: "#6366F1", border: "1px solid rgba(99,102,241,0.2)" }}>
           Your Project
         </span>
         <span className="flex items-center gap-1" style={{ color: "#3A5060", fontSize: 11 }}>
@@ -83,9 +83,9 @@ export default function Sidebar() {
               className="flex items-center gap-2.5 w-full text-left"
               style={{
                 padding: "10px 12px", borderRadius: 8, fontSize: 14,
-                borderLeft: on ? "2px solid #0ABFBC" : "2px solid transparent",
-                background: on ? "rgba(10,191,188,0.08)" : "transparent",
-                color: on ? "#0ABFBC" : "#8899AA",
+                borderLeft: on ? "2px solid #6366F1" : "2px solid transparent",
+                background: on ? "rgba(99,102,241,0.08)" : "transparent",
+                color: on ? "#6366F1" : "#8899AA",
                 cursor: "pointer", transition: "all 0.15s",
               }}
               onMouseEnter={(e) => { if (!on) { e.currentTarget.style.background = "#111E26"; e.currentTarget.style.color = "#fff"; } }}
@@ -104,9 +104,9 @@ export default function Sidebar() {
         <Link href="/upload"
           className="flex items-center justify-center gap-2 w-full font-semibold"
           style={{ padding: "9px 16px", borderRadius: 8, fontSize: 13,
-            border: "1px solid #0ABFBC", color: "#0ABFBC", background: "transparent",
+            border: "1px solid #6366F1", color: "#6366F1", background: "transparent",
             transition: "background 0.15s" }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(10,191,188,0.08)"; }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(99,102,241,0.08)"; }}
           onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
         >
           <Upload size={14} /> Upload new chat
