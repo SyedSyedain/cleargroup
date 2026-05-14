@@ -66,7 +66,7 @@ export default function OpenQuestions({ questions }: { questions: OpenQuestion[]
           style={{ background: "#0C1121", border: "1px solid #1A2440", borderRadius: 12 }}>
           <CheckCircle2 size={28} style={{ color: "#8B5CF6" }} />
           <p className="text-sm font-medium" style={{ color: "#8B5CF6" }}>
-            All questions have been answered! ?</p>
+            All questions have been answered.</p>
         </div>
       ) : (
         <AnimatePresence mode="popLayout">

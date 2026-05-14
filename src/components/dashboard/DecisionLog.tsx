@@ -10,7 +10,7 @@ function EvidenceToggle({ evidence }: { evidence: string }) {
   return (
     <div className="mt-2">
       <button onClick={() => setOpen((o) => !o)} style={{ background: "none", border: "none", cursor: "pointer", color: "#3D5070", fontSize: 12 }}>
-        {open ? "Hide evidence ?" : "Show evidence ?"}
+        {open ? "Hide evidence" : "Show evidence"}
       </button>
       <AnimatePresence>
         {open && (
@@ -32,7 +32,7 @@ function DecisionItem({ d, i, isLast }: { d: Decision; i: number; isLast: boolea
 
       <div style={{ background: "#0C1121", border: "1px solid #1A2440", borderRadius: 10, padding: 16 }}>
         <div className="flex items-center justify-between mb-2">
-          <span className="font-semibold uppercase tracking-wider" style={{ fontSize: 11, color: "#6366F1" }}>? Decision</span>
+          <span className="font-semibold uppercase tracking-wider" style={{ fontSize: 11, color: "#6366F1" }}>Decision</span>
           {d.timestamp && <span className="text-xs" style={{ color: "#3D5070" }}>{d.timestamp}</span>}
         </div>
         <p className="text-white font-medium leading-snug mb-3 break-words" style={{ fontSize: 15 }}>{d.decision}</p>

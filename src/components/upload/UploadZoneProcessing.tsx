@@ -86,7 +86,7 @@ export default function UploadZoneProcessing({ parsedChat, onError }: Props) {
 
   useEffect(() => {
     if (done) return;
-    const id = setInterval(() => setStep((s) => (s + 1) % STEPS.length), 1100);
+    const id = setInterval(() => setStep((s) => (s + 1) % STEPS.length), 2000);
     return () => clearInterval(id);
   }, [done]);
 
