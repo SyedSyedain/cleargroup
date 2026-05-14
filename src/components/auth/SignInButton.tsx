@@ -64,7 +64,6 @@ export default function SignInButton({ compact = false }: Props) {
             alt={session.user.name ?? "User"}
             width={28}
             height={28}
-            loading="lazy"
             className="w-7 h-7 rounded-full object-cover"
           />
         ) : (

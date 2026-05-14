@@ -15,7 +15,6 @@ import {
   HelpCircle,
   LayoutDashboard,
   MessageCircle,
-  RefreshCw,
   Share2,
   Users,
 } from "lucide-react";
@@ -32,7 +31,6 @@ import AskAI from "@/components/dashboard/AskAI";
 import NudgeModal from "@/components/dashboard/NudgeModal";
 import MembersPanel from "@/components/dashboard/MembersPanel";
 import Toast, { type ToastItem } from "@/components/ui/Toast";
-import PageTransition from "@/components/ui/PageTransition";
 import type {
   AnalysisResult,
   AnalysisMetadata,
@@ -266,8 +264,8 @@ function InviteBanner({ inviteCode, copyingCode, copyingLink, onCopyCode, onCopy
         {inviteCode ? <p className="font-bold" style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: 28, letterSpacing: "0.15em", color: "#6366F1" }}>{inviteCode}</p> : <div className="h-10 w-48 rounded animate-pulse mx-auto" style={{ background: "#111828" }} />}
       </div>
       <div className="flex items-center gap-2 flex-wrap">
-        <button onClick={() => void onCopyCode()} disabled={!inviteCode} className="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2" style={{ border: "1px solid #6366F1", color: "#6366F1", background: "transparent" }}><Copy size={14} /> {copyingCode ? "✓ Copied!" : "Copy code"}</button>
-        <button onClick={() => void onCopyLink()} disabled={!inviteCode} className="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2" style={{ border: "1px solid #1A2440", color: "#E8F4F8", background: "#111828" }}><Share2 size={14} /> {copyingLink ? "✓ Copied!" : "Share link"}</button>
+        <button onClick={() => void onCopyCode()} disabled={!inviteCode} className="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2" style={{ border: "1px solid #6366F1", color: "#6366F1", background: "transparent" }}><Copy size={14} /> {copyingCode ? "? Copied!" : "Copy code"}</button>
+        <button onClick={() => void onCopyLink()} disabled={!inviteCode} className="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2" style={{ border: "1px solid #1A2440", color: "#E8F4F8", background: "#111828" }}><Share2 size={14} /> {copyingLink ? "? Copied!" : "Share link"}</button>
         <button onClick={onShareWhatsApp} disabled={!inviteCode} className="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2" style={{ border: "1px solid #1A2440", color: "#E8F4F8", background: "#111828" }}><MessageCircle size={14} /> WhatsApp</button>
       </div>
     </motion.div>
@@ -405,7 +403,7 @@ export default function DashboardPage() {
           setProjectSaved(true);
           sessionStorage.setItem("inviteCode", data.inviteCode);
           sessionStorage.setItem("projectId", data.projectId);
-          pushToast(`✓ Project saved • Share code: ${data.inviteCode}`, "success");
+          pushToast(`? Project saved • Share code: ${data.inviteCode}`, "success");
         }
       };
       void saveProjectToDatabase();
@@ -457,16 +455,6 @@ export default function DashboardPage() {
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
   };
 
-  const startNewAnalysis = () => {
-    sessionStorage.removeItem("analysisResult");
-    sessionStorage.removeItem("chatStats");
-    sessionStorage.removeItem("participants");
-    sessionStorage.removeItem("projectId");
-    sessionStorage.removeItem("inviteCode");
-    sessionStorage.removeItem("memberName");
-    window.location.href = "/upload";
-  };
-
   if (loadingState === 'loading') return (
     <div className="flex items-center justify-center h-screen">
       <div className="text-center">
@@ -499,15 +487,13 @@ export default function DashboardPage() {
   const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 
   return (
-    <PageTransition>
-      <div className="mx-auto w-full max-w-[1480px]" style={{ padding: 32, paddingBottom: 96 }}>
+    <div className="mx-auto w-full max-w-[1480px]" style={{ padding: 32, paddingBottom: 96 }}>
       <div className="flex items-start justify-between flex-wrap gap-4 mb-2">
         <div>
           <h1 className="font-semibold text-white" style={{ fontSize: 24, letterSpacing: "-0.5px" }}>Project Overview</h1>
           <p className="mt-1 text-sm" style={{ color: "#7A92B8" }}>Analyzed {metadata.messagesAnalyzed.toLocaleString()} messages • {metadata.participants.length} participants • {today}</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 font-semibold" style={{ padding: "9px 16px", borderRadius: 8, fontSize: 13, border: "1px solid #1A2440", color: "#E8F4F8", background: "transparent", cursor: "pointer" }} onClick={startNewAnalysis}><RefreshCw size={14} /> New Analysis</button>
           <button className="flex items-center gap-2 font-semibold" style={{ padding: "9px 16px", borderRadius: 8, fontSize: 13, border: "1px solid #6366F1", color: "#6366F1", background: "transparent", cursor: "pointer" }} onClick={() => downloadReport(analysis)}><Download size={14} /> Export Report</button>
           <button className="flex items-center gap-2 font-semibold" style={{ padding: "9px 16px", borderRadius: 8, fontSize: 13, border: "1px solid #1A2440", color: "#7A92B8", background: "transparent", cursor: "pointer" }}><Share2 size={14} /> Share</button>
         </div>
@@ -536,6 +522,5 @@ export default function DashboardPage() {
       <NudgeModal isOpen={Boolean(nudgePayload)} personName={nudgePayload?.personName ?? "Member"} taskText={nudgePayload?.taskText ?? "your current task"} deadline={nudgePayload?.deadline ?? null} onClose={() => setSelectedBlocker(null)} />
       <Toast toasts={toasts} onClose={closeToast} />
     </div>
-    </PageTransition>
   );
 }

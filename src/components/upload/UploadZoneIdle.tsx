@@ -86,7 +86,7 @@ export default function UploadZoneIdle({ isDragging, onDragEnter, onDragOver, on
 
       <div className="w-full flex flex-col items-center gap-3" onClick={(e) => e.stopPropagation()}>
         <button onClick={onLoadSample} className="text-sm font-medium transition-colors duration-150" style={{ color: "#6366F1" }}>
-          Try with sample chat -&gt;
+          Or try with a sample chat -&gt;
         </button>
 
         <button onClick={() => setGuideOpen((v) => !v)} className="flex items-center gap-1.5 text-sm transition-colors duration-150" style={{ color: "#7A92B8" }}>

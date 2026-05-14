@@ -5,20 +5,17 @@ import HowItWorks         from "@/components/sections/HowItWorks";
 import FeaturesSection    from "@/components/sections/FeaturesSection";
 import ComparisonSection  from "@/components/sections/ComparisonSection";
 import CTASection         from "@/components/sections/CTASection";
-import PageTransition     from "@/components/ui/PageTransition";
 
 // Home page — wrapped in MarketingLayout for banner + nav + footer
 export default function Home() {
   return (
-    <PageTransition>
-      <MarketingLayout>
-        <HeroSection />
-        <TrustBar />
-        <HowItWorks />
-        <FeaturesSection />
-        <ComparisonSection />
-        <CTASection />
-      </MarketingLayout>
-    </PageTransition>
+    <MarketingLayout>
+      <HeroSection />
+      <TrustBar />
+      <HowItWorks />
+      <FeaturesSection />
+      <ComparisonSection />
+      <CTASection />
+    </MarketingLayout>
   );
 }

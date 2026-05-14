@@ -4,7 +4,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { signIn } from "next-auth/react";
 import { Zap } from "lucide-react";
-import PageTransition from "@/components/ui/PageTransition";
 
 function GoogleGlyph() {
   return (
@@ -19,8 +18,7 @@ function GoogleGlyph() {
 
 export default function SignInPage() {
   return (
-    <PageTransition>
-      <main className="min-h-screen relative overflow-hidden flex items-center justify-center px-4" style={{ background: "#060810" }}>
+    <main className="min-h-screen relative overflow-hidden flex items-center justify-center px-4" style={{ background: "#060810" }}>
       <div className="absolute -top-20 -left-16 h-56 w-56 rounded-full blur-3xl" style={{ background: "rgba(99,102,241,0.12)" }} />
       <div className="absolute top-1/2 -right-20 h-72 w-72 rounded-full blur-3xl" style={{ background: "rgba(139,92,246,0.08)" }} />
       <div className="absolute bottom-0 left-1/3 h-44 w-44 rounded-full blur-3xl" style={{ background: "rgba(99,102,241,0.06)" }} />
@@ -60,13 +58,12 @@ export default function SignInPage() {
         </div>
 
         <Link href="/upload" className="inline-flex font-medium" style={{ color: "#6366F1" }}>
-          Continue as guest →
+          Continue as guest ?
         </Link>
         <p className="mt-1 text-xs" style={{ color: "#7A92B8" }}>Guest sessions are not saved</p>
 
         <p className="mt-8 text-xs" style={{ color: "#7A92B8" }}>By continuing you agree to our Terms of Service</p>
       </motion.div>
     </main>
-    </PageTransition>
   );
 }

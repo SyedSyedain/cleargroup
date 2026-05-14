@@ -40,8 +40,8 @@ export default function AskAI({ analysis }: Props) {
     try {
       const stored = sessionStorage.getItem('analysisResult');
       if (stored) setSessionAnalysis(JSON.parse(stored) as Record<string, unknown>);
-    } catch {
-      setSessionAnalysis(null);
+    } catch (e) {
+      console.error('Failed to load analysis:', e);
     }
   }, []);
 
@@ -51,8 +51,8 @@ export default function AskAI({ analysis }: Props) {
       if (Array.isArray(meta?.participants) && meta.participants.length > 0) {
         setParticipants(meta.participants);
       }
-    } catch {
-      setParticipants([]);
+    } catch (e) {
+      console.error('Failed to load participants:', e);
     }
   }, []);
 
@@ -161,7 +161,7 @@ export default function AskAI({ analysis }: Props) {
         </div>
 
         <form onSubmit={(e) => { e.preventDefault(); void sendMessage(input); }}
-          className="border-t p-4 flex gap-3 sticky bottom-0 pb-[max(1rem,env(safe-area-inset-bottom))]" style={{ borderColor: "#1A2440", background: "#0C1121" }}>
+          className="border-t p-4 flex gap-3" style={{ borderColor: "#1A2440" }}>
           <input value={input} onChange={(e) => setInput(e.target.value)}
             placeholder="Ask anything about your chat..."
             className="flex-1 rounded-[10px] px-4 py-3 text-sm outline-none border"
