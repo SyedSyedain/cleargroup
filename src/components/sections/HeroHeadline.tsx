@@ -27,7 +27,7 @@ export default function HeroHeadline() {
 
       <motion.span
         variants={line}
-        className="block bg-gradient-to-r from-cg-primary to-cg-secondary bg-clip-text text-transparent"
+        className="block bg-gradient-to-r from-cg-primary to-cg-secondary bg-clip-text text-transparent animate-shimmer"
       >
         is a mess.
       </motion.span>

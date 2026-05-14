@@ -10,8 +10,22 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ClearGroup",
-  description: "AI-powered WhatsApp group chat analyser",
+  title: "ClearGroup — AI WhatsApp Project Intelligence",
+  description:
+    "Transform chaotic WhatsApp group chats into organized project dashboards in 30 seconds. Extract tasks, decisions, blockers, and deadlines using AI.",
+  keywords: "WhatsApp, project management, AI, college students, group chat, task management",
+  openGraph: {
+    title: "ClearGroup — AI WhatsApp Project Intelligence",
+    description: "Transform your group chat chaos into clarity in 30 seconds",
+    url: "https://cleargroup.vercel.app",
+    siteName: "ClearGroup",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ClearGroup",
+    description: "Transform WhatsApp chaos into project clarity",
+  },
 };
 
 // Root layout — minimal shell. Each page/section brings its own chrome.

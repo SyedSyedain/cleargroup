@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useSession, signIn } from "next-auth/react";
 import { motion } from "framer-motion";
 import { Loader2, Users, Zap } from "lucide-react";
+import PageTransition from "@/components/ui/PageTransition";
 import type { AnalysisMetadata, AnalysisResult } from "@/types/analysis";
 
 interface JoinResponse {
@@ -104,7 +105,8 @@ export default function JoinPage({ params }: JoinPageProps) {
   };
 
   return (
-    <main className="min-h-screen px-4 flex items-center justify-center" style={{ background: "#060810" }}>
+    <PageTransition>
+      <main className="min-h-screen px-4 flex items-center justify-center" style={{ background: "#060810" }}>
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4 }} className="w-full max-w-[480px] rounded-[20px] p-8" style={{ background: "#0C1121", border: "1px solid #1A2440", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}>
         <div className="flex items-center gap-2.5 mb-6"><div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg,#6366F1,#8B5CF6)" }}><Zap size={16} style={{ color: "#060810" }} /></div><p className="text-white font-semibold">ClearGroup</p></div>
         <h1 className="text-white font-bold" style={{ fontSize: 28 }}>You&apos;ve been invited!</h1>
@@ -129,14 +131,14 @@ export default function JoinPage({ params }: JoinPageProps) {
 
         {session?.user ? (
           <div className="mb-4">
-            <div className="flex items-center gap-3 mb-3"><div className="w-10 h-10 rounded-full overflow-hidden" style={{ background: "#1A2440" }}>{session.user.image ? <Image src={session.user.image} alt={session.user.name || "Member"} width={40} height={40} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><Users size={16} style={{ color: "#6366F1" }} /></div>}</div><div><p className="text-white font-medium">{session.user.name}</p><p className="text-xs" style={{ color: "#7A92B8" }}>{session.user.email}</p></div></div>
+            <div className="flex items-center gap-3 mb-3"><div className="w-10 h-10 rounded-full overflow-hidden" style={{ background: "#1A2440" }}>{session.user.image ? <Image src={session.user.image} alt={session.user.name || "Member"} width={40} height={40} loading="lazy" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><Users size={16} style={{ color: "#6366F1" }} /></div>}</div><div><p className="text-white font-medium">{session.user.name}</p><p className="text-xs" style={{ color: "#7A92B8" }}>{session.user.email}</p></div></div>
             <button onClick={() => void handleJoin()} disabled={joining || loading || !project} className="w-full py-3 rounded-lg font-semibold" style={{ background: "linear-gradient(135deg,#6366F1,#8B5CF6)", color: "#060810", opacity: joining ? 0.7 : 1 }}>{joining ? "Joining..." : `Join as ${session.user.name || "Member"}`}</button>
           </div>
         ) : (
           <div className="mb-4">
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Rahul, Priya..." className="w-full rounded-lg px-4 py-3 mb-2 text-sm outline-none" style={{ background: "#111828", border: "1px solid #1A2440", color: "#E8F4F8" }} />
             <p className="text-xs mb-3" style={{ color: "#7A92B8" }}>Your name (as it appears in the chat)</p>
-            <button onClick={() => void handleJoin()} disabled={joining || loading || !project} className="w-full py-3 rounded-lg font-semibold" style={{ background: "linear-gradient(135deg,#6366F1,#8B5CF6)", color: "#060810", opacity: joining ? 0.7 : 1 }}>{joining ? "Joining..." : "Join Project ?"}</button>
+            <button onClick={() => void handleJoin()} disabled={joining || loading || !project} className="w-full py-3 rounded-lg font-semibold" style={{ background: "linear-gradient(135deg,#6366F1,#8B5CF6)", color: "#060810", opacity: joining ? 0.7 : 1 }}>{joining ? "Joining..." : "Join Project →"}</button>
             <button onClick={() => signIn("google", { callbackUrl: `/join/${code}` })} className="w-full mt-3 py-3 rounded-lg font-medium" style={{ background: "#111828", border: "1px solid #1A2440", color: "#E8F4F8" }}>Sign in with Google instead</button>
           </div>
         )}
@@ -144,5 +146,6 @@ export default function JoinPage({ params }: JoinPageProps) {
         {error && <p className="text-sm" style={{ color: "#FF6B6B" }}>{error}</p>}
       </motion.div>
     </main>
+    </PageTransition>
   );
 }

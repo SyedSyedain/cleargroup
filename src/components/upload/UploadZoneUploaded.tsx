@@ -131,6 +131,8 @@ export default function UploadZoneUploaded({ file, parsedChat, onRemove, onAnaly
           initial="rest"
           whileHover="hover"
           whileTap={{ scale: 0.98 }}
+          animate={filtered.length > 0 ? { boxShadow: ["0 4px 20px rgba(99,102,241,0.40)", "0 8px 28px rgba(99,102,241,0.55)", "0 4px 20px rgba(99,102,241,0.40)"] } : undefined}
+          transition={filtered.length > 0 ? { duration: 4, repeat: Infinity, ease: "easeInOut" } : undefined}
           disabled={filtered.length === 0}
           className="w-full flex items-center justify-center gap-2.5 font-semibold rounded-[10px] cursor-pointer"
           style={{ height: 52, fontSize: 16, color: "#060810",

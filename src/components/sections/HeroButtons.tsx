@@ -5,33 +5,29 @@ import { ArrowRight, PlayCircle } from "lucide-react";
 import Link from "next/link";
 
 const fadeUp = {
-  initial:  { opacity: 0, y: 20 },
-  animate:  { opacity: 1, y: 0 },
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
   transition: { duration: 0.5, delay: 0.95 },
 };
 
-// Two CTA buttons — primary gradient + secondary outlined
 export default function HeroButtons() {
   return (
-    <motion.div
-      {...fadeUp}
-      className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center"
-    >
-      {/* Primary: gradient + pulse glow + moving arrow */}
+    <motion.div {...fadeUp} className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
       <Link href="/upload">
         <motion.div
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.98 }}
           transition={{ duration: 0.2 }}
-          className="group relative flex items-center gap-2 px-8 py-4 rounded-button bg-gradient-to-r from-cg-primary to-cg-secondary text-white font-semibold text-base animate-button-pulse w-full sm:w-auto justify-center cursor-pointer"
+          className="group relative flex items-center gap-2 px-10 py-4 rounded-button bg-gradient-to-r from-cg-primary to-cg-secondary text-white font-semibold text-base animate-button-pulse w-full sm:w-auto justify-center cursor-pointer"
+          style={{ boxShadow: "0 10px 30px rgba(99,102,241,0.45)" }}
         >
-          Upload your chat — it&apos;s free
+          Upload your chat - it&apos;s free
           <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
         </motion.div>
       </Link>
 
-      {/* Secondary: outlined, fills on hover */}
-      <motion.button
+      <motion.a
+        href="#compare"
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         transition={{ duration: 0.2 }}
@@ -39,7 +35,7 @@ export default function HeroButtons() {
       >
         <PlayCircle className="w-5 h-5 shrink-0" />
         Watch 30 sec demo
-      </motion.button>
+      </motion.a>
     </motion.div>
   );
 }
