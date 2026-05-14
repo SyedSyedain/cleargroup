@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
@@ -211,7 +211,7 @@ function normalizeMetadata(raw: unknown): AnalysisMetadata {
 function Section({ id, title, icon: Icon, children }: SectionProps) {
   return (
     <section id={id} className="pt-8">
-      <div className="mb-6" style={{ borderTop: "1px solid #1A2E3A", paddingTop: 24 }}>
+      <div className="mb-6" style={{ borderTop: "1px solid #1A2440", paddingTop: 24 }}>
         <div className="flex items-center gap-2" style={{ color: "#E8F4F8" }}>
           <Icon size={18} style={{ color: "#6366F1" }} />
           <h2 className="font-semibold" style={{ fontSize: 18 }}>{title}</h2>
@@ -259,15 +259,15 @@ function InviteBanner({ inviteCode, copyingCode, copyingLink, onCopyCode, onCopy
     <motion.div initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="mt-4 rounded-xl px-6 py-4 flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:justify-between" style={{ background: "linear-gradient(135deg, #6366F115, #8B5CF608)", border: "1px solid #6366F130" }}>
       <div className="flex items-start gap-3">
         <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "#6366F120" }}><Users size={18} style={{ color: "#6366F1" }} /></div>
-        <div><p className="text-white font-medium">Share with your team</p><p style={{ color: "#7A9BAD", fontSize: 13 }}>Team members can view tasks and updates</p></div>
+        <div><p className="text-white font-medium">Share with your team</p><p style={{ color: "#7A92B8", fontSize: 13 }}>Team members can view tasks and updates</p></div>
       </div>
-      <div className="rounded-[10px] px-6 py-3 min-w-[240px] text-center" style={{ background: "#060B0F", border: "1px solid #6366F1" }}>
-        {inviteCode ? <p className="font-bold" style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: 28, letterSpacing: "0.15em", color: "#6366F1" }}>{inviteCode}</p> : <div className="h-10 w-48 rounded animate-pulse mx-auto" style={{ background: "#111E26" }} />}
+      <div className="rounded-[10px] px-6 py-3 min-w-[240px] text-center" style={{ background: "#060810", border: "1px solid #6366F1" }}>
+        {inviteCode ? <p className="font-bold" style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: 28, letterSpacing: "0.15em", color: "#6366F1" }}>{inviteCode}</p> : <div className="h-10 w-48 rounded animate-pulse mx-auto" style={{ background: "#111828" }} />}
       </div>
       <div className="flex items-center gap-2 flex-wrap">
         <button onClick={() => void onCopyCode()} disabled={!inviteCode} className="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2" style={{ border: "1px solid #6366F1", color: "#6366F1", background: "transparent" }}><Copy size={14} /> {copyingCode ? "? Copied!" : "Copy code"}</button>
-        <button onClick={() => void onCopyLink()} disabled={!inviteCode} className="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2" style={{ border: "1px solid #1A2E3A", color: "#E8F4F8", background: "#111E26" }}><Share2 size={14} /> {copyingLink ? "? Copied!" : "Share link"}</button>
-        <button onClick={onShareWhatsApp} disabled={!inviteCode} className="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2" style={{ border: "1px solid #1A2E3A", color: "#E8F4F8", background: "#111E26" }}><MessageCircle size={14} /> WhatsApp</button>
+        <button onClick={() => void onCopyLink()} disabled={!inviteCode} className="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2" style={{ border: "1px solid #1A2440", color: "#E8F4F8", background: "#111828" }}><Share2 size={14} /> {copyingLink ? "? Copied!" : "Share link"}</button>
+        <button onClick={onShareWhatsApp} disabled={!inviteCode} className="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2" style={{ border: "1px solid #1A2440", color: "#E8F4F8", background: "#111828" }}><MessageCircle size={14} /> WhatsApp</button>
       </div>
     </motion.div>
   );
@@ -440,11 +440,11 @@ export default function DashboardPage() {
   };
 
   if (hasData === null) {
-    return <div className="min-h-screen flex flex-col items-center justify-center gap-3" style={{ color: "#E8F4F8" }}><Loader2 className="animate-spin" size={34} style={{ color: "#6366F1" }} /><p className="text-sm" style={{ color: "#7A9BAD" }}>Loading your analysis...</p></div>;
+    return <div className="min-h-screen flex flex-col items-center justify-center gap-3" style={{ color: "#E8F4F8" }}><Loader2 className="animate-spin" size={34} style={{ color: "#6366F1" }} /><p className="text-sm" style={{ color: "#7A92B8" }}>Loading your analysis...</p></div>;
   }
 
   if (!hasData || !analysis) {
-    return <div className="flex flex-col items-center justify-center gap-3" style={{ minHeight: "100vh" }}><div className="flex items-center justify-center rounded-full" style={{ width: 64, height: 64, background: "#1A1200", border: "1px solid #5A4000" }}><AlertTriangle size={28} style={{ color: "#F59E0B" }} /></div><p className="font-bold text-white text-xl">No analysis found</p><p className="text-sm" style={{ color: "#8899AA" }}>Please upload and analyze a WhatsApp chat first</p><Link href="/upload" className="flex items-center justify-center font-semibold rounded-[10px]" style={{ marginTop: 8, padding: "10px 24px", fontSize: 14, background: "linear-gradient(135deg,#6366F1,#8B5CF6)", color: "#060B0F" }}>Go to Upload</Link></div>;
+    return <div className="flex flex-col items-center justify-center gap-3" style={{ minHeight: "100vh" }}><div className="flex items-center justify-center rounded-full" style={{ width: 64, height: 64, background: "#1A1200", border: "1px solid #5A4000" }}><AlertTriangle size={28} style={{ color: "#F59E0B" }} /></div><p className="font-bold text-white text-xl">No analysis found</p><p className="text-sm" style={{ color: "#7A92B8" }}>Please upload and analyze a WhatsApp chat first</p><Link href="/upload" className="flex items-center justify-center font-semibold rounded-[10px]" style={{ marginTop: 8, padding: "10px 24px", fontSize: 14, background: "linear-gradient(135deg,#6366F1,#8B5CF6)", color: "#060810" }}>Go to Upload</Link></div>;
   }
 
   const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -454,11 +454,11 @@ export default function DashboardPage() {
       <div className="flex items-start justify-between flex-wrap gap-4 mb-2">
         <div>
           <h1 className="font-semibold text-white" style={{ fontSize: 24, letterSpacing: "-0.5px" }}>Project Overview</h1>
-          <p className="mt-1 text-sm" style={{ color: "#8899AA" }}>Analyzed {metadata.messagesAnalyzed.toLocaleString()} messages • {metadata.participants.length} participants • {today}</p>
+          <p className="mt-1 text-sm" style={{ color: "#7A92B8" }}>Analyzed {metadata.messagesAnalyzed.toLocaleString()} messages • {metadata.participants.length} participants • {today}</p>
         </div>
         <div className="flex items-center gap-3">
           <button className="flex items-center gap-2 font-semibold" style={{ padding: "9px 16px", borderRadius: 8, fontSize: 13, border: "1px solid #6366F1", color: "#6366F1", background: "transparent", cursor: "pointer" }} onClick={() => downloadReport(analysis)}><Download size={14} /> Export Report</button>
-          <button className="flex items-center gap-2 font-semibold" style={{ padding: "9px 16px", borderRadius: 8, fontSize: 13, border: "1px solid #1A2E3A", color: "#8899AA", background: "transparent", cursor: "pointer" }}><Share2 size={14} /> Share</button>
+          <button className="flex items-center gap-2 font-semibold" style={{ padding: "9px 16px", borderRadius: 8, fontSize: 13, border: "1px solid #1A2440", color: "#7A92B8", background: "transparent", cursor: "pointer" }}><Share2 size={14} /> Share</button>
         </div>
       </div>
 
@@ -469,14 +469,14 @@ export default function DashboardPage() {
       <Section id="tasks" title="Task Board" icon={CheckSquare}><TaskBoard tasks={analysis.tasks} projectId={projectId} highlightAssignee={memberName} /></Section>
 
       <section className="pt-8" id="decisions">
-        <div className="mb-6" style={{ borderTop: "1px solid #1A2E3A", paddingTop: 24 }}><div className="flex items-center gap-2" style={{ color: "#E8F4F8" }}><Gavel size={18} style={{ color: "#6366F1" }} /><h2 className="font-semibold" style={{ fontSize: 18 }}>Decisions & Blockers</h2></div></div>
+        <div className="mb-6" style={{ borderTop: "1px solid #1A2440", paddingTop: 24 }}><div className="flex items-center gap-2" style={{ color: "#E8F4F8" }}><Gavel size={18} style={{ color: "#6366F1" }} /><h2 className="font-semibold" style={{ fontSize: 18 }}>Decisions & Blockers</h2></div></div>
         <motion.div whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 20 }} transition={{ duration: 0.4 }} viewport={{ once: true }} className="grid grid-cols-1 xl:grid-cols-[1.8fr_1fr] gap-6"><div style={{ minWidth: 0 }}><DecisionLog decisions={analysis.decisions} /></div><div style={{ minWidth: 0 }} id="blockers"><BlockerAlerts blockers={analysis.blockers} onGenerateNudge={setSelectedBlocker} /></div></motion.div>
       </section>
 
       <Section id="deadlines" title="Deadline Tracker" icon={Calendar}><DeadlineTracker deadlines={analysis.deadlines} /></Section>
 
       <section className="pt-8" id="questions">
-        <div className="mb-6" style={{ borderTop: "1px solid #1A2E3A", paddingTop: 24 }}><div className="flex items-center gap-2" style={{ color: "#E8F4F8" }}><HelpCircle size={18} style={{ color: "#6366F1" }} /><h2 className="font-semibold" style={{ fontSize: 18 }}>Questions & Participation</h2></div></div>
+        <div className="mb-6" style={{ borderTop: "1px solid #1A2440", paddingTop: 24 }}><div className="flex items-center gap-2" style={{ color: "#E8F4F8" }}><HelpCircle size={18} style={{ color: "#6366F1" }} /><h2 className="font-semibold" style={{ fontSize: 18 }}>Questions & Participation</h2></div></div>
         <motion.div whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 20 }} transition={{ duration: 0.4 }} viewport={{ once: true }} className="grid grid-cols-1 xl:grid-cols-[1fr_1.35fr] gap-6"><div style={{ minWidth: 0 }}><OpenQuestions questions={analysis.openQuestions} /></div><div style={{ minWidth: 0 }} id="participation"><ParticipationChart analysis={analysis} /></div></motion.div>
       </section>
 

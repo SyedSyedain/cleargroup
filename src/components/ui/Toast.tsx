@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -33,7 +33,7 @@ export default function Toast({ toasts, onClose }: ToastProps) {
             exit={{ opacity: 0, x: 24 }}
             transition={{ duration: 0.2 }}
             className="min-w-[280px] max-w-[360px] rounded-lg px-4 py-3 flex items-start justify-between gap-3"
-            style={{ background: toast.tone === "success" ? "#8B5CF6" : "#FF6B6B", color: "#060B0F" }}
+            style={{ background: toast.tone === "success" ? "#8B5CF6" : "#FF6B6B", color: "#060810" }}
           >
             <p className="text-sm font-semibold">{toast.message}</p>
             <button onClick={() => onClose(toast.id)}><X size={14} /></button>

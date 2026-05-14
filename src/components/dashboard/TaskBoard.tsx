@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -74,7 +74,7 @@ export default function TaskBoard({ tasks, projectId, highlightAssignee = null }
           <div className="flex items-center gap-1.5 px-2 py-1 rounded-full" title="Updates in real-time for all team members" style={{ background: "#6366F115", border: "1px solid #6366F130" }}>
             <Radio size={12} style={{ color: "#8B5CF6" }} />
             <span style={{ color: "#6366F1", fontSize: 12, fontWeight: 600 }}>Live</span>
-            <CircleHelp size={11} style={{ color: "#7A9BAD" }} />
+            <CircleHelp size={11} style={{ color: "#7A92B8" }} />
           </div>
         </div>
 
@@ -82,7 +82,7 @@ export default function TaskBoard({ tasks, projectId, highlightAssignee = null }
           {FILTERS.map(({ id, label }) => {
             const on = filter === id;
             return (
-              <button key={id} onClick={() => setFilter(id)} className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-150" style={{ background: on ? "#6366F1" : "#111E26", color: on ? "#060B0F" : "#8899AA", border: on ? "1px solid #6366F1" : "1px solid #1A2E3A", cursor: "pointer" }}>
+              <button key={id} onClick={() => setFilter(id)} className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-150" style={{ background: on ? "#6366F1" : "#111828", color: on ? "#060810" : "#7A92B8", border: on ? "1px solid #6366F1" : "1px solid #1A2440", cursor: "pointer" }}>
                 {label}
               </button>
             );
@@ -90,7 +90,7 @@ export default function TaskBoard({ tasks, projectId, highlightAssignee = null }
         </div>
       </div>
 
-      <div className="flex gap-4 overflow-x-auto pb-3" style={{ scrollbarWidth: "thin", scrollbarColor: "#1A2E3A transparent" }}>
+      <div className="flex gap-4 overflow-x-auto pb-3" style={{ scrollbarWidth: "thin", scrollbarColor: "#1A2440 transparent" }}>
         <AnimatePresence>
           {assignees.map((name, i) => {
             const isMember = Boolean(memberName) && name.toLowerCase() === memberName?.toLowerCase();
@@ -114,14 +114,14 @@ export default function TaskBoard({ tasks, projectId, highlightAssignee = null }
         </AnimatePresence>
       </div>
 
-      <div style={{ background: "#0C1419", border: "1px solid #1A2E3A", borderRadius: 12, padding: "16px 20px" }}>
+      <div style={{ background: "#0C1121", border: "1px solid #1A2440", borderRadius: 12, padding: "16px 20px" }}>
         <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
-          <p className="text-sm" style={{ color: "#8899AA" }}>
+          <p className="text-sm" style={{ color: "#7A92B8" }}>
             <span className="text-white font-semibold">{done}</span> of <span className="text-white font-semibold">{allTasks.length}</span> tasks completed • <span style={{ color: "#FFB347" }}>{pending} pending</span> • <span style={{ color: "#FF6B6B" }}>{overdue} overdue</span>
           </p>
           <span className="font-bold" style={{ fontSize: 14, color: "#6366F1" }}>{pct}%</span>
         </div>
-        <div className="rounded-full overflow-hidden" style={{ height: 6, background: "#1A2E3A" }}>
+        <div className="rounded-full overflow-hidden" style={{ height: 6, background: "#1A2440" }}>
           <motion.div className="h-full rounded-full" style={{ background: "linear-gradient(90deg,#6366F1,#8B5CF6)" }} initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.8, ease: "easeOut" }} />
         </div>
       </div>

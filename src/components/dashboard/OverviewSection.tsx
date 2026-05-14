@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo } from "react";
 import { CheckSquare, Scale, AlertTriangle, Heart, Sparkles, User, MessageSquare, Clock } from "lucide-react";
@@ -19,7 +19,7 @@ function Dot({ color }: { color: string }) {
 }
 
 function StatText({ children }: { children: React.ReactNode }) {
-  return <span className="flex items-center gap-1.5 text-xs" style={{ color: "#8899AA" }}>{children}</span>;
+  return <span className="flex items-center gap-1.5 text-xs" style={{ color: "#7A92B8" }}>{children}</span>;
 }
 
 function timeAgo(iso: string): string {
@@ -113,8 +113,8 @@ export default function OverviewSection({ analysis, metadata }: Props) {
       <div className="flex flex-wrap gap-3">
         {pills.map(({ Icon, text }) => (
           <div key={text} className="flex items-center gap-2"
-            style={{ background: "#111E26", border: "1px solid #1A2E3A",
-              borderRadius: 100, padding: "6px 14px", fontSize: 13, color: "#8899AA" }}>
+            style={{ background: "#111828", border: "1px solid #1A2440",
+              borderRadius: 100, padding: "6px 14px", fontSize: 13, color: "#7A92B8" }}>
             <Icon size={13} style={{ color: "#6366F1", flexShrink: 0 }} />
             {text}
           </div>

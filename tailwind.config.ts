@@ -68,6 +68,10 @@ const config: Config = {
           warning:   "var(--cg-warning)",
           danger:    "var(--cg-danger)",
         },
+        // Premium blue brand tokens
+        brand:    "#3B82F6",
+        surface:  "#0C1121",
+        elevated: "#111828",
       },
       fontSize: {
         hero:            ["72px", { lineHeight: "1.1",  fontWeight: "700" }],

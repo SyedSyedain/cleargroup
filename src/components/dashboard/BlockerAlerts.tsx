@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,8 +13,8 @@ interface BlockerAlertsProps {
 type Sev = Blocker["severity"];
 type BType = Blocker["type"];
 
-const SEV_COLOR: Record<Sev, string> = { high: "#FF6B6B", medium: "#FFB347", low: "#7A9BAD" };
-const SEV_BG: Record<Sev, string> = { high: "#1A0808", medium: "#1A1208", low: "#0C1419" };
+const SEV_COLOR: Record<Sev, string> = { high: "#FF6B6B", medium: "#FFB347", low: "#7A92B8" };
+const SEV_BG: Record<Sev, string> = { high: "#1A0808", medium: "#1A1208", low: "#0C1121" };
 const SEV_LABEL: Record<Sev, string> = { high: "High Risk", medium: "Medium Risk", low: "Low Risk" };
 const TYPE_LABEL: Record<BType, string> = {
   silent_member: "Silent Member",
@@ -27,10 +27,10 @@ function EvidenceToggle({ evidence }: { evidence: string }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="mt-2">
-      <button onClick={() => setOpen((o) => !o)} style={{ background: "none", border: "none", cursor: "pointer", color: "#3A5060", fontSize: 12 }}>
+      <button onClick={() => setOpen((o) => !o)} style={{ background: "none", border: "none", cursor: "pointer", color: "#3D5070", fontSize: 12 }}>
         {open ? "Hide evidence ?" : "Show evidence ?"}
       </button>
-      <AnimatePresence>{open && <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} style={{ overflow: "hidden" }}><p className="text-xs mt-1.5 italic leading-relaxed" style={{ color: "#8899AA" }}>{evidence}</p></motion.div>}</AnimatePresence>
+      <AnimatePresence>{open && <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} style={{ overflow: "hidden" }}><p className="text-xs mt-1.5 italic leading-relaxed" style={{ color: "#7A92B8" }}>{evidence}</p></motion.div>}</AnimatePresence>
     </div>
   );
 }
@@ -41,9 +41,9 @@ function BlockerCard({ b, i, onGenerateNudge }: { b: Blocker; i: number; onGener
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.35, delay: i * 0.07 }} style={{ background: SEV_BG[b.severity], borderTop: `1px solid ${color}28`, borderRight: `1px solid ${color}28`, borderBottom: `1px solid ${color}28`, borderLeft: `4px solid ${color}`, borderRadius: 10, padding: 20, marginBottom: 12 }}>
-      <div className="flex items-center justify-between flex-wrap gap-2 mb-3"><span className="text-xs px-2.5 py-1 rounded-full font-semibold" style={{ background: `${color}18`, color, border: `1px solid ${color}30` }}>{SEV_LABEL[b.severity]}</span><span className="text-xs px-2.5 py-1 rounded-full" style={{ background: "#111E26", color: "#8899AA", border: "1px solid #1A2E3A" }}>{TYPE_LABEL[b.type]}</span></div>
+      <div className="flex items-center justify-between flex-wrap gap-2 mb-3"><span className="text-xs px-2.5 py-1 rounded-full font-semibold" style={{ background: `${color}18`, color, border: `1px solid ${color}30` }}>{SEV_LABEL[b.severity]}</span><span className="text-xs px-2.5 py-1 rounded-full" style={{ background: "#111828", color: "#7A92B8", border: "1px solid #1A2440" }}>{TYPE_LABEL[b.type]}</span></div>
       {b.involvedPerson && <div className="flex items-center gap-2 mb-2"><div className="flex items-center justify-center rounded-full font-bold text-white shrink-0" style={{ width: 28, height: 28, background: color, fontSize: 12 }}>{initial}</div><span className="text-white font-semibold text-sm">{b.involvedPerson}</span></div>}
-      <p className="text-sm leading-relaxed break-words" style={{ color: "#8899AA" }}>{b.description}</p>
+      <p className="text-sm leading-relaxed break-words" style={{ color: "#7A92B8" }}>{b.description}</p>
       {b.evidence && <EvidenceToggle evidence={b.evidence} />}
       <button className="mt-3 text-xs font-semibold" style={{ background: "none", border: "none", cursor: "pointer", color: "#6366F1" }} onClick={() => onGenerateNudge?.(b)}>Generate nudge message ?</button>
     </motion.div>

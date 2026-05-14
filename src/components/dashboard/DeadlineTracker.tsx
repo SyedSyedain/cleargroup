@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import { Calendar } from "lucide-react";
@@ -20,7 +20,7 @@ function DeadlineCard({ dl, i }: { dl: Deadline; i: number }) {
     <motion.div className="flex gap-4 items-start"
       initial={{ opacity: 0, x: -12 }} whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true }} transition={{ duration: 0.35, delay: i * 0.06 }}
-      style={{ background: "#0C1419", border: "1px solid #1A2E3A", borderRadius: 10, padding: 16, marginBottom: 10 }}>
+      style={{ background: "#0C1121", border: "1px solid #1A2440", borderRadius: 10, padding: 16, marginBottom: 10 }}>
 
       {/* Large date */}
       <div className="flex flex-col items-center shrink-0" style={{ width: 52, textAlign: "center" }}>
@@ -29,19 +29,19 @@ function DeadlineCard({ dl, i }: { dl: Deadline; i: number }) {
             <span className="font-bold text-white leading-none" style={{ fontSize: 40 }}>
               {dateObj.getDate()}
             </span>
-            <span className="text-xs uppercase tracking-wide" style={{ color: "#8899AA" }}>
+            <span className="text-xs uppercase tracking-wide" style={{ color: "#7A92B8" }}>
               {dateObj.toLocaleString("default", { month: "short" })}
             </span>
           </>
         ) : (
-          <span style={{ fontSize: 11, color: "#8899AA", lineHeight: 1.3 }}>{dl.date}</span>
+          <span style={{ fontSize: 11, color: "#7A92B8", lineHeight: 1.3 }}>{dl.date}</span>
         )}
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0 pl-3" style={{ borderLeft: "1px solid #1A2E3A" }}>
+      <div className="flex-1 min-w-0 pl-3" style={{ borderLeft: "1px solid #1A2440" }}>
         <p className="text-white font-medium leading-snug mb-1" style={{ fontSize: 15 }}>{dl.description}</p>
-        <p className="text-xs mb-2" style={{ color: "#8899AA" }}>Mentioned by {dl.mentionedBy}</p>
+        <p className="text-xs mb-2" style={{ color: "#7A92B8" }}>Mentioned by {dl.mentionedBy}</p>
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs px-2 py-0.5 rounded-full font-medium"
             style={{
@@ -85,8 +85,8 @@ export default function DeadlineTracker({ deadlines }: { deadlines: Deadline[] }
             const d        = new Date(dl.date);
             return (
               <div key={dl.id} className="shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold"
-                style={{ background: upcoming ? "#6366F1" : "#1A2E3A",
-                  color: upcoming ? "#060B0F" : "#8899AA", whiteSpace: "nowrap" }}>
+                style={{ background: upcoming ? "#6366F1" : "#1A2440",
+                  color: upcoming ? "#060810" : "#7A92B8", whiteSpace: "nowrap" }}>
                 {d.toLocaleString("default", { month: "short", day: "numeric" })}
               </div>
             );
@@ -96,9 +96,9 @@ export default function DeadlineTracker({ deadlines }: { deadlines: Deadline[] }
 
       {deadlines.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-10"
-          style={{ background: "#0C1419", border: "1px solid #1A2E3A", borderRadius: 12 }}>
-          <Calendar size={24} style={{ color: "#3A5060" }} />
-          <p className="text-sm" style={{ color: "#3A5060" }}>No deadlines found in this chat</p>
+          style={{ background: "#0C1121", border: "1px solid #1A2440", borderRadius: 12 }}>
+          <Calendar size={24} style={{ color: "#3D5070" }} />
+          <p className="text-sm" style={{ color: "#3D5070" }}>No deadlines found in this chat</p>
         </div>
       ) : (
         deadlines.map((dl, i) => <DeadlineCard key={dl.id} dl={dl} i={i} />)

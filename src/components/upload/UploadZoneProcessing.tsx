@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -121,7 +121,7 @@ export default function UploadZoneProcessing({ parsedChat, onError }: Props) {
         minHeight: 380,
         borderRadius: 20,
         padding: "32px 24px",
-        background: "#0C1419",
+        background: "#0C1121",
         boxShadow: done
           ? "0 0 0 1px #8B5CF6, 0 0 30px #8B5CF630"
           : "0 0 0 1px #6366F1, 0 0 20px #6366F120",
@@ -131,7 +131,7 @@ export default function UploadZoneProcessing({ parsedChat, onError }: Props) {
       <div className="flex flex-col items-center gap-3">
         <div className="relative flex items-center justify-center" style={{ width: 100, height: 100 }}>
           <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full">
-            <circle cx="50" cy="50" r={R} fill="none" stroke="#1A2E3A" strokeWidth="7" />
+            <circle cx="50" cy="50" r={R} fill="none" stroke="#1A2440" strokeWidth="7" />
           </svg>
           <motion.div
             animate={{ rotate: 360 }}
@@ -178,13 +178,13 @@ export default function UploadZoneProcessing({ parsedChat, onError }: Props) {
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.3 }}
               className="text-sm text-center"
-              style={{ color: paused ? "#F59E0B" : "#8899AA" }}
+              style={{ color: paused ? "#F59E0B" : "#7A92B8" }}
             >
               {statusMsg}
             </motion.p>
           </AnimatePresence>
         )}
-        <div className="w-full rounded-full overflow-hidden" style={{ height: 4, background: "#1A2E3A" }}>
+        <div className="w-full rounded-full overflow-hidden" style={{ height: 4, background: "#1A2440" }}>
           <motion.div
             className="h-full rounded-full"
             animate={{ width: `${pct}%` }}
@@ -201,7 +201,7 @@ export default function UploadZoneProcessing({ parsedChat, onError }: Props) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "#3A5060" }}>
+        <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "#3D5070" }}>
           Scanning messages
         </p>
         {preview.slice(0, bubbles).map((b, i) => (
@@ -211,12 +211,12 @@ export default function UploadZoneProcessing({ parsedChat, onError }: Props) {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3 }}
             className="relative overflow-hidden flex items-center gap-2 px-3 py-2 rounded-lg"
-            style={{ background: "#111E26" }}
+            style={{ background: "#111828" }}
           >
             <span className="text-[10px] font-bold shrink-0 truncate max-w-[80px]" style={{ color: "#6366F1" }}>
               {b.name}:
             </span>
-            <span className="text-[11px] truncate flex-1" style={{ color: "#8899AA" }}>
+            <span className="text-[11px] truncate flex-1" style={{ color: "#7A92B8" }}>
               {b.text}
             </span>
             <motion.div
@@ -241,9 +241,9 @@ export default function UploadZoneProcessing({ parsedChat, onError }: Props) {
               transition={{ type: "spring", stiffness: 400, damping: 20 }}
               className="text-xs px-3 py-1 rounded-full font-medium"
               style={{
-                background: "#111E26",
-                border: "1px solid #1A2E3A",
-                color: pill.includes("complete") ? "#6366F1" : "#8899AA",
+                background: "#111828",
+                border: "1px solid #1A2440",
+                color: pill.includes("complete") ? "#6366F1" : "#7A92B8",
               }}
             >
               {pill}

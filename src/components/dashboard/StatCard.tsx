@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -55,15 +55,15 @@ export default function StatCard({
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        background: "#0C1419", borderRadius: 14, padding: 24,
-        border:     `1px solid ${hov ? "#2A4A5E" : "#1A2E3A"}`,
+        background: "#0C1121", borderRadius: 14, padding: 24,
+        border:     `1px solid ${hov ? "#2A3860" : "#1A2440"}`,
         borderLeft: `3px solid ${accent}`,
         transition: "border-color 0.25s ease",
       }}
     >
       {/* Label + icon row */}
       <div className="flex items-start justify-between mb-2">
-        <span className="text-xs font-medium uppercase tracking-wider" style={{ color: "#8899AA" }}>
+        <span className="text-xs font-medium uppercase tracking-wider" style={{ color: "#7A92B8" }}>
           {label}
         </span>
         <div className="flex items-center justify-center rounded-full shrink-0"
@@ -81,7 +81,7 @@ export default function StatCard({
       {/* Optional health progress bar */}
       {healthScore !== undefined && (
         <div className="rounded-full overflow-hidden mb-3"
-          style={{ height: 6, background: "#1A2E3A" }}>
+          style={{ height: 6, background: "#1A2440" }}>
           <div className="h-full rounded-full"
             style={{ width: `${barW}%`,
               background: "linear-gradient(90deg,#6366F1,#8B5CF6)",

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -52,13 +52,13 @@ export default function Sidebar() {
   return (
     <aside className="flex flex-col"
       style={{ width: 240, height: "100vh", position: "sticky", top: 0,
-        background: "#0C1419", borderRight: "1px solid #1A2E3A", padding: "24px 16px" }}>
+        background: "#0C1121", borderRight: "1px solid #1A2440", padding: "24px 16px" }}>
 
       {/* Logo */}
       <div className="flex items-center gap-2.5 mb-3">
         <div className="flex items-center justify-center rounded-lg shrink-0"
           style={{ width: 32, height: 32, background: "linear-gradient(135deg,#6366F1,#8B5CF6)" }}>
-          <span className="font-bold" style={{ fontSize: 12, color: "#060B0F" }}>CG</span>
+          <span className="font-bold" style={{ fontSize: 12, color: "#060810" }}>CG</span>
         </div>
         <span className="font-bold text-white" style={{ fontSize: 16, letterSpacing: "-0.3px" }}>ClearGroup</span>
       </div>
@@ -69,7 +69,7 @@ export default function Sidebar() {
           style={{ background: "rgba(99,102,241,0.12)", color: "#6366F1", border: "1px solid rgba(99,102,241,0.2)" }}>
           Your Project
         </span>
-        <span className="flex items-center gap-1" style={{ color: "#3A5060", fontSize: 11 }}>
+        <span className="flex items-center gap-1" style={{ color: "#3D5070", fontSize: 11 }}>
           <RefreshCw size={9} /> Synced
         </span>
       </div>
@@ -85,11 +85,11 @@ export default function Sidebar() {
                 padding: "10px 12px", borderRadius: 8, fontSize: 14,
                 borderLeft: on ? "2px solid #6366F1" : "2px solid transparent",
                 background: on ? "rgba(99,102,241,0.08)" : "transparent",
-                color: on ? "#6366F1" : "#8899AA",
+                color: on ? "#6366F1" : "#7A92B8",
                 cursor: "pointer", transition: "all 0.15s",
               }}
-              onMouseEnter={(e) => { if (!on) { e.currentTarget.style.background = "#111E26"; e.currentTarget.style.color = "#fff"; } }}
-              onMouseLeave={(e) => { if (!on) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#8899AA"; } }}
+              onMouseEnter={(e) => { if (!on) { e.currentTarget.style.background = "#111828"; e.currentTarget.style.color = "#fff"; } }}
+              onMouseLeave={(e) => { if (!on) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#7A92B8"; } }}
             >
               <Icon size={16} style={{ flexShrink: 0 }} />{label}
             </button>
@@ -98,9 +98,9 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer stats + upload */}
-      <div style={{ borderTop: "1px solid #1A2E3A", paddingTop: 16, marginTop: 12 }}>
-        <p className="text-xs mb-0.5" style={{ color: "#3A5060" }}>{msgCount.toLocaleString()} messages analyzed</p>
-        <p className="text-xs mb-4"   style={{ color: "#3A5060" }}>{partCount} participants</p>
+      <div style={{ borderTop: "1px solid #1A2440", paddingTop: 16, marginTop: 12 }}>
+        <p className="text-xs mb-0.5" style={{ color: "#3D5070" }}>{msgCount.toLocaleString()} messages analyzed</p>
+        <p className="text-xs mb-4"   style={{ color: "#3D5070" }}>{partCount} participants</p>
         <Link href="/upload"
           className="flex items-center justify-center gap-2 w-full font-semibold"
           style={{ padding: "9px 16px", borderRadius: 8, fontSize: 13,

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -22,7 +22,7 @@ interface Props {
 const toValue = (d?: Date) => (d ? d.toISOString().split("T")[0] : "");
 
 const inputStyle: React.CSSProperties = {
-  width: "100%", background: "#111E26", border: "1px solid #1A2E3A",
+  width: "100%", background: "#111828", border: "1px solid #1A2440",
   borderRadius: 8, padding: "10px 14px", color: "white", fontSize: 13,
   outline: "none", colorScheme: "dark" as React.CSSProperties["colorScheme"],
   transition: "border-color 0.15s ease",
@@ -47,7 +47,7 @@ export default function DateRangeFilter({
   return (
     <div style={{ width: "100%", marginTop: 20, marginBottom: 4 }}>
 
-      <p style={{ fontSize: 13, color: "#8899AA", marginBottom: 10 }}>Analyze messages from:</p>
+      <p style={{ fontSize: 13, color: "#7A92B8", marginBottom: 10 }}>Analyze messages from:</p>
 
       {/* Pill row */}
       <div className="flex flex-wrap gap-2">
@@ -60,22 +60,22 @@ export default function DateRangeFilter({
               className="relative cursor-pointer"
               style={{
                 padding: "8px 16px", borderRadius: 100, fontSize: 13,
-                border: `1px solid ${active ? "#6366F1" : "#1A2E3A"}`,
-                background: "#111E26",
-                color: active ? "#6366F1" : "#8899AA",
+                border: `1px solid ${active ? "#6366F1" : "#1A2440"}`,
+                background: "#111828",
+                color: active ? "#6366F1" : "#7A92B8",
                 fontWeight: active ? 500 : 400,
                 transition: "border-color 0.2s, color 0.2s",
               }}
               onMouseEnter={(e) => {
                 if (!active) {
-                  e.currentTarget.style.borderColor = "#2A4A5E";
+                  e.currentTarget.style.borderColor = "#2A3860";
                   e.currentTarget.style.color = "#F8F8FF";
                 }
               }}
               onMouseLeave={(e) => {
                 if (!active) {
-                  e.currentTarget.style.borderColor = "#1A2E3A";
-                  e.currentTarget.style.color = "#8899AA";
+                  e.currentTarget.style.borderColor = "#1A2440";
+                  e.currentTarget.style.color = "#7A92B8";
                 }
               }}
             >
@@ -104,14 +104,14 @@ export default function DateRangeFilter({
             <div className="flex gap-3 mt-3">
               {(["From:", "To:"] as const).map((lbl, i) => (
                 <div key={lbl} style={{ flex: 1 }}>
-                  <p style={{ fontSize: 11, color: "#8899AA", marginBottom: 6 }}>{lbl}</p>
+                  <p style={{ fontSize: 11, color: "#7A92B8", marginBottom: 6 }}>{lbl}</p>
                   <input
                     type="date"
                     defaultValue={toValue(i === 0 ? customStart : customEnd)}
                     onChange={(e) => handleDate(i === 0 ? "start" : "end", e.target.value)}
                     style={inputStyle}
                     onFocus={(e)  => { e.currentTarget.style.borderColor = "#6366F1"; }}
-                    onBlur={(e)   => { e.currentTarget.style.borderColor = "#1A2E3A"; }}
+                    onBlur={(e)   => { e.currentTarget.style.borderColor = "#1A2440"; }}
                   />
                 </div>
               ))}

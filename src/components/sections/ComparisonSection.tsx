@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useRef, useEffect } from "react";
 import { motion, useMotionValue, useTransform, animate, useInView, type Variants } from "framer-motion";
@@ -53,7 +53,7 @@ export default function ComparisonSection() {
   }, [sliderPos]);
 
   return (
-    <section ref={sectionRef} id="compare" style={{ background: "#0C1419", padding: "80px 0" }}>
+    <section ref={sectionRef} id="compare" style={{ background: "#0C1121", padding: "80px 0" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px" }}>
 
         {/* Headline */}
@@ -93,7 +93,7 @@ export default function ComparisonSection() {
           ref={containerRef}
           variants={fadeUp(0.3)} initial="hidden" animate={isInView ? "visible" : "hidden"}
           className="relative flex overflow-hidden h-[400px] sm:h-[460px] md:h-[520px]"
-          style={{ borderRadius: 16, border: "1px solid #1A2E3A" }}
+          style={{ borderRadius: 16, border: "1px solid #1A2440" }}
         >
           {/* Left panel â€” Before (WhatsApp) */}
           <motion.div className="overflow-hidden shrink-0 h-full" style={{ width: leftWidth }}>
@@ -122,7 +122,7 @@ export default function ComparisonSection() {
             animate={{ boxShadow: ["0 0 8px #6366F180", "0 0 20px #6366F1", "0 0 8px #6366F180"] }}
             transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
           >
-            <span style={{ color: "#060B0F", fontSize: 13, fontWeight: 700, userSelect: "none", lineHeight: 1 }}>
+            <span style={{ color: "#060810", fontSize: 13, fontWeight: 700, userSelect: "none", lineHeight: 1 }}>
               â† â†’
             </span>
           </motion.div>
@@ -132,7 +132,7 @@ export default function ComparisonSection() {
         <motion.p
           variants={fadeUp(0.5)} initial="hidden" animate={isInView ? "visible" : "hidden"}
           className="text-center mt-8"
-          style={{ fontSize: 20, color: "#8899AA" }}
+          style={{ fontSize: 20, color: "#7A92B8" }}
         >
           This is what{" "}
           <span style={{ color: "white", fontWeight: 700 }}>ClearGroup</span>

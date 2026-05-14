@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import UploadNavbar      from "@/components/upload/UploadNavbar";
@@ -9,7 +9,7 @@ export default function UploadPageClient() {
   const [step, setStep] = useState<1 | 2 | 3>(1);
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "#060B0F" }}>
+    <div className="min-h-screen flex flex-col" style={{ background: "#060810" }}>
       <UploadNavbar />
 
       <div className="flex-1 w-full max-w-[1200px] mx-auto px-6 sm:px-10 lg:px-16 py-10 md:py-14">

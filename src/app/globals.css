@@ -35,6 +35,12 @@
     --cg-success:   #10B981;
     --cg-warning:   #F59E0B;
     --cg-danger:    #EF4444;
+
+    --color-primary: #3B82F6;
+    --color-secondary: #6366F1;
+    --color-bg: #060810;
+    --color-surface: #0C1121;
+    --color-border: #1A2440;
   }
 }
 

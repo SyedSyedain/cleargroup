@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { RefreshCw } from "lucide-react";
 
@@ -37,7 +37,7 @@ function TaskCard({ avatar, avatarBg, name, task, status, statusColor, due, dueC
           {status}
         </span>
       </div>
-      <p style={{ color: "#8899AA", fontSize: 10, lineHeight: 1.4 }}>{task}</p>
+      <p style={{ color: "#7A92B8", fontSize: 10, lineHeight: 1.4 }}>{task}</p>
       <p style={{ color: dueColor, fontSize: 9, marginTop: 4 }}>{due}</p>
     </div>
   );
@@ -46,10 +46,10 @@ function TaskCard({ avatar, avatarBg, name, task, status, statusColor, due, dueC
 // Right panel â€” ClearGroup dashboard with tasks, decision, and blocker â€” all 5 items always visible
 export default function ComparisonDashPanel() {
   return (
-    <div className="h-full flex flex-col" style={{ background: "#060B0F" }}>
+    <div className="h-full flex flex-col" style={{ background: "#060810" }}>
 
       {/* Dashboard header */}
-      <div className="flex items-center justify-between px-4 py-3 shrink-0" style={{ background: "#0C1419" }}>
+      <div className="flex items-center justify-between px-4 py-3 shrink-0" style={{ background: "#0C1121" }}>
         <p style={{ color: "white", fontSize: 12, fontWeight: 700 }}>Project Alpha ðŸ™ˆ</p>
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
           style={{ background: "#6366F118", color: "#6366F1", border: "1px solid #6366F133", fontSize: 10, fontWeight: 600 }}>

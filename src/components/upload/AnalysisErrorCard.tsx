@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -56,7 +56,7 @@ export default function AnalysisErrorCard({ type, message, onRetry, onDismiss }:
 
         <div className="flex-1 min-w-0">
           <p className="font-bold text-white text-sm mb-1">{cfg.title}</p>
-          <p className="text-sm leading-relaxed mb-3" style={{ color: "#8899AA" }}>
+          <p className="text-sm leading-relaxed mb-3" style={{ color: "#7A92B8" }}>
             {message}
             {type === "rate_limit" && countdown > 0 && <span style={{ color: "#F59E0B" }}> Retrying in {countdown}s...</span>}
           </p>

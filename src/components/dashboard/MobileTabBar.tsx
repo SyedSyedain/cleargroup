@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useEffect } from "react";
@@ -36,8 +36,8 @@ export default function MobileTabBar() {
     <div
       className="fixed bottom-0 left-0 right-0 md:hidden flex items-center"
       style={{
-        height: 60, background: "#0C1419",
-        borderTop: "1px solid #1A2E3A", zIndex: 50,
+        height: 60, background: "#0C1121",
+        borderTop: "1px solid #1A2440", zIndex: 50,
       }}
     >
       {TABS.map(({ id, label, icon: Icon }) => {
@@ -50,7 +50,7 @@ export default function MobileTabBar() {
             style={{
               flex: 1, height: "100%", cursor: "pointer",
               background: "transparent", border: "none",
-              color: on ? "#6366F1" : "#3A5060",
+              color: on ? "#6366F1" : "#3D5070",
               transition: "color 0.15s",
             }}
           >

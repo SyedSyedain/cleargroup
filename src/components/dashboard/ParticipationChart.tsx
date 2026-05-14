@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
@@ -49,7 +49,7 @@ function Ring({ score }: { score: number }) {
     <div className="flex items-center gap-6 flex-wrap lg:flex-nowrap">
       <div className="relative" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="-rotate-90">
-          <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#1A2E3A" strokeWidth={stroke} />
+          <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#1A2440" strokeWidth={stroke} />
           <motion.circle
             cx={size / 2}
             cy={size / 2}
@@ -70,7 +70,7 @@ function Ring({ score }: { score: number }) {
         </div>
       </div>
       <div>
-        <p className="text-sm" style={{ color: "#7A9BAD" }}>Collaboration Score</p>
+        <p className="text-sm" style={{ color: "#7A92B8" }}>Collaboration Score</p>
         <p className="text-white font-medium mt-1">{scoreLabel(safeScore)}</p>
       </div>
     </div>
@@ -91,18 +91,18 @@ export default function ParticipationChart({ analysis }: Props) {
   return (
     <motion.section
       initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} viewport={{ once: true }}
-      className="rounded-2xl p-6" style={{ background: "#0C1419", border: "1px solid #1A2E3A" }}>
+      className="rounded-2xl p-6" style={{ background: "#0C1121", border: "1px solid #1A2440" }}>
       <div className="flex items-center gap-2 mb-1"><BarChart3 size={20} style={{ color: "#6366F1" }} /><h2 className="text-white font-semibold text-xl">Participation Analysis</h2></div>
-      <p className="text-sm mb-6" style={{ color: "#7A9BAD" }}>Who contributed what to this project</p>
+      <p className="text-sm mb-6" style={{ color: "#7A92B8" }}>Who contributed what to this project</p>
 
       <div className="space-y-4">
         {people.map((person, index) => (
           <motion.div key={person.name} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: index * 0.08 }}>
             <div className="w-full sm:w-[180px] sm:min-w-[180px] flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center font-semibold" style={{ background: "#6366F1", color: "#060B0F" }}>{person.name.slice(0, 1).toUpperCase()}</div>
-              <div className="min-w-0"><p className="text-white text-sm font-medium truncate">{person.name}</p><p className="text-xs" style={{ color: "#7A9BAD" }}>{person.messageCount} messages</p></div>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center font-semibold" style={{ background: "#6366F1", color: "#060810" }}>{person.name.slice(0, 1).toUpperCase()}</div>
+              <div className="min-w-0"><p className="text-white text-sm font-medium truncate">{person.name}</p><p className="text-xs" style={{ color: "#7A92B8" }}>{person.messageCount} messages</p></div>
             </div>
-            <div className="w-full sm:flex-1 h-2 rounded" style={{ background: "#1A2E3A" }}>
+            <div className="w-full sm:flex-1 h-2 rounded" style={{ background: "#1A2440" }}>
               <motion.div className="h-full rounded" initial={{ width: 0 }} whileInView={{ width: `${Math.max(0, Math.min(100, person.participationPercentage))}%` }} viewport={{ once: true }} transition={{ duration: 0.8, ease: "easeOut", delay: index * 0.1 }} style={{ background: BAR_GRADIENTS[index % BAR_GRADIENTS.length] }} />
             </div>
             <div className="w-full sm:w-[60px] text-left sm:text-right text-white font-semibold"><Counter value={Math.round(person.participationPercentage)} /></div>
@@ -112,26 +112,26 @@ export default function ParticipationChart({ analysis }: Props) {
 
       <div className="mt-8 grid grid-cols-1 xl:grid-cols-[1.4fr_1fr] gap-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-w-0">
-          <div className="rounded-xl p-4 min-w-0" style={{ background: "#111E26", border: "1px solid #1A2E3A" }}>
+          <div className="rounded-xl p-4 min-w-0" style={{ background: "#111828", border: "1px solid #1A2440" }}>
             <Crown size={18} style={{ color: "#FFB347" }} />
-            <p className="text-xs mt-2" style={{ color: "#7A9BAD" }}>Most Active</p>
+            <p className="text-xs mt-2" style={{ color: "#7A92B8" }}>Most Active</p>
             <p className="text-white font-semibold mt-1 leading-snug break-words">{analysis.summary.mostActiveParticipant}</p>
-            <p className="text-xs mt-1" style={{ color: "#7A9BAD" }}>{people[0]?.messageCount ?? 0} messages</p>
+            <p className="text-xs mt-1" style={{ color: "#7A92B8" }}>{people[0]?.messageCount ?? 0} messages</p>
           </div>
-          <div className="rounded-xl p-4 min-w-0" style={{ background: "#111E26", border: "1px solid #1A2E3A" }}>
+          <div className="rounded-xl p-4 min-w-0" style={{ background: "#111828", border: "1px solid #1A2440" }}>
             <Trophy size={18} style={{ color: "#6366F1" }} />
-            <p className="text-xs mt-2" style={{ color: "#7A9BAD" }}>Tasks Champion</p>
+            <p className="text-xs mt-2" style={{ color: "#7A92B8" }}>Tasks Champion</p>
             <p className="text-white font-semibold mt-1 leading-snug break-words">{champion?.name ?? "No data"}</p>
-            <p className="text-xs mt-1" style={{ color: "#7A9BAD" }}>{champion?.tasksCompleted ?? 0} completed</p>
+            <p className="text-xs mt-1" style={{ color: "#7A92B8" }}>{champion?.tasksCompleted ?? 0} completed</p>
           </div>
-          <div className="rounded-xl p-4 min-w-0" style={{ background: "#111E26", border: "1px solid #1A2E3A" }}>
-            <UserRound size={18} style={{ color: "#7A9BAD" }} />
-            <p className="text-xs mt-2" style={{ color: "#7A9BAD" }}>Needs Engagement</p>
+          <div className="rounded-xl p-4 min-w-0" style={{ background: "#111828", border: "1px solid #1A2440" }}>
+            <UserRound size={18} style={{ color: "#7A92B8" }} />
+            <p className="text-xs mt-2" style={{ color: "#7A92B8" }}>Needs Engagement</p>
             <p className="text-white font-semibold mt-1 leading-snug break-words">{least ?? "Balanced team"}</p>
-            <p className="text-xs mt-1" style={{ color: "#7A9BAD" }}>{least ? `Only ${leastStats?.messageCount ?? 0} messages` : "Everyone participated equally ??"}</p>
+            <p className="text-xs mt-1" style={{ color: "#7A92B8" }}>{least ? `Only ${leastStats?.messageCount ?? 0} messages` : "Everyone participated equally ??"}</p>
           </div>
         </div>
-        <div className="rounded-xl p-5 flex items-center justify-center" style={{ background: "#111E26", border: "1px solid #1A2E3A" }}><Ring score={analysis.summary.collaborationScore} /></div>
+        <div className="rounded-xl p-5 flex items-center justify-center" style={{ background: "#111828", border: "1px solid #1A2440" }}><Ring score={analysis.summary.collaborationScore} /></div>
       </div>
     </motion.section>
   );

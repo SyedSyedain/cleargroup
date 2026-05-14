@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -18,7 +18,7 @@ function GoogleGlyph() {
 
 export default function SignInPage() {
   return (
-    <main className="min-h-screen relative overflow-hidden flex items-center justify-center px-4" style={{ background: "#060B0F" }}>
+    <main className="min-h-screen relative overflow-hidden flex items-center justify-center px-4" style={{ background: "#060810" }}>
       <div className="absolute -top-20 -left-16 h-56 w-56 rounded-full blur-3xl" style={{ background: "rgba(99,102,241,0.12)" }} />
       <div className="absolute top-1/2 -right-20 h-72 w-72 rounded-full blur-3xl" style={{ background: "rgba(139,92,246,0.08)" }} />
       <div className="absolute bottom-0 left-1/3 h-44 w-44 rounded-full blur-3xl" style={{ background: "rgba(99,102,241,0.06)" }} />
@@ -28,17 +28,17 @@ export default function SignInPage() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.4 }}
         className="w-full max-w-[420px] rounded-[20px] p-12"
-        style={{ background: "#0C1419", border: "1px solid #1A2E3A", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}
+        style={{ background: "#0C1121", border: "1px solid #1A2440", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}
       >
         <div className="flex items-center gap-2.5 mb-8">
           <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg,#6366F1,#8B5CF6)" }}>
-            <Zap size={16} style={{ color: "#060B0F" }} />
+            <Zap size={16} style={{ color: "#060810" }} />
           </div>
           <p className="text-white font-semibold">ClearGroup</p>
         </div>
 
         <h1 className="text-white font-bold" style={{ fontSize: 28 }}>Welcome back</h1>
-        <p className="mt-2 mb-8" style={{ color: "#7A9BAD", fontSize: 15 }}>Sign in to access your project dashboard</p>
+        <p className="mt-2 mb-8" style={{ color: "#7A92B8", fontSize: 15 }}>Sign in to access your project dashboard</p>
 
         <button
           onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
@@ -52,17 +52,17 @@ export default function SignInPage() {
         </button>
 
         <div className="flex items-center gap-3 my-6">
-          <div className="h-px flex-1" style={{ background: "#1A2E3A" }} />
-          <span style={{ color: "#7A9BAD", fontSize: 12 }}>or</span>
-          <div className="h-px flex-1" style={{ background: "#1A2E3A" }} />
+          <div className="h-px flex-1" style={{ background: "#1A2440" }} />
+          <span style={{ color: "#7A92B8", fontSize: 12 }}>or</span>
+          <div className="h-px flex-1" style={{ background: "#1A2440" }} />
         </div>
 
         <Link href="/upload" className="inline-flex font-medium" style={{ color: "#6366F1" }}>
           Continue as guest ?
         </Link>
-        <p className="mt-1 text-xs" style={{ color: "#7A9BAD" }}>Guest sessions are not saved</p>
+        <p className="mt-1 text-xs" style={{ color: "#7A92B8" }}>Guest sessions are not saved</p>
 
-        <p className="mt-8 text-xs" style={{ color: "#7A9BAD" }}>By continuing you agree to our Terms of Service</p>
+        <p className="mt-8 text-xs" style={{ color: "#7A92B8" }}>By continuing you agree to our Terms of Service</p>
       </motion.div>
     </main>
   );

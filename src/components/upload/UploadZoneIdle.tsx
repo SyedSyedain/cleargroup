@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -42,8 +42,8 @@ export default function UploadZoneIdle({ isDragging, onDragEnter, onDragOver, on
         minHeight: 380,
         borderRadius: 20,
         padding: "32px 24px",
-        border: `2px ${isDragging ? "solid" : "dashed"} ${isDragging ? "#6366F1" : "#1A2E3A"}`,
-        background: isDragging ? "linear-gradient(135deg,rgba(99,102,241,0.03),rgba(139,92,246,0.03))" : "#0C1419",
+        border: `2px ${isDragging ? "solid" : "dashed"} ${isDragging ? "#6366F1" : "#1A2440"}`,
+        background: isDragging ? "linear-gradient(135deg,rgba(99,102,241,0.03),rgba(139,92,246,0.03))" : "#0C1121",
         transition: "border-color 0.25s ease, background 0.25s ease",
       }}
     >
@@ -64,7 +64,7 @@ export default function UploadZoneIdle({ isDragging, onDragEnter, onDragOver, on
             animate={isDragging ? { y: -12, boxShadow: "0 0 24px #6366F160" } : { y: [0, -6, 0], boxShadow: "0 0 0px transparent" }}
             transition={isDragging ? { type: "spring", stiffness: 400, damping: 14 } : { repeat: Infinity, duration: 3, ease: "easeInOut" }}
             className="relative flex items-center justify-center rounded-full"
-            style={{ width: 80, height: 80, background: "#111E26" }}
+            style={{ width: 80, height: 80, background: "#111828" }}
           >
             <UploadCloud size={32} style={{ color: "#6366F1" }} />
           </motion.div>
@@ -74,10 +74,10 @@ export default function UploadZoneIdle({ isDragging, onDragEnter, onDragOver, on
           <p className="font-semibold" style={{ fontSize: 20, color: isDragging ? "#6366F1" : "white" }}>
             {isDragging ? "Release to upload your chat" : "Drop your WhatsApp chat here"}
           </p>
-          {!isDragging && <p className="mt-1.5 text-sm" style={{ color: "#8899AA" }}>or click anywhere to browse files</p>}
+          {!isDragging && <p className="mt-1.5 text-sm" style={{ color: "#7A92B8" }}>or click anywhere to browse files</p>}
         </div>
 
-        <span className="px-3 py-1 rounded-full text-xs" style={{ background: "#111E26", border: "1px solid #1A2E3A", color: "#8899AA" }}>
+        <span className="px-3 py-1 rounded-full text-xs" style={{ background: "#111828", border: "1px solid #1A2440", color: "#7A92B8" }}>
           .txt or .zip files
         </span>
 
@@ -89,7 +89,7 @@ export default function UploadZoneIdle({ isDragging, onDragEnter, onDragOver, on
           Or try with a sample chat -&gt;
         </button>
 
-        <button onClick={() => setGuideOpen((v) => !v)} className="flex items-center gap-1.5 text-sm transition-colors duration-150" style={{ color: "#8899AA" }}>
+        <button onClick={() => setGuideOpen((v) => !v)} className="flex items-center gap-1.5 text-sm transition-colors duration-150" style={{ color: "#7A92B8" }}>
           Don&apos;t know how to export?
           <motion.span animate={{ rotate: guideOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
             <ChevronDown size={14} />

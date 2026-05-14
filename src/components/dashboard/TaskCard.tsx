@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -6,7 +6,7 @@ import { Calendar, Loader2 } from "lucide-react";
 import type { Task } from "@/types/analysis";
 
 const S_COLOR: Record<Task["status"], string> = {
-  pending: "#7A9BAD",
+  pending: "#7A92B8",
   in_progress: "#FFB347",
   done: "#8B5CF6",
   overdue: "#FF6B6B",
@@ -35,9 +35,9 @@ function ConfidenceDots({ confidence }: { confidence: number }) {
   const filled = Math.round(confidence * 3);
   return (
     <div className="flex items-center gap-1.5">
-      <span style={{ fontSize: 11, color: "#3A5060" }}>AI Confidence:</span>
+      <span style={{ fontSize: 11, color: "#3D5070" }}>AI Confidence:</span>
       {[0, 1, 2].map((i) => (
-        <span key={i} className="rounded-full inline-block" style={{ width: 6, height: 6, background: i < filled ? "#6366F1" : "#1A2E3A" }} />
+        <span key={i} className="rounded-full inline-block" style={{ width: 6, height: 6, background: i < filled ? "#6366F1" : "#1A2440" }} />
       ))}
     </div>
   );
@@ -72,7 +72,7 @@ export default function TaskCard({ task, emphasize = false, isUpdating = false, 
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        background: emphasize ? (hov ? "#1A2A35" : "#15232D") : hov ? "#151F2A" : "#111E26",
+        background: emphasize ? (hov ? "#1A2A35" : "#15232D") : hov ? "#151F2A" : "#111828",
         borderRadius: 10,
         padding: 14,
         marginBottom: 10,
@@ -82,7 +82,7 @@ export default function TaskCard({ task, emphasize = false, isUpdating = false, 
       }}
     >
       {hov && excerpt && (
-        <div className="absolute bottom-full left-0 mb-2 z-20 pointer-events-none" style={{ background: "#1A2E3A", border: "1px solid #2A4A5E", borderRadius: 8, padding: "8px 12px", maxWidth: 250, fontSize: 12, color: "#8899AA", lineHeight: 1.5 }}>
+        <div className="absolute bottom-full left-0 mb-2 z-20 pointer-events-none" style={{ background: "#1A2440", border: "1px solid #2A3860", borderRadius: 8, padding: "8px 12px", maxWidth: 250, fontSize: 12, color: "#7A92B8", lineHeight: 1.5 }}>
           <span style={{ color: "#6366F1" }}>From chat: </span>{excerpt}
         </div>
       )}
@@ -99,7 +99,7 @@ export default function TaskCard({ task, emphasize = false, isUpdating = false, 
         </button>
 
         {openStatus && onStatusChange && !isUpdating && (
-          <div className="absolute right-0 top-7 z-20 rounded-lg p-1" style={{ background: "#0C1419", border: "1px solid #1A2E3A", minWidth: 130 }}>
+          <div className="absolute right-0 top-7 z-20 rounded-lg p-1" style={{ background: "#0C1121", border: "1px solid #1A2440", minWidth: 130 }}>
             {STATUS_OPTIONS.map((option) => (
               <button key={option.id} onClick={() => void onStatusChange(option.id)} className="w-full text-left text-xs rounded-md px-2 py-1.5" style={{ color: option.id === task.status ? "#6366F1" : "#E8F4F8", background: option.id === task.status ? "#6366F115" : "transparent" }}>
                 {option.label}
@@ -115,8 +115,8 @@ export default function TaskCard({ task, emphasize = false, isUpdating = false, 
 
       {task.deadline && (
         <div className="flex items-center gap-1.5 mb-2">
-          <Calendar size={11} style={{ color: isOver ? "#FF6B6B" : "#8899AA", flexShrink: 0 }} />
-          <span className="text-xs" style={{ color: isOver ? "#FF6B6B" : "#8899AA" }}>{task.deadline}</span>
+          <Calendar size={11} style={{ color: isOver ? "#FF6B6B" : "#7A92B8", flexShrink: 0 }} />
+          <span className="text-xs" style={{ color: isOver ? "#FF6B6B" : "#7A92B8" }}>{task.deadline}</span>
         </div>
       )}
 

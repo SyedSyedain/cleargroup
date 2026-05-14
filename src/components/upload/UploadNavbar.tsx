@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { Zap } from "lucide-react";
 import SignInButton from "@/components/auth/SignInButton";
 
@@ -7,7 +7,7 @@ export default function UploadNavbar() {
   return (
     <nav
       className="h-14 flex items-center justify-between px-6 shrink-0"
-      style={{ background: "#060B0F", borderBottom: "1px solid #1A2E3A" }}
+      style={{ background: "#060810", borderBottom: "1px solid #1A2440" }}
     >
       {/* Logo — links back to landing page */}
       <Link href="/" className="inline-flex items-center gap-2.5 group">
