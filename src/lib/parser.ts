@@ -79,38 +79,48 @@ function matchLine(line: string): Matched | null {
 export function parseWhatsAppChat(text: string): ParsedChat {
   if (!text.trim()) throw new Error("Invalid WhatsApp export file");
 
-  const messages: ChatMessage[] = [];
-  let cur: { ts: Date; raw: string; sender: string; lines: string[] } | null = null;
+  try {
+    let messages: ChatMessage[] = [];
+    let cur: { ts: Date; raw: string; sender: string; lines: string[] } | null = null;
 
-  const flush = () => {
-    if (!cur) return;
-    const joined  = cur.lines.join("\n").trim();
-    const content = joined.length > 1000 ? joined.slice(0, 500) + "…" : joined;
-    messages.push({ id: String(messages.length), sender: cur.sender, content,
-      timestamp: cur.ts, rawTimestamp: cur.raw, isSystem: false });
-    cur = null;
-  };
+    const flush = () => {
+      if (!cur) return;
+      const joined  = cur.lines.join("\n").trim();
+      const content = joined.length > 1000 ? joined.slice(0, 500) + "…" : joined;
+      messages.push({ id: String(messages.length), sender: cur.sender, content,
+        timestamp: cur.ts, rawTimestamp: cur.raw, isSystem: false });
+      cur = null;
+    };
 
-  for (const raw of text.split("\n")) {
-    const line   = raw.trim();
-    if (!line)   continue;
-    const parsed = matchLine(line);
-    if (parsed) {
-      flush();
-      cur = { ts: parsed.ts, raw: parsed.rawTimestamp, sender: parsed.sender, lines: [parsed.content] };
-    } else if (TS_START.test(line)) {
-      flush(); // timestamp line with no sender:content → system message, discard
-    } else if (cur) {
-      cur.lines.push(line); // genuine multi-line continuation
+    for (const raw of text.split("\n")) {
+      const line   = raw.trim();
+      if (!line)   continue;
+      const parsed = matchLine(line);
+      if (parsed) {
+        flush();
+        cur = { ts: parsed.ts, raw: parsed.rawTimestamp, sender: parsed.sender, lines: [parsed.content] };
+      } else if (TS_START.test(line)) {
+        flush(); // timestamp line with no sender:content → system message, discard
+      } else if (cur) {
+        cur.lines.push(line); // genuine multi-line continuation
+      }
     }
+    flush();
+
+    if (messages.length === 0) throw new Error("Invalid WhatsApp export file");
+
+    if (messages.length > 10_000) {
+      console.warn(`Chat has ${messages.length} messages, keeping most recent 8000`)
+      messages = messages.slice(-8_000)
+    }
+
+    const participants = Array.from(new Set(messages.map((m) => m.sender)));
+    return { messages, participants, totalMessages: messages.length,
+      dateRange: { start: messages[0].timestamp, end: messages.at(-1)!.timestamp } };
+  } catch (error) {
+    console.error('Parser error:', error)
+    throw new Error('Could not read this chat file. Make sure it is a valid WhatsApp export.')
   }
-  flush();
-
-  if (messages.length === 0) throw new Error("Invalid WhatsApp export file");
-
-  const participants = Array.from(new Set(messages.map((m) => m.sender)));
-  return { messages, participants, totalMessages: messages.length,
-    dateRange: { start: messages[0].timestamp, end: messages.at(-1)!.timestamp } };
 }
 
 export function filterMessagesByRange(messages: ChatMessage[], options: FilterOptions): ChatMessage[] {

@@ -1,12 +1,12 @@
 ﻿"use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Bot, Send } from "lucide-react";
 import type { AnalysisResult } from "@/types/analysis";
 
 interface Props { analysis: AnalysisResult; }
-interface ChatMessage { id: string; role: "user" | "assistant"; content: string; }
+interface ChatMessage { id: string; role: "user" | "assistant"; content: string; isError?: boolean; }
 interface AskResponse { response: string; }
 
 const SUGGESTIONS = [
@@ -25,11 +25,20 @@ export default function AskAI({ analysis }: Props) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sessionAnalysis, setSessionAnalysis] = useState<Record<string, unknown> | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem('analysisResult')
+      if (stored) setSessionAnalysis(JSON.parse(stored) as Record<string, unknown>)
+    } catch (e) {
+      console.error('Failed to load analysis:', e)
+    }
+  }, [])
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading]);
 
-  const history = useMemo(() => messages.map((m) => ({ role: m.role, content: m.content })), [messages]);
 
   const sendMessage = async (question: string) => {
     const trimmed = question.trim();
@@ -44,13 +53,23 @@ export default function AskAI({ analysis }: Props) {
       const res = await fetch("/api/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: trimmed, analysis, conversationHistory: history.slice(-10) }),
+        body: JSON.stringify({
+          question: trimmed,
+          analysis: sessionAnalysis ?? (analysis as unknown as Record<string, unknown>),
+          conversationHistory: messages.map((m) => ({ role: m.role, content: m.content }))
+        }),
       });
       if (!res.ok) throw new Error("Request failed");
       const data = (await res.json()) as AskResponse;
       const aiMessage: ChatMessage = { id: crypto.randomUUID(), role: "assistant", content: data.response };
       setMessages((prev) => [...prev, aiMessage]);
     } catch {
+      setMessages((prev) => [...prev, {
+        id: Date.now().toString(),
+        role: 'assistant' as const,
+        content: "Sorry, I couldn't process that right now. Please try again.",
+        isError: true
+      }]);
       setError("Could not reach AI right now. Please try again.");
     } finally {
       setLoading(false);
@@ -72,7 +91,7 @@ export default function AskAI({ analysis }: Props) {
           {messages.map((m) => (
             <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
               {m.role === "assistant" && <div className="w-7 h-7 rounded-full flex items-center justify-center mr-2 mt-1" style={{ background: "#111828" }}><Bot size={14} style={{ color: "#6366F1" }} /></div>}
-              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="px-3.5 py-2.5 max-w-[85%] text-sm leading-relaxed" style={{ background: m.role === "user" ? "#6366F1" : "#111828", color: m.role === "user" ? "#060810" : "#E8F4F8", borderRadius: m.role === "user" ? "14px 14px 4px 14px" : "14px 14px 14px 4px", maxWidth: m.role === "user" ? "75%" : "85%" }}>{m.content}</motion.div>
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="px-3.5 py-2.5 max-w-[85%] text-sm leading-relaxed" style={{ background: m.role === "user" ? "#6366F1" : (m.isError ? "#1A0A0A" : "#111828"), color: m.role === "user" ? "#060810" : (m.isError ? "#FF6B6B" : "#E8F4F8"), borderRadius: m.role === "user" ? "14px 14px 4px 14px" : "14px 14px 14px 4px", maxWidth: m.role === "user" ? "75%" : "85%", border: m.isError ? "1px solid #FF3333" : "none" }}>{m.content}</motion.div>
             </div>
           ))}
           {loading && <div className="flex items-start"><div className="w-7 h-7 rounded-full flex items-center justify-center mr-2 mt-1" style={{ background: "#111828" }}><Bot size={14} style={{ color: "#6366F1" }} /></div><TypingDots /></div>}
@@ -82,7 +101,7 @@ export default function AskAI({ analysis }: Props) {
 
         <form onSubmit={(e) => { e.preventDefault(); void sendMessage(input); }} className="border-t p-4 flex gap-3" style={{ borderColor: "#1A2440" }}>
           <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask anything about your chat..." className="flex-1 rounded-[10px] px-4 py-3 text-sm outline-none border" style={{ background: "#111828", borderColor: "#1A2440", color: "#E8F4F8" }} onFocus={(e) => { e.currentTarget.style.borderColor = "#6366F1"; }} onBlur={(e) => { e.currentTarget.style.borderColor = "#1A2440"; }} />
-          <button type="submit" disabled={!input.trim() || loading} className="rounded-lg px-4 py-3 disabled:opacity-50" style={{ background: "#6366F1", color: "#060810" }}><Send size={16} /></button>
+          <button type="submit" disabled={input.trim() === '' || loading} className="rounded-lg px-4 py-3 disabled:opacity-50" style={{ background: "#6366F1", color: "#060810" }}><Send size={16} /></button>
         </form>
       </div>
     </motion.section>

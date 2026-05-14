@@ -14,7 +14,6 @@ import {
   Gavel,
   HelpCircle,
   LayoutDashboard,
-  Loader2,
   MessageCircle,
   Share2,
   Users,
@@ -276,7 +275,7 @@ function InviteBanner({ inviteCode, copyingCode, copyingLink, onCopyCode, onCopy
 export default function DashboardPage() {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [metadata, setMetadata] = useState<AnalysisMetadata>(EMPTY_META);
-  const [hasData, setHasData] = useState<boolean | null>(null);
+  const [loadingState, setLoadingState] = useState<'loading' | 'ready' | 'empty' | 'error'>('loading');
   const [selectedBlocker, setSelectedBlocker] = useState<Blocker | null>(null);
   const [inviteCode, setInviteCode] = useState<string | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
@@ -296,7 +295,6 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    const started = Date.now();
     const url = new URLSearchParams(window.location.search);
     const projectIdFromUrl = url.get("project");
     const memberNameFromUrl = url.get("member");
@@ -308,67 +306,85 @@ export default function DashboardPage() {
       setMemberName(sessionStorage.getItem("memberName"));
     }
 
-    const loadProjectFromDatabase = async (id: string) => {
-      const { data } = await supabase.from("projects").select("*").eq("id", id).single<ProjectRow>();
-      if (data) {
-        const safeAnalysis = normalizeAnalysis(data.analysis_result);
-        if (!safeAnalysis) {
-          setHasData(false);
-          return;
-        }
-        setAnalysis(safeAnalysis);
-        setMetadata(normalizeMetadata(data.chat_stats));
-        setProjectId(id);
-        setOwnerId(data.owner_id);
-        setProjectSaved(true);
-        const code = sessionStorage.getItem("inviteCode") || data.invite_code || "";
-        if (code) setInviteCode(code);
-      } else {
-        setHasData(false);
-      }
-      const wait = Math.max(500 - (Date.now() - started), 0);
-      window.setTimeout(() => setHasData(Boolean(data)), wait);
-    };
-
     if (projectIdFromUrl) {
+      const loadProjectFromDatabase = async (id: string) => {
+        try {
+          const { data } = await supabase.from("projects").select("*").eq("id", id).single<ProjectRow>();
+          if (data) {
+            const safeAnalysis = normalizeAnalysis(data.analysis_result);
+            if (!safeAnalysis) {
+              setLoadingState('error');
+              return;
+            }
+            setAnalysis(safeAnalysis);
+            setMetadata(normalizeMetadata(data.chat_stats));
+            setProjectId(id);
+            setOwnerId(data.owner_id);
+            setProjectSaved(true);
+            const code = sessionStorage.getItem("inviteCode") || data.invite_code || "";
+            if (code) setInviteCode(code);
+            setLoadingState('ready');
+          } else {
+            setLoadingState('empty');
+          }
+        } catch (error) {
+          console.error('Dashboard load error:', error);
+          setLoadingState('error');
+        }
+      };
       void loadProjectFromDatabase(projectIdFromUrl);
       return;
     }
 
-    const analysisData = sessionStorage.getItem("analysisResult");
-    const metaData = sessionStorage.getItem("chatStats");
     const savedCode = sessionStorage.getItem("inviteCode");
     const savedProjectId = sessionStorage.getItem("projectId");
-
     if (savedCode) setInviteCode(savedCode);
     if (savedProjectId) {
       setProjectId(savedProjectId);
       setProjectSaved(true);
     }
 
-    if (!analysisData) {
-      const wait = Math.max(500 - (Date.now() - started), 0);
-      window.setTimeout(() => setHasData(false), wait);
-      return;
-    }
+    const timer = setTimeout(() => {
+      try {
+        const analysisRaw = sessionStorage.getItem('analysisResult')
+        const metaRaw = sessionStorage.getItem('chatStats')
 
-    const parsedAnalysis = normalizeAnalysis(JSON.parse(analysisData));
-    const parsedMeta = normalizeMetadata(JSON.parse(metaData || "{}"));
-    const wait = Math.max(500 - (Date.now() - started), 0);
+        if (!analysisRaw) {
+          setLoadingState('empty')
+          return
+        }
 
-    window.setTimeout(() => {
-      if (!parsedAnalysis) {
-        setHasData(false);
-        return;
+        const parsed: unknown = JSON.parse(analysisRaw)
+        const normalized = normalizeAnalysis(parsed)
+
+        if (!normalized) {
+          setLoadingState('error')
+          return
+        }
+
+        setAnalysis(normalized)
+
+        if (metaRaw) {
+          try {
+            const rawMeta: unknown = JSON.parse(metaRaw)
+            setMetadata(normalizeMetadata(rawMeta))
+          } catch {
+            // keep default metadata
+          }
+        }
+
+        setLoadingState('ready')
+      } catch (error) {
+        console.error('Dashboard load error:', error)
+        setLoadingState('error')
       }
-      setAnalysis(parsedAnalysis);
-      setMetadata(parsedMeta);
-      setHasData(Boolean(parsedAnalysis));
-    }, wait);
+    }, 400)
+
+    return () => clearTimeout(timer)
   }, []);
 
   useEffect(() => {
-    if (analysis && !projectSaved) {
+    if (loadingState === 'ready' && analysis && !projectSaved) {
       const saveProjectToDatabase = async () => {
         const response = await fetch("/api/projects/create", {
           method: "POST",
@@ -392,10 +408,10 @@ export default function DashboardPage() {
       };
       void saveProjectToDatabase();
     }
-  }, [analysis, metadata, projectSaved, pushToast]);
+  }, [loadingState, analysis, metadata, projectSaved, pushToast]);
 
   useEffect(() => {
-    if (!hasData) return;
+    if (loadingState !== 'ready') return;
     const ids = ["overview", "tasks", "decisions", "blockers", "deadlines", "questions", "participation", "askai", "members"];
     const visibility = new Map<string, number>();
     const observer = new IntersectionObserver((entries) => {
@@ -409,7 +425,7 @@ export default function DashboardPage() {
       if (el) observer.observe(el);
     });
     return () => observer.disconnect();
-  }, [hasData]);
+  }, [loadingState]);
 
   const nudgePayload = useMemo(() => {
     if (!analysis || !selectedBlocker?.involvedPerson) return null;
@@ -439,13 +455,34 @@ export default function DashboardPage() {
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
   };
 
-  if (hasData === null) {
-    return <div className="min-h-screen flex flex-col items-center justify-center gap-3" style={{ color: "#E8F4F8" }}><Loader2 className="animate-spin" size={34} style={{ color: "#6366F1" }} /><p className="text-sm" style={{ color: "#7A92B8" }}>Loading your analysis...</p></div>;
-  }
+  if (loadingState === 'loading') return (
+    <div className="flex items-center justify-center h-screen">
+      <div className="text-center">
+        <div className="w-12 h-12 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-sm" style={{ color: '#7A92B8' }}>Loading your dashboard...</p>
+      </div>
+    </div>
+  )
 
-  if (!hasData || !analysis) {
-    return <div className="flex flex-col items-center justify-center gap-3" style={{ minHeight: "100vh" }}><div className="flex items-center justify-center rounded-full" style={{ width: 64, height: 64, background: "#1A1200", border: "1px solid #5A4000" }}><AlertTriangle size={28} style={{ color: "#F59E0B" }} /></div><p className="font-bold text-white text-xl">No analysis found</p><p className="text-sm" style={{ color: "#7A92B8" }}>Please upload and analyze a WhatsApp chat first</p><Link href="/upload" className="flex items-center justify-center font-semibold rounded-[10px]" style={{ marginTop: 8, padding: "10px 24px", fontSize: 14, background: "linear-gradient(135deg,#6366F1,#8B5CF6)", color: "#060810" }}>Go to Upload</Link></div>;
-  }
+  if (loadingState === 'empty') return (
+    <div className="flex flex-col items-center justify-center gap-3" style={{ minHeight: "100vh" }}>
+      <div className="flex items-center justify-center rounded-full" style={{ width: 64, height: 64, background: "#1A1200", border: "1px solid #5A4000" }}><AlertTriangle size={28} style={{ color: "#F59E0B" }} /></div>
+      <p className="font-bold text-white text-xl">No analysis found</p>
+      <p className="text-sm" style={{ color: "#7A92B8" }}>Please upload and analyze a WhatsApp chat first</p>
+      <Link href="/upload" className="flex items-center justify-center font-semibold rounded-[10px]" style={{ marginTop: 8, padding: "10px 24px", fontSize: 14, background: "linear-gradient(135deg,#6366F1,#8B5CF6)", color: "#060810" }}>Upload Chat</Link>
+    </div>
+  )
+
+  if (loadingState === 'error') return (
+    <div className="flex flex-col items-center justify-center gap-3" style={{ minHeight: "100vh" }}>
+      <div className="flex items-center justify-center rounded-full" style={{ width: 64, height: 64, background: "#1A0A0A", border: "1px solid #FF3333" }}><AlertTriangle size={28} style={{ color: "#FF6B6B" }} /></div>
+      <p className="font-bold text-white text-xl">Something went wrong</p>
+      <p className="text-sm" style={{ color: "#7A92B8" }}>Could not load your analysis data</p>
+      <Link href="/upload" className="flex items-center justify-center font-semibold rounded-[10px]" style={{ marginTop: 8, padding: "10px 24px", fontSize: 14, background: "linear-gradient(135deg,#6366F1,#8B5CF6)", color: "#060810" }}>Try Again</Link>
+    </div>
+  )
+
+  if (!analysis) return null
 
   const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 

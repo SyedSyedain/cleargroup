@@ -15,14 +15,6 @@ function readBlobAsText(blob: Blob): Promise<string> {
   });
 }
 
-function isChatFile(name: string): boolean {
-  const n = name.toLowerCase();
-  // WhatsApp zip always contains "_chat.txt"; fall back to any .txt
-  return !name.includes("/") // skip files inside sub-folders (rare)
-    ? n.endsWith(".txt")
-    : n.split("/").pop()?.endsWith(".txt") ?? false;
-}
-
 // ── Public API ────────────────────────────────────────────────────────────────
 
 /**
@@ -37,26 +29,19 @@ export async function extractChatFromFile(file: File): Promise<string> {
   }
 
   if (name.endsWith(".zip")) {
-    let zip: JSZip;
     try {
-      zip = await JSZip.loadAsync(file);
-    } catch {
-      throw new Error("Could not open the zip file. Make sure it is a valid WhatsApp export.");
+      const zip = await JSZip.loadAsync(file)
+      const files = Object.values(zip.files)
+      const txtFile = files.find((f) => !f.dir && (f.name.endsWith('.txt') || f.name.includes('chat')))
+      if (!txtFile) {
+        throw new Error('No chat file found inside the zip. Please export your chat Without Media and try again.')
+      }
+      return await txtFile.async('string')
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error'
+      if (message.includes('No chat file')) throw error
+      throw new Error('Could not read the zip file. Try exporting as .txt instead.')
     }
-
-    // Prefer _chat.txt, then any .txt at root, then any .txt anywhere
-    const entries   = Object.values(zip.files).filter((f) => !f.dir);
-    const chatEntry =
-      entries.find((f) => f.name.toLowerCase().endsWith("_chat.txt")) ??
-      entries.find((f) => isChatFile(f.name));
-
-    if (!chatEntry) {
-      throw new Error(
-        "Could not find chat file inside the zip. Please try exporting Without Media instead."
-      );
-    }
-
-    return chatEntry.async("string");
   }
 
   throw new Error("Please upload a .txt or .zip WhatsApp export file");

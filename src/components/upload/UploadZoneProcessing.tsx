@@ -34,6 +34,7 @@ export default function UploadZoneProcessing({ parsedChat, onError }: Props) {
   const [pills, setPills] = useState<string[]>([]);
   const [bubbles, setBubbles] = useState(0);
   const [done, setDone] = useState(false);
+  const [showLongWait, setShowLongWait] = useState(false);
   const triggered = useRef(new Set<number>());
   const phaseRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { apiDone } = useAnalysis(onError);
@@ -112,6 +113,19 @@ export default function UploadZoneProcessing({ parsedChat, onError }: Props) {
 
   const paused = pct >= 85 && !apiDone && !done;
   const statusMsg = done ? null : paused ? "Deep analysis in progress..." : STEPS[step];
+
+  useEffect(() => {
+    if (!paused) return;
+    const id = setInterval(() => {
+      setPct((p) => Math.min(p + 1, 95));
+    }, 3000);
+    return () => clearInterval(id);
+  }, [paused]);
+
+  useEffect(() => {
+    const id = setTimeout(() => setShowLongWait(true), 15000);
+    return () => clearTimeout(id);
+  }, []);
 
   return (
     <div
@@ -198,6 +212,11 @@ export default function UploadZoneProcessing({ parsedChat, onError }: Props) {
             }}
           />
         </div>
+        {showLongWait && !done && (
+          <p className="text-xs text-center mt-2" style={{ color: '#7A92B8' }}>
+            Large chat detected — this may take up to 30 seconds
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col gap-2">

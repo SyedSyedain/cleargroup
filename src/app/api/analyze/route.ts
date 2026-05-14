@@ -2,6 +2,9 @@
 import { buildAnalysisPrompt } from "@/lib/analysisPrompt";
 import type { AnalysisResult, AnalysisMetadata } from "@/types/analysis";
 
+export const maxDuration = 60
+export const dynamic = 'force-dynamic'
+
 // â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 interface RequestStats {
@@ -140,22 +143,66 @@ export async function POST(req: NextRequest) {
 
   // Truncate if over Gemini's safe limit
   const MAX = 900_000;
-  const chat = formattedChat.length > MAX
+  let chat = formattedChat.length > MAX
     ? formattedChat.slice(0, MAX) + "\n[Chat truncated due to length]"
     : formattedChat;
+
+  // Smart truncation for very large chats
+  if (chat.length > 400_000) {
+    const firstPart = chat.slice(0, 80_000)
+    const lastPart  = chat.slice(-240_000)
+    chat = firstPart + '\n[...middle section trimmed for length...]\n' + lastPart
+  }
 
   // Build prompt and call Gemini
   try {
     const prompt = buildAnalysisPrompt(chat, stats?.participants ?? []);
 
-    const geminiRes = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
-      method:  "POST",
-      headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify({
-        contents:         [{ parts: [{ text: prompt }] }],
-        generationConfig: GENERATION_CONFIG,
-      }),
-    });
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 55000)
+
+    let geminiRes: Response;
+    try {
+      geminiRes = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        signal:  controller.signal,
+        body:    JSON.stringify({
+          contents:         [{ parts: [{ text: prompt }] }],
+          generationConfig: GENERATION_CONFIG,
+        }),
+      });
+      clearTimeout(timeoutId)
+    } catch (fetchErr: unknown) {
+      clearTimeout(timeoutId)
+      if (fetchErr instanceof Error && (fetchErr.name === 'AbortError' || fetchErr.message.includes('network'))) {
+        // retry with short chat (last 150 lines)
+        const shortChat = chat.split('\n').slice(-150).join('\n')
+        const retryPrompt = buildAnalysisPrompt(shortChat, stats?.participants ?? [])
+        const retryController = new AbortController()
+        const retryTimeoutId = setTimeout(() => retryController.abort(), 55000)
+        try {
+          geminiRes = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            signal:  retryController.signal,
+            body:    JSON.stringify({
+              contents:         [{ parts: [{ text: retryPrompt }] }],
+              generationConfig: GENERATION_CONFIG,
+            }),
+          });
+          clearTimeout(retryTimeoutId)
+        } catch {
+          clearTimeout(retryTimeoutId)
+          return NextResponse.json({
+            error: 'Analysis timed out',
+            message: 'Your chat is very large. Please try selecting a shorter date range (last 24 hours or last 3 days) and try again.'
+          }, { status: 408 })
+        }
+      } else {
+        throw fetchErr
+      }
+    }
 
     // Case B â€” Gemini rate limit
     if (geminiRes.status === 429) {
