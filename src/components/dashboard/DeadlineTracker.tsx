@@ -49,7 +49,7 @@ function DeadlineCard({ dl, i }: { dl: Deadline; i: number }) {
               color:      dl.isConfirmed ? "#8B5CF6" : "#FFB347",
               border:     dl.isConfirmed ? "1px solid rgba(139,92,246,0.25)" : "1px solid rgba(255,179,71,0.25)",
             }}>
-            {dl.isConfirmed ? "âœ“ Confirmed" : "Unconfirmed"}
+            {dl.isConfirmed ? "✓ Confirmed" : "Unconfirmed"}
           </span>
           {days !== null && (
             <span className="text-xs px-2 py-0.5 rounded-full font-medium"

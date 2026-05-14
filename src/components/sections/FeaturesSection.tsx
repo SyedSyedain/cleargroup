@@ -8,7 +8,7 @@ import FeatureCardHinglish from "./FeatureCardHinglish";
 import FeatureCardAI from "./FeatureCardAI";
 import FeatureCardStats from "./FeatureCardStats";
 
-// Shared bento card shell â€” hover lifts 4px, border brightens to indigo
+// Shared bento card shell — hover lifts 4px, border brightens to indigo
 function BentoCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
     <motion.div
@@ -93,7 +93,7 @@ function WhatsAppNudgeCard() {
   );
 }
 
-// Features section â€” 12-col bento grid with 7 cards
+// Features section — 12-col bento grid with 7 cards
 export default function FeaturesSection() {
   return (
     <section className="py-section bg-cg-bg" id="features">
@@ -107,33 +107,33 @@ export default function FeaturesSection() {
           </p>
         </AnimatedSection>
         <AnimatedSection stagger className="grid grid-cols-12 gap-4 auto-rows-[minmax(160px,_auto)]">
-          {/* Card 1: Hinglish â€” 7 cols, 2 rows, purple gradient bg */}
+          {/* Card 1: Hinglish — 7 cols, 2 rows, purple gradient bg */}
           <AnimatedItem className="col-span-12 md:col-span-7 md:row-span-2">
             <BentoCard className="bg-gradient-to-br from-[#111118] to-[#6366F1]/[0.08]">
               <FeatureCardHinglish />
             </BentoCard>
           </AnimatedItem>
-          {/* Card 2: Named ownership â€” 5 cols */}
+          {/* Card 2: Named ownership — 5 cols */}
           <AnimatedItem className="col-span-12 md:col-span-5">
             <BentoCard><OwnershipCard /></BentoCard>
           </AnimatedItem>
-          {/* Card 3: Blocker detection â€” 5 cols */}
+          {/* Card 3: Blocker detection — 5 cols */}
           <AnimatedItem className="col-span-12 md:col-span-5">
             <BentoCard><BlockerCard /></BentoCard>
           </AnimatedItem>
-          {/* Card 4: Ask your chat â€” 7 cols */}
+          {/* Card 4: Ask your chat — 7 cols */}
           <AnimatedItem className="col-span-12 md:col-span-7">
             <BentoCard><FeatureCardAI /></BentoCard>
           </AnimatedItem>
-          {/* Card 5: Date range filter â€” 5 cols */}
+          {/* Card 5: Date range filter — 5 cols */}
           <AnimatedItem className="col-span-12 md:col-span-5">
             <BentoCard><DateFilterCard /></BentoCard>
           </AnimatedItem>
-          {/* Card 6: WhatsApp nudge â€” 6 cols */}
+          {/* Card 6: WhatsApp nudge — 6 cols */}
           <AnimatedItem className="col-span-12 md:col-span-6">
             <BentoCard><WhatsAppNudgeCard /></BentoCard>
           </AnimatedItem>
-          {/* Card 7: Participation score â€” 6 cols */}
+          {/* Card 7: Participation score — 6 cols */}
           <AnimatedItem className="col-span-12 md:col-span-6">
             <BentoCard><FeatureCardStats /></BentoCard>
           </AnimatedItem>

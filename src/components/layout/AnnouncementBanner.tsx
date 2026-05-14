@@ -6,7 +6,7 @@ import { X } from "lucide-react";
 
 const STORAGE_KEY = "cg-banner-v1-dismissed";
 
-// Slides down on first load, dismissible â€” persists across page navigations via sessionStorage
+// Slides down on first load, dismissible — persists across page navigations via sessionStorage
 export default function AnnouncementBanner() {
   const [visible, setVisible] = useState(false);
 
@@ -31,7 +31,7 @@ export default function AnnouncementBanner() {
         >
           <div className="relative flex items-center justify-center px-10 py-2.5">
             <p className="text-[#021A1A] text-sm font-semibold text-center leading-snug">
-              ðŸŽ‰ ClearGroup is in beta &mdash; join 500+ students already using it
+              🎉 ClearGroup is in beta &mdash; join 500+ students already using it
             </p>
             <button
               onClick={dismiss}

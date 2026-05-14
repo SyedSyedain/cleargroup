@@ -8,9 +8,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json() as {
       question?: string
       analysis?: Record<string, unknown>
+      participants?: string[]
       conversationHistory?: Array<{ role: string; content: string }>
     }
-    const { question, analysis, conversationHistory } = body
+    const { question, analysis, participants, conversationHistory } = body
 
     if (!question?.trim()) {
       return NextResponse.json({ error: 'Question is required' }, { status: 400 })
@@ -20,6 +21,17 @@ export async function POST(request: NextRequest) {
     if (!apiKey) {
       return NextResponse.json({ error: 'API not configured' }, { status: 500 })
     }
+
+    const participantList = (() => {
+      if (Array.isArray(participants) && participants.length > 0) {
+        return `KNOWN PARTICIPANTS: ${participants.join(', ')}`;
+      }
+      const perPerson = (analysis?.participationStats as Record<string, unknown> | undefined)?.perPerson;
+      if (Array.isArray(perPerson) && perPerson.length > 0) {
+        return `KNOWN PARTICIPANTS: ${(perPerson as Array<{ name: string }>).map((p) => p.name).join(', ')}`;
+      }
+      return '';
+    })();
 
     const analysisContext = analysis ? `
 TASKS: ${JSON.stringify((analysis.tasks as unknown[])?.slice(0, 20) ?? [])}
@@ -42,7 +54,7 @@ OPEN QUESTIONS: ${JSON.stringify((analysis.openQuestions as unknown[])?.slice(0,
 Be concise (under 80 words), friendly, and use actual names and data from the analysis below.
 If information is not in the data, say so honestly.
 
-PROJECT ANALYSIS DATA:
+${participantList ? `${participantList}\n\n` : ''}PROJECT ANALYSIS DATA:
 ${analysisContext}
 
 ${historyText ? `RECENT CONVERSATION:\n${historyText}\n` : ''}

@@ -112,7 +112,7 @@ export default function UploadZoneUploaded({ file, parsedChat, onRemove, onAnaly
 
       <div className="flex-1" />
 
-      {/* Typed error card â€” shown when a previous analysis attempt failed */}
+      {/* Typed error card — shown when a previous analysis attempt failed */}
       {apiError && (
         <motion.div {...fadeUp(0.45)}>
           <AnalysisErrorCard

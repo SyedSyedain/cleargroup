@@ -20,7 +20,7 @@ const tasks: Task[] = [
   { avatar: "V", avatarBg: "#3A1A00", name: "Vivek",
     task: "Complete backend API integration",
     status: "Overdue", statusColor: "#FF6B6B",
-    due: "Was due: Monday Â· 2 days ago", dueColor: "#FF6B6B", borderColor: "#FF6B6B" },
+    due: "Was due: Monday · 2 days ago", dueColor: "#FF6B6B", borderColor: "#FF6B6B" },
 ];
 
 function TaskCard({ avatar, avatarBg, name, task, status, statusColor, due, dueColor, borderColor }: Task) {
@@ -43,14 +43,14 @@ function TaskCard({ avatar, avatarBg, name, task, status, statusColor, due, dueC
   );
 }
 
-// Right panel â€” ClearGroup dashboard with tasks, decision, and blocker â€” all 5 items always visible
+// Right panel — ClearGroup dashboard with tasks, decision, and blocker — all 5 items always visible
 export default function ComparisonDashPanel() {
   return (
     <div className="h-full flex flex-col" style={{ background: "#060810" }}>
 
       {/* Dashboard header */}
       <div className="flex items-center justify-between px-4 py-3 shrink-0" style={{ background: "#0C1121" }}>
-        <p style={{ color: "white", fontSize: 12, fontWeight: 700 }}>Project Alpha ðŸ™ˆ</p>
+        <p style={{ color: "white", fontSize: 12, fontWeight: 700 }}>Project Alpha 🙈</p>
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
           style={{ background: "#6366F118", color: "#6366F1", border: "1px solid #6366F133", fontSize: 10, fontWeight: 600 }}>
           <RefreshCw className="w-2.5 h-2.5" />
@@ -58,21 +58,21 @@ export default function ComparisonDashPanel() {
         </div>
       </div>
 
-      {/* Content â€” reduced padding so all 5 items fit at every breakpoint */}
+      {/* Content — reduced padding so all 5 items fit at every breakpoint */}
       <div className="flex-1" style={{ padding: "10px 10px", overflowY: "auto" }}>
         {tasks.map((t) => <TaskCard key={t.name} {...t} />)}
 
         {/* Decision */}
         <div style={{ background: "#0A1A14", border: "1px solid #1A3A2A", borderRadius: 8, padding: "9px 12px", marginBottom: 6 }}>
-          <p style={{ color: "#6366F1", fontSize: 9, marginBottom: 4 }}>âœ… Decision</p>
+          <p style={{ color: "#6366F1", fontSize: 9, marginBottom: 4 }}>✅ Decision</p>
           <p style={{ color: "white", fontSize: 11, lineHeight: 1.4 }}>
-            Use React for frontend â€” agreed by Rahul, Mon 3:14pm
+            Use React for frontend — agreed by Rahul, Mon 3:14pm
           </p>
         </div>
 
         {/* Blocker */}
         <div style={{ background: "#1A0A0A", border: "1px solid #3A1A1A", borderRadius: 8, padding: "9px 12px" }}>
-          <p style={{ color: "#FF6B6B", fontSize: 9, marginBottom: 4 }}>âš ï¸ Blocker</p>
+          <p style={{ color: "#FF6B6B", fontSize: 9, marginBottom: 4 }}>⚠️ Blocker</p>
           <p style={{ color: "white", fontSize: 11, lineHeight: 1.4 }}>
             Vivek hasn&apos;t responded in 2 days
           </p>

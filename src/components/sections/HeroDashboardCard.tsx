@@ -59,7 +59,7 @@ function TaskColumn({ col }: { col: Column }) {
   );
 }
 
-// Floating mock dashboard â€” sea green pulsing glow, fades in then floats
+// Floating mock dashboard — sea green pulsing glow, fades in then floats
 export default function HeroDashboardCard() {
   return (
     <motion.div
@@ -86,11 +86,11 @@ export default function HeroDashboardCard() {
             <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
           </div>
           <span className="text-cg-muted text-[11px] font-medium mx-auto pr-12">
-            ClearGroup â€” Project Alpha
+            ClearGroup — Project Alpha
           </span>
         </div>
 
-        {/* Task board â€” 3 person columns */}
+        {/* Task board — 3 person columns */}
         <div className="flex gap-3 p-4 overflow-x-auto">
           {columns.map((col) => (
             <TaskColumn key={col.person} col={col} />
@@ -98,7 +98,7 @@ export default function HeroDashboardCard() {
         </div>
       </motion.div>
 
-      {/* Floating badge â€” bottom left */}
+      {/* Floating badge — bottom left */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -109,7 +109,7 @@ export default function HeroDashboardCard() {
         <span className="text-cg-text text-xs font-semibold whitespace-nowrap">5 tasks extracted</span>
       </motion.div>
 
-      {/* Floating badge â€” bottom right */}
+      {/* Floating badge — bottom right */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo } from "react";
 import { CheckSquare, Scale, AlertTriangle, Heart, Sparkles, User, MessageSquare, Clock } from "lucide-react";
@@ -11,7 +11,7 @@ const STATUS_COLOR: Record<Status, string> = {
   on_track: "#8B5CF6", at_risk: "#F59E0B", critical: "#FF6B6B",
 };
 const STATUS_LABEL: Record<Status, string> = {
-  on_track: "On Track âœ“", at_risk: "At Risk âš ", critical: "Critical !",
+  on_track: "On Track ✓", at_risk: "At Risk ⚠", critical: "Critical !",
 };
 
 function Dot({ color }: { color: string }) {
@@ -32,6 +32,23 @@ function timeAgo(iso: string): string {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
+function generateFallbackInsight(analysis: AnalysisResult | null): string {
+  if (!analysis) return 'Upload a chat to see insights';
+  const taskCount = analysis.tasks?.length ?? 0;
+  const blockerCount = analysis.blockers?.length ?? 0;
+  const decisionCount = analysis.decisions?.length ?? 0;
+  if (blockerCount > 0) {
+    return `${blockerCount} blocker${blockerCount > 1 ? 's' : ''} detected — immediate attention needed to keep project on track`;
+  }
+  if (taskCount > 0 && decisionCount > 0) {
+    return `${taskCount} tasks assigned across team with ${decisionCount} key decision${decisionCount > 1 ? 's' : ''} made — project is progressing`;
+  }
+  if (taskCount > 0) {
+    return `${taskCount} tasks identified and assigned to team members`;
+  }
+  return 'Project chat analyzed — check tasks and decisions below';
+}
+
 interface Props { analysis: AnalysisResult; metadata: AnalysisMetadata; }
 
 export default function OverviewSection({ analysis, metadata }: Props) {
@@ -49,8 +66,20 @@ export default function OverviewSection({ analysis, metadata }: Props) {
   const noBlockers  = blockers.length === 0;
   const blockerCol  = noBlockers ? "#8B5CF6" : "#FF6B6B";
 
+  const keyInsight = summary.keyInsight || generateFallbackInsight(analysis);
+
+  const mostActiveDisplay = (() => {
+    if (summary.mostActiveParticipant) return summary.mostActiveParticipant;
+    try {
+      const meta = JSON.parse(sessionStorage.getItem('chatStats') ?? '{}') as { participants?: string[] };
+      return meta?.participants?.[0] ?? 'Team member';
+    } catch {
+      return 'Team member';
+    }
+  })();
+
   const pills = [
-    { Icon: User,          text: `Most active: ${summary.mostActiveParticipant}` },
+    { Icon: User,          text: `Most active: ${mostActiveDisplay}` },
     { Icon: MessageSquare, text: `${metadata.messagesAnalyzed.toLocaleString()} messages analyzed` },
     { Icon: Clock,         text: `Analyzed ${timeAgo(metadata.analyzedAt)}` },
   ];
@@ -58,7 +87,6 @@ export default function OverviewSection({ analysis, metadata }: Props) {
   return (
     <div className="flex flex-col gap-6">
 
-      {/* â”€â”€ Stat cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
 
         <StatCard label="Total Tasks" value={tasks.length} accent="#6366F1" icon={CheckSquare} delay={0}>
@@ -76,7 +104,7 @@ export default function OverviewSection({ analysis, metadata }: Props) {
           valueColor={blockerCol} accent={blockerCol} icon={AlertTriangle} delay={0.16}
         >
           <span className="text-xs font-medium" style={{ color: blockerCol }}>
-            {noBlockers ? "All clear ðŸŽ‰" : "Needs attention"}
+            {noBlockers ? "All clear 🎉" : "Needs attention"}
           </span>
         </StatCard>
 
@@ -92,7 +120,6 @@ export default function OverviewSection({ analysis, metadata }: Props) {
 
       </div>
 
-      {/* â”€â”€ Key insight banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="flex items-center gap-4"
         style={{ background: "linear-gradient(135deg,rgba(99,102,241,0.06),rgba(139,92,246,0.03))",
           border: "1px solid rgba(99,102,241,0.2)", borderRadius: 12, padding: "20px 24px" }}>
@@ -101,7 +128,7 @@ export default function OverviewSection({ analysis, metadata }: Props) {
           <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: "#6366F1" }}>
             AI Insight
           </p>
-          <p className="text-white leading-snug" style={{ fontSize: 16 }}>{summary.keyInsight}</p>
+          <p className="text-white leading-snug" style={{ fontSize: 16 }}>{keyInsight}</p>
         </div>
         <span className="hidden sm:inline text-xs px-3 py-1 rounded-full font-semibold shrink-0"
           style={{ background: `${sColor}18`, color: sColor, border: `1px solid ${sColor}40` }}>
@@ -109,7 +136,6 @@ export default function OverviewSection({ analysis, metadata }: Props) {
         </span>
       </div>
 
-      {/* â”€â”€ Quick stats pills â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="flex flex-wrap gap-3">
         {pills.map(({ Icon, text }) => (
           <div key={text} className="flex items-center gap-2"

@@ -5,7 +5,7 @@ import type { AnalysisResult, AnalysisMetadata } from "@/types/analysis";
 export const maxDuration = 60
 export const dynamic = 'force-dynamic'
 
-// â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 interface RequestStats {
   totalMessages: number;
@@ -106,7 +106,7 @@ function parseAnalysisResult(raw: string): AnalysisResult | null {
   return null;
 }
 
-// â”€â”€ Gemini config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Gemini config ─────────────────────────────────────────────────────────────
 
 const GEMINI_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
@@ -118,7 +118,7 @@ const GENERATION_CONFIG = {
   responseMimeType:  "application/json",
 } as const;
 
-// â”€â”€ Route handler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Route handler ─────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
   // Guard: API key must be configured
@@ -204,7 +204,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Case B â€” Gemini rate limit
+    // Case B — Gemini rate limit
     if (geminiRes.status === 429) {
       return NextResponse.json({
         error:   "Rate limit reached",
@@ -231,7 +231,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "AI returned empty response" }, { status: 500 });
     }
 
-    // Case C â€” parse Gemini JSON safely with multiple fallbacks
+    // Case C — parse Gemini JSON safely with multiple fallbacks
     let analysis = parseAnalysisResult(rawText);
     if (!analysis) {
       // Last resort: ask model to convert its own output into strict JSON
@@ -254,7 +254,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "AI returned invalid response" }, { status: 500 });
     }
 
-    // Case D â€” required shape check
+    // Case D — required shape check
     if (!Array.isArray(analysis.tasks)) {
       console.error("[analyze] Missing tasks array in parsed response");
       return NextResponse.json({ error: "Invalid AI response" }, { status: 500 });
