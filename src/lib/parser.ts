@@ -152,19 +152,23 @@ export function getChatStats(messages: ChatMessage[]) {
 
 export function formatChatForAI(messages: ChatMessage[]): string {
   if (!messages.length) return "";
-  const names  = Array.from(new Set(messages.map((m) => cleanNameForDisplay(m.sender)))).join(", ");
-  const fmtD   = (d: Date) => d.toLocaleDateString("en-IN");
-  const header = ["=== WHATSAPP GROUP CHAT ===", `Participants: ${names}`,
-    `Date range: ${fmtD(messages[0].timestamp)} to ${fmtD(messages.at(-1)!.timestamp)}`,
-    `Total messages: ${messages.length}`, "===\n"].join("\n");
-  const body   = messages.map((m) => {
+  const participants = Array.from(new Set(messages.map((m) => cleanNameForDisplay(m.sender))));
+  const fmtD = (d: Date) => d.toLocaleDateString("en-IN");
+  const header = [
+    "=== WHATSAPP GROUP CHAT ANALYSIS ===",
+    `Total Participants: ${participants.join(", ")}`,
+    `Total Messages: ${messages.length}`,
+    `Date Range: ${fmtD(messages[0].timestamp)} to ${fmtD(messages.at(-1)!.timestamp)}`,
+    "=== CHAT BEGINS ===\n",
+  ].join("\n");
+  const body = messages.map((m) => {
     const t = m.timestamp.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
     const n = cleanNameForDisplay(m.sender);
     const c = (m.content.replace(EMOJI_RE, "").replace(MEDIA_RE, "[media]").trim()) || "[media]";
-    return `${n} [${t}]: ${c}`;
+    return `[${t}] ${n}: ${c}`;
   }).join("\n");
   const out = header + body;
-  return out.length > 800_000 ? out.slice(0, 800_000) + "\n[chat truncated]" : out;
+  return out.length > 600_000 ? out.slice(0, 600_000) + "\n[chat truncated]" : out;
 }
 
 /*

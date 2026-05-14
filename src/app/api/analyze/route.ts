@@ -113,7 +113,7 @@ const GEMINI_URL =
 
 const GENERATION_CONFIG = {
   temperature:       0.1,
-  topP:              0.8,
+  topP:              0.95,
   maxOutputTokens:   8192,
   responseMimeType:  "application/json",
 } as const;
@@ -147,10 +147,10 @@ export async function POST(req: NextRequest) {
     ? formattedChat.slice(0, MAX) + "\n[Chat truncated due to length]"
     : formattedChat;
 
-  // Smart truncation for very large chats
-  if (chat.length > 400_000) {
-    const firstPart = chat.slice(0, 80_000)
-    const lastPart  = chat.slice(-240_000)
+  // Smart truncation for very large chats — keep first 100k + last 480k
+  if (chat.length > 600_000) {
+    const firstPart = chat.slice(0, 100_000)
+    const lastPart  = chat.slice(-480_000)
     chat = firstPart + '\n[...middle section trimmed for length...]\n' + lastPart
   }
 
