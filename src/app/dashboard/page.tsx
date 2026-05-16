@@ -30,6 +30,9 @@ import ParticipationChart from "@/components/dashboard/ParticipationChart";
 import AskAI from "@/components/dashboard/AskAI";
 import NudgeModal from "@/components/dashboard/NudgeModal";
 import MembersPanel from "@/components/dashboard/MembersPanel";
+import ComplimentsSection from "@/components/dashboard/ComplimentsSection";
+import TeamDynamics from "@/components/dashboard/TeamDynamics";
+import ChatTimeline from "@/components/dashboard/ChatTimeline";
 import Toast, { type ToastItem } from "@/components/ui/Toast";
 import type {
   AnalysisResult,
@@ -41,6 +44,11 @@ import type {
   OpenQuestion,
   ParticipationStat,
   AnalysisSummary,
+  Compliment,
+  Concern,
+  TeamDynamics as TeamDynamicsType,
+  TimelineEvent,
+  ChatHighlight,
 } from "@/types/analysis";
 
 interface SectionProps {
@@ -113,7 +121,8 @@ function normalizeBlocker(blocker: unknown, index: number): Blocker {
   const row = isRecord(blocker) ? blocker : {};
   const type = row.type;
   const safeType: Blocker["type"] =
-    type === "silent_member" || type === "unresolved_conflict" || type === "missing_response" || type === "unclear_ownership"
+    type === "silent_member" || type === "unresolved_conflict" || type === "missing_response" ||
+    type === "unclear_ownership" || type === "technical_issue" || type === "access_issue"
       ? type
       : "missing_response";
   const severity = row.severity;
@@ -153,6 +162,10 @@ function normalizeQuestion(question: unknown, index: number): OpenQuestion {
 
 function normalizeParticipation(person: unknown): ParticipationStat {
   const row = isRecord(person) ? person : {};
+  const role = row.role;
+  const safeRole: ParticipationStat["role"] =
+    role === "leader" || role === "contributor" || role === "supporter" || role === "silent"
+      ? role : "contributor";
   return {
     name: toStringOr(row.name, "Unknown"),
     messageCount: toNumber(row.messageCount, 0),
@@ -160,6 +173,100 @@ function normalizeParticipation(person: unknown): ParticipationStat {
     tasksCompleted: toNumber(row.tasksCompleted, 0),
     participationPercentage: toNumber(row.participationPercentage, 0),
     lastActive: toStringOr(row.lastActive, ""),
+    tasksInProgress: toNumber(row.tasksInProgress, 0),
+    tasksPending: toNumber(row.tasksPending, 0),
+    firstActive: typeof row.firstActive === "string" ? row.firstActive : undefined,
+    averageResponseTime: typeof row.averageResponseTime === "string" ? row.averageResponseTime : undefined,
+    communicationStyle: typeof row.communicationStyle === "string" ? row.communicationStyle : undefined,
+    complimentsGiven: toNumber(row.complimentsGiven, 0),
+    complimentsReceived: toNumber(row.complimentsReceived, 0),
+    decisionsInitiated: toNumber(row.decisionsInitiated, 0),
+    questionsAsked: toNumber(row.questionsAsked, 0),
+    questionsAnswered: toNumber(row.questionsAnswered, 0),
+    role: safeRole,
+  };
+}
+
+function normalizeCompliment(c: unknown, index: number): Compliment {
+  const row = isRecord(c) ? c : {};
+  const type = row.type;
+  const safeType: Compliment["type"] =
+    type === "appreciation" || type === "encouragement" || type === "praise" || type === "gratitude"
+      ? type : "appreciation";
+  return {
+    id: toStringOr(row.id, `compliment_${index + 1}`),
+    from: toStringOr(row.from, "Unknown"),
+    to: toStringOr(row.to, "Unknown"),
+    message: toStringOr(row.message, ""),
+    timestamp: typeof row.timestamp === "string" ? row.timestamp : null,
+    context: toStringOr(row.context, ""),
+    type: safeType,
+  };
+}
+
+function normalizeConcern(c: unknown, index: number): Concern {
+  const row = isRecord(c) ? c : {};
+  return {
+    id: toStringOr(row.id, `concern_${index + 1}`),
+    raisedBy: toStringOr(row.raisedBy, "Unknown"),
+    concern: toStringOr(row.concern, ""),
+    timestamp: typeof row.timestamp === "string" ? row.timestamp : null,
+    addressed: typeof row.addressed === "boolean" ? row.addressed : false,
+    resolution: typeof row.resolution === "string" ? row.resolution : null,
+    evidence: toStringOr(row.evidence, ""),
+  };
+}
+
+function normalizeTeamDynamics(raw: unknown): TeamDynamicsType | undefined {
+  if (!isRecord(raw)) return undefined;
+  const mood = raw.overallMood;
+  const safeMood: TeamDynamicsType["overallMood"] =
+    mood === "positive" || mood === "neutral" || mood === "stressed" || mood === "tense" || mood === "motivated"
+      ? mood : "neutral";
+  return {
+    mostSupportive: toStringOr(raw.mostSupportive, ""),
+    mostProactive: toStringOr(raw.mostProactive, ""),
+    mostResponsive: toStringOr(raw.mostResponsive, ""),
+    leastEngaged: toStringOr(raw.leastEngaged, ""),
+    naturalLeader: toStringOr(raw.naturalLeader, ""),
+    conflictCount: toNumber(raw.conflictCount, 0),
+    collaborationMoments: Array.isArray(raw.collaborationMoments)
+      ? raw.collaborationMoments.filter((s): s is string => typeof s === "string") : [],
+    tensionMoments: Array.isArray(raw.tensionMoments)
+      ? raw.tensionMoments.filter((s): s is string => typeof s === "string") : [],
+    overallMood: safeMood,
+  };
+}
+
+function normalizeTimelineEvent(e: unknown, index: number): TimelineEvent {
+  const row = isRecord(e) ? e : {};
+  const type = row.type;
+  const safeType: TimelineEvent["type"] =
+    type === "task_assigned" || type === "decision_made" || type === "blocker_detected" ||
+    type === "deadline_set" || type === "compliment" || type === "concern" || type === "completion"
+      ? type : "task_assigned";
+  return {
+    timestamp: toStringOr(row.timestamp, `event_${index}`),
+    event: toStringOr(row.event, ""),
+    type: safeType,
+    person: toStringOr(row.person, "Unknown"),
+  };
+}
+
+function normalizeChatHighlight(h: unknown): ChatHighlight {
+  const row = isRecord(h) ? h : {};
+  const type = row.type;
+  const safeType: ChatHighlight["type"] =
+    type === "funny_moment" || type === "key_decision" || type === "breakthrough" ||
+    type === "conflict_resolved" || type === "great_teamwork" || type === "concern_raised"
+      ? type : "key_decision";
+  return {
+    type: safeType,
+    description: toStringOr(row.description, ""),
+    timestamp: typeof row.timestamp === "string" ? row.timestamp : null,
+    involvedPeople: Array.isArray(row.involvedPeople)
+      ? row.involvedPeople.filter((s): s is string => typeof s === "string") : [],
+    quote: typeof row.quote === "string" ? row.quote : null,
   };
 }
 
@@ -175,6 +282,11 @@ function normalizeAnalysis(raw: unknown): AnalysisResult | null {
       ? summaryStatus
       : "on_track";
 
+  const momentum = summaryRaw.projectMomentum;
+  const safeMomentum: AnalysisSummary["projectMomentum"] =
+    momentum === "accelerating" || momentum === "steady" || momentum === "slowing" || momentum === "stalled"
+      ? momentum : undefined;
+
   return {
     tasks: (Array.isArray(raw.tasks) ? raw.tasks : []).map(normalizeTask),
     decisions: (Array.isArray(raw.decisions) ? raw.decisions : []).map(normalizeDecision),
@@ -188,10 +300,20 @@ function normalizeAnalysis(raw: unknown): AnalysisResult | null {
       mostActiveParticipant: toStringOr(summaryRaw.mostActiveParticipant, EMPTY_SUMMARY.mostActiveParticipant),
       leastActiveParticipant: typeof summaryRaw.leastActiveParticipant === "string" ? summaryRaw.leastActiveParticipant : null,
       collaborationScore: toNumber(summaryRaw.collaborationScore, EMPTY_SUMMARY.collaborationScore),
+      teamHealthScore: typeof summaryRaw.teamHealthScore === "number" ? summaryRaw.teamHealthScore : undefined,
+      riskLevel: typeof summaryRaw.riskLevel === "string" ? summaryRaw.riskLevel : undefined,
+      topRisk: typeof summaryRaw.topRisk === "string" ? summaryRaw.topRisk : undefined,
+      biggestContributor: typeof summaryRaw.biggestContributor === "string" ? summaryRaw.biggestContributor : undefined,
+      projectMomentum: safeMomentum,
     },
     participationStats: {
       perPerson: perPersonRaw.map(normalizeParticipation),
     },
+    compliments: Array.isArray(raw.compliments) ? raw.compliments.map(normalizeCompliment) : [],
+    concerns: Array.isArray(raw.concerns) ? raw.concerns.map(normalizeConcern) : [],
+    teamDynamics: normalizeTeamDynamics(raw.teamDynamics),
+    timeline: Array.isArray(raw.timeline) ? raw.timeline.map(normalizeTimelineEvent) : [],
+    chatHighlights: Array.isArray(raw.chatHighlights) ? raw.chatHighlights.map(normalizeChatHighlight) : [],
   };
 }
 
@@ -510,6 +632,21 @@ export default function DashboardPage() {
         <motion.div whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 20 }} transition={{ duration: 0.4 }} viewport={{ once: true }} className="grid grid-cols-1 xl:grid-cols-[1.8fr_1fr] gap-6"><div style={{ minWidth: 0 }}><DecisionLog decisions={analysis.decisions} /></div><div style={{ minWidth: 0 }} id="blockers"><BlockerAlerts blockers={analysis.blockers} onGenerateNudge={setSelectedBlocker} /></div></motion.div>
       </section>
 
+      {(analysis.compliments ?? []).length > 0 && (
+        <Section id="compliments" title="Team Appreciation" icon={Bot}>
+          <ComplimentsSection compliments={analysis.compliments ?? []} />
+        </Section>
+      )}
+
+      {analysis.teamDynamics && (
+        <Section id="dynamics" title="Team Dynamics" icon={Users}>
+          <TeamDynamics
+            dynamics={analysis.teamDynamics}
+            participants={analysis.participationStats.perPerson}
+          />
+        </Section>
+      )}
+
       <Section id="deadlines" title="Deadline Tracker" icon={Calendar}><DeadlineTracker deadlines={analysis.deadlines} /></Section>
 
       <section className="pt-8" id="questions">
@@ -518,6 +655,12 @@ export default function DashboardPage() {
       </section>
 
       <Section id="askai" title="Ask AI" icon={Bot}><AskAI analysis={analysis} /></Section>
+
+      {(analysis.timeline ?? []).length > 0 && (
+        <Section id="timeline" title="Project Timeline" icon={Calendar}>
+          <ChatTimeline events={analysis.timeline ?? []} />
+        </Section>
+      )}
 
       <NudgeModal isOpen={Boolean(nudgePayload)} personName={nudgePayload?.personName ?? "Member"} taskText={nudgePayload?.taskText ?? "your current task"} deadline={nudgePayload?.deadline ?? null} onClose={() => setSelectedBlocker(null)} />
       <Toast toasts={toasts} onClose={closeToast} />

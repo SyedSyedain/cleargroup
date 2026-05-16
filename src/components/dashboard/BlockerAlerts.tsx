@@ -21,6 +21,8 @@ const TYPE_LABEL: Record<BType, string> = {
   unresolved_conflict: "Unresolved Conflict",
   missing_response: "No Response",
   unclear_ownership: "Unclear Ownership",
+  technical_issue: "Technical Issue",
+  access_issue: "Access Issue",
 };
 
 function EvidenceToggle({ evidence }: { evidence: string }) {

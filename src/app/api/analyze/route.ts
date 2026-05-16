@@ -114,7 +114,7 @@ const GEMINI_URL =
 const GENERATION_CONFIG = {
   temperature:       0.1,
   topP:              0.95,
-  maxOutputTokens:   8192,
+  maxOutputTokens:   16384,
   responseMimeType:  "application/json",
 } as const;
 

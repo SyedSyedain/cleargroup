@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { CheckSquare, Scale, AlertTriangle, Heart, Sparkles, User, MessageSquare, Clock } from "lucide-react";
+import { CheckSquare, Scale, AlertTriangle, Heart, Sparkles, User, MessageSquare, Clock, SmilePlus, Activity } from "lucide-react";
 import StatCard from "./StatCard";
 import type { AnalysisResult, AnalysisMetadata } from "@/types/analysis";
 
@@ -87,7 +87,7 @@ export default function OverviewSection({ analysis, metadata }: Props) {
   return (
     <div className="flex flex-col gap-6">
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
 
         <StatCard label="Total Tasks" value={tasks.length} accent="#6366F1" icon={CheckSquare} delay={0}>
           <StatText><Dot color="#8B5CF6" />{taskCounts.done} done</StatText>
@@ -95,13 +95,13 @@ export default function OverviewSection({ analysis, metadata }: Props) {
           <StatText><Dot color="#FF6B6B" />{taskCounts.overdue} overdue</StatText>
         </StatCard>
 
-        <StatCard label="Decisions Made" value={decisions.length} accent="#8B5CF6" icon={Scale} delay={0.08}>
+        <StatCard label="Decisions Made" value={decisions.length} accent="#8B5CF6" icon={Scale} delay={0.06}>
           <StatText>Group alignment confirmed</StatText>
         </StatCard>
 
         <StatCard
           label="Active Blockers" value={blockers.length}
-          valueColor={blockerCol} accent={blockerCol} icon={AlertTriangle} delay={0.16}
+          valueColor={blockerCol} accent={blockerCol} icon={AlertTriangle} delay={0.12}
         >
           <span className="text-xs font-medium" style={{ color: blockerCol }}>
             {noBlockers ? "All clear 🎉" : "Needs attention"}
@@ -110,12 +110,33 @@ export default function OverviewSection({ analysis, metadata }: Props) {
 
         <StatCard
           label="Project Health" value={summary.collaborationScore} suffix="%"
-          accent={sColor} icon={Heart} delay={0.24} healthScore={summary.collaborationScore}
+          accent={sColor} icon={Heart} delay={0.18} healthScore={summary.collaborationScore}
         >
           <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
             style={{ background: `${sColor}18`, color: sColor, border: `1px solid ${sColor}40` }}>
             {sLabel}
           </span>
+        </StatCard>
+
+        <StatCard
+          label="Compliments" value={(analysis.compliments ?? []).length}
+          accent="#10B981" icon={SmilePlus} delay={0.24}
+        >
+          <StatText>Kind moments captured</StatText>
+        </StatCard>
+
+        <StatCard
+          label="Team Health" value={summary.teamHealthScore ?? summary.collaborationScore} suffix="%"
+          accent="#3B82F6" icon={Activity} delay={0.30}
+          healthScore={summary.teamHealthScore ?? summary.collaborationScore}
+        >
+          <StatText>
+            {(summary.teamHealthScore ?? summary.collaborationScore) >= 70
+              ? "Strong team bond"
+              : (summary.teamHealthScore ?? summary.collaborationScore) >= 50
+                ? "Room to grow"
+                : "Needs attention"}
+          </StatText>
         </StatCard>
 
       </div>
