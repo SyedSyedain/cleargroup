@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import InviteCodeModal from "@/components/ui/InviteCodeModal";
 import {
   LayoutDashboard, CheckSquare, MessageSquare, AlertTriangle,
-  Calendar, HelpCircle, BarChart2, Bot, Upload, RefreshCw,
+  Calendar, HelpCircle, BarChart2, Bot, Upload, RefreshCw, Hash,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -23,6 +24,7 @@ export default function Sidebar() {
   const [active,       setActive]       = useState("overview");
   const [msgCount,     setMsgCount]     = useState(0);
   const [partCount,    setPartCount]    = useState(0);
+  const [inviteOpen,   setInviteOpen]   = useState(false);
 
   useEffect(() => {
     try {
@@ -111,7 +113,21 @@ export default function Sidebar() {
         >
           <Upload size={14} /> Upload new chat
         </Link>
+
+        {/* Join another project */}
+        <button
+          onClick={() => setInviteOpen(true)}
+          className="flex items-center justify-center gap-1.5 w-full mt-2 transition-colors duration-150"
+          style={{ background: "none", border: "none", cursor: "pointer",
+            color: "#3D5070", fontSize: 12, padding: "6px 0" }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = "#7A92B8"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = "#3D5070"; }}
+        >
+          <Hash size={12} /> Join another project
+        </button>
       </div>
+
+      <InviteCodeModal isOpen={inviteOpen} onClose={() => setInviteOpen(false)} />
     </aside>
   );
 }

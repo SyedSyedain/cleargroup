@@ -5,21 +5,24 @@ import { motion } from "framer-motion";
 import { ArrowRight, PlayCircle } from "lucide-react";
 import Link from "next/link";
 import VideoModal from "@/components/ui/VideoModal";
+import InviteCodeModal from "@/components/ui/InviteCodeModal";
 
-const fadeUp = {
-  initial:  { opacity: 0, y: 20 },
-  animate:  { opacity: 1, y: 0 },
-  transition: { duration: 0.5, delay: 0.95 },
-};
+const fadeUp = (delay: number) => ({
+  initial:    { opacity: 0, y: 20 },
+  animate:    { opacity: 1, y: 0 },
+  transition: { duration: 0.5, delay },
+});
 
-// Two CTA buttons — primary gradient + secondary outlined
+// Two CTA buttons + invite code link
 export default function HeroButtons() {
-  const [videoOpen, setVideoOpen] = useState(false);
+  const [videoOpen,  setVideoOpen]  = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   return (
     <>
+      {/* Primary + secondary CTA row */}
       <motion.div
-        {...fadeUp}
+        {...fadeUp(0.95)}
         className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center"
       >
         {/* Primary: gradient + pulse glow + moving arrow */}
@@ -48,7 +51,21 @@ export default function HeroButtons() {
         </motion.button>
       </motion.div>
 
-      <VideoModal isOpen={videoOpen} onClose={() => setVideoOpen(false)} />
+      {/* Tertiary: invite code link */}
+      <motion.button
+        {...fadeUp(1.1)}
+        onClick={() => setInviteOpen(true)}
+        className="flex items-center gap-1.5 transition-colors duration-200 group"
+        style={{ background: "none", border: "none", cursor: "pointer", color: "#7A92B8", fontSize: 14 }}
+        onMouseEnter={(e) => { e.currentTarget.style.color = "white"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.color = "#7A92B8"; }}
+      >
+        Already have an invite code? Join your team
+        <ArrowRight size={14} className="transition-transform duration-200 group-hover:translate-x-0.5" />
+      </motion.button>
+
+      <VideoModal      isOpen={videoOpen}  onClose={() => setVideoOpen(false)}  />
+      <InviteCodeModal isOpen={inviteOpen} onClose={() => setInviteOpen(false)} />
     </>
   );
 }
