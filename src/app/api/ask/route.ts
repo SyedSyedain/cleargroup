@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export const maxDuration = 30
 export const dynamic = 'force-dynamic'
 
-const ASK_MODELS = ['gemini-2.0-flash', 'gemini-2.5-flash'] as const
+const ASK_MODELS = ['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-1.5-flash-latest'] as const
 
 export async function POST(request: NextRequest) {
   try {
