@@ -14,14 +14,16 @@ interface Props {
 }
 
 const PHASE1_MS = 8_000;
-const STEPS = [
-  "Reading your chat messages...",
-  "Identifying who said what...",
-  "Extracting task assignments...",
-  "Finding deadlines and dates...",
-  "Detecting blockers...",
-  "Understanding context...",
-  "Almost done...",
+const processingMessages = [
+  { percent: 12, text: '📖 Reading your chat...' },
+  { percent: 25, text: '👥 Identifying participants...' },
+  { percent: 40, text: '✅ Extracting tasks...' },
+  { percent: 55, text: '📅 Finding deadlines...' },
+  { percent: 68, text: '⚠️ Detecting blockers...' },
+  { percent: 78, text: '💬 Analyzing compliments...' },
+  { percent: 86, text: '🧠 Reading team dynamics...' },
+  { percent: 93, text: '📊 Building timeline...' },
+  { percent: 97, text: '✨ Almost ready...' },
 ];
 
 const R = 44;
@@ -80,13 +82,18 @@ export default function UploadZoneProcessing({ parsedChat, onError }: Props) {
       clearInterval(phaseRef.current);
       phaseRef.current = null;
     }
+    const startTime = Number(sessionStorage.getItem('analysisStartTime') ?? 0)
+    if (startTime > 0) {
+      const duration = ((Date.now() - startTime) / 1000).toFixed(1)
+      sessionStorage.setItem('analysisTime', duration)
+    }
     setPct(100);
     setDone(true);
   }, [apiDone]);
 
   useEffect(() => {
     if (done) return;
-    const id = setInterval(() => setStep((s) => (s + 1) % STEPS.length), 1100);
+    const id = setInterval(() => setStep((s) => (s + 1) % processingMessages.length), 1200);
     return () => clearInterval(id);
   }, [done]);
 
@@ -112,7 +119,7 @@ export default function UploadZoneProcessing({ parsedChat, onError }: Props) {
   }, [done, router]);
 
   const paused = pct >= 85 && !apiDone && !done;
-  const statusMsg = done ? null : paused ? "Deep analysis in progress..." : STEPS[step];
+  const statusMsg = done ? null : paused ? "Deep analysis in progress..." : (processingMessages[step]?.text ?? processingMessages[0].text);
 
   useEffect(() => {
     if (!paused) return;

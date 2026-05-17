@@ -407,6 +407,7 @@ export default function DashboardPage() {
   const [copyingLink, setCopyingLink] = useState(false);
   const [memberName, setMemberName] = useState<string | null>(null);
   const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const [analysisTime, setAnalysisTime] = useState<string | null>(null);
 
   const pushToast = useCallback((message: string, tone: "success" | "error") => {
     setToasts((prev) => [...prev, { id: `${Date.now()}-${Math.random()}`, message, tone }]);
@@ -457,6 +458,9 @@ export default function DashboardPage() {
       void loadProjectFromDatabase(projectIdFromUrl);
       return;
     }
+
+    const time = sessionStorage.getItem('analysisTime')
+    if (time) setAnalysisTime(time)
 
     const savedCode = sessionStorage.getItem("inviteCode");
     const savedProjectId = sessionStorage.getItem("projectId");
@@ -613,7 +617,7 @@ export default function DashboardPage() {
       <div className="flex items-start justify-between flex-wrap gap-4 mb-2">
         <div>
           <h1 className="font-semibold text-white" style={{ fontSize: 24, letterSpacing: "-0.5px" }}>Project Overview</h1>
-          <p className="mt-1 text-sm" style={{ color: "#7A92B8" }}>Analyzed {metadata.messagesAnalyzed.toLocaleString()} messages • {metadata.participants.length} participants • {today}</p>
+          <p className="mt-1 text-sm" style={{ color: "#7A92B8" }}>Analyzed {metadata.messagesAnalyzed.toLocaleString()} messages • {metadata.participants.length} participants • {today}{analysisTime ? ` • ⚡ Analyzed in ${analysisTime}s` : ''}</p>
         </div>
         <div className="flex items-center gap-3">
           <button className="flex items-center gap-2 font-semibold" style={{ padding: "9px 16px", borderRadius: 8, fontSize: 13, border: "1px solid #6366F1", color: "#6366F1", background: "transparent", cursor: "pointer" }} onClick={() => downloadReport(analysis)}><Download size={14} /> Export Report</button>

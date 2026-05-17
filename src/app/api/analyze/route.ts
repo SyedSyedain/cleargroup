@@ -108,8 +108,16 @@ function parseAnalysisResult(raw: string): AnalysisResult | null {
 
 // ── Gemini config ─────────────────────────────────────────────────────────────
 
-const GEMINI_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+const GEMINI_MODELS = [
+  'gemini-2.0-flash',
+  'gemini-2.5-flash',
+  'gemini-1.5-flash',
+  'gemini-1.5-flash-8b',
+] as const
+
+function geminiUrl(model: string) {
+  return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
+}
 
 const GENERATION_CONFIG = {
   temperature:       0.1,
@@ -117,6 +125,38 @@ const GENERATION_CONFIG = {
   maxOutputTokens:   16384,
   responseMimeType:  "application/json",
 } as const;
+
+async function callGemini(prompt: string, apiKey: string, signal?: AbortSignal): Promise<Response> {
+  let lastErr: unknown
+  for (const model of GEMINI_MODELS) {
+    try {
+      const res = await fetch(`${geminiUrl(model)}?key=${apiKey}`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal,
+        body: JSON.stringify({
+          contents:         [{ parts: [{ text: prompt }] }],
+          generationConfig: GENERATION_CONFIG,
+        }),
+      })
+      if (res.status === 503 || res.status === 529) {
+        console.log(`[analyze] Model ${model} overloaded, trying next...`)
+        lastErr = new Error(`Model ${model} overloaded`)
+        continue
+      }
+      console.log(`[analyze] Using model: ${model}`)
+      return res
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') throw err
+      lastErr = err
+    }
+  }
+  throw lastErr ?? new Error('All Gemini models unavailable')
+}
+
+// ── In-memory cache ───────────────────────────────────────────────────────────
+const analysisCache = new Map<string, { result: unknown; timestamp: number }>()
+const CACHE_TTL = 5 * 60 * 1000
 
 // ── Route handler ─────────────────────────────────────────────────────────────
 
@@ -158,6 +198,22 @@ export async function POST(req: NextRequest) {
     chat = firstPart + '\n[...middle section trimmed for length...]\n' + lastPart
   }
 
+  // In-memory cache check
+  const cacheKey = formattedChat.slice(0, 500)
+  const cached = analysisCache.get(cacheKey)
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    console.log('[analyze] Returning cached analysis')
+    return NextResponse.json({
+      success:  true,
+      analysis: cached.result,
+      metadata: {
+        messagesAnalyzed: stats?.totalMessages ?? 0,
+        participants:     stats?.participants  ?? [],
+        analyzedAt:       new Date().toISOString(),
+      },
+    })
+  }
+
   // Build prompt and call Gemini
   try {
     const prompt = buildAnalysisPrompt(chat, stats?.participants ?? []);
@@ -167,15 +223,7 @@ export async function POST(req: NextRequest) {
 
     let geminiRes: Response;
     try {
-      geminiRes = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        signal:  controller.signal,
-        body:    JSON.stringify({
-          contents:         [{ parts: [{ text: prompt }] }],
-          generationConfig: GENERATION_CONFIG,
-        }),
-      });
+      geminiRes = await callGemini(prompt, apiKey, controller.signal)
       clearTimeout(timeoutId)
     } catch (fetchErr: unknown) {
       clearTimeout(timeoutId)
@@ -186,15 +234,7 @@ export async function POST(req: NextRequest) {
         const retryController = new AbortController()
         const retryTimeoutId = setTimeout(() => retryController.abort(), 55000)
         try {
-          geminiRes = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
-            method:  "POST",
-            headers: { "Content-Type": "application/json" },
-            signal:  retryController.signal,
-            body:    JSON.stringify({
-              contents:         [{ parts: [{ text: retryPrompt }] }],
-              generationConfig: GENERATION_CONFIG,
-            }),
-          });
+          geminiRes = await callGemini(retryPrompt, apiKey, retryController.signal)
           clearTimeout(retryTimeoutId)
         } catch {
           clearTimeout(retryTimeoutId)
@@ -240,14 +280,7 @@ export async function POST(req: NextRequest) {
     if (!analysis) {
       // Last resort: ask model to convert its own output into strict JSON
       const repairPrompt = `Convert the text below into one valid JSON object only. No markdown, no commentary.\n\n${rawText}`;
-      const repairRes = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: repairPrompt }] }],
-          generationConfig: GENERATION_CONFIG,
-        }),
-      });
+      const repairRes = await callGemini(repairPrompt, apiKey)
       const repairData = (await repairRes.json()) as GeminiResponse;
       const repairedText = (repairData.candidates?.[0]?.content?.parts ?? []).map((part) => part?.text ?? "").join("").trim();
       analysis = parseAnalysisResult(repairedText);
@@ -263,6 +296,9 @@ export async function POST(req: NextRequest) {
       console.error("[analyze] Missing tasks array in parsed response");
       return NextResponse.json({ error: "Invalid AI response" }, { status: 500 });
     }
+
+    // Store in cache
+    analysisCache.set(cacheKey, { result: analysis, timestamp: Date.now() })
 
     const metadata: AnalysisMetadata = {
       messagesAnalyzed: stats?.totalMessages ?? 0,

@@ -53,8 +53,9 @@ export default function UploadZoneUploaded({ file, parsedChat, onRemove, onAnaly
         end:   stats.dateRange.end.toISOString(),
       },
     };
-    sessionStorage.setItem("chatData",  formatted);
-    sessionStorage.setItem("chatStats", JSON.stringify(statsForStorage));
+    sessionStorage.setItem("chatData",          formatted);
+    sessionStorage.setItem("chatStats",         JSON.stringify(statsForStorage));
+    sessionStorage.setItem("analysisStartTime", Date.now().toString());
     onAnalyze();
   };
 
