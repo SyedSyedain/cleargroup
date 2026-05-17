@@ -137,6 +137,10 @@ export async function POST(req: NextRequest) {
 
   const { formattedChat, stats } = body;
 
+  console.log("[analyze] Route called");
+  console.log("[analyze] Chat length:", formattedChat?.length ?? 0);
+  console.log("[analyze] Participants:", stats?.participants);
+
   if (!formattedChat || formattedChat.trim() === "") {
     return NextResponse.json({ error: "formattedChat is required" }, { status: 400 });
   }
@@ -266,6 +270,7 @@ export async function POST(req: NextRequest) {
       analyzedAt:       new Date().toISOString(),
     };
 
+    console.log("[analyze] Analysis complete, returning response");
     return NextResponse.json({ success: true, analysis, metadata });
 
   } catch (err) {

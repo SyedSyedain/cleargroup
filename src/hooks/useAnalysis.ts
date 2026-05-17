@@ -50,8 +50,24 @@ export function useAnalysis(onError: OnError) {
       if (raw) stats = JSON.parse(raw) as StoredStats;
     } catch { /* keep defaults */ }
 
+    console.log("[useAnalysis] Starting analysis");
+    console.log("[useAnalysis] Chat length:", chatData.length);
+    console.log("[useAnalysis] Participants:", stats.participants);
+    console.log("[useAnalysis] Total messages:", stats.totalMessages);
+
+    // Guard: empty chat data means the upload flow didn't complete
+    if (!chatData || chatData.trim().length < 50) {
+      onErrorRef.current("api_failed", "Chat data is missing. Please re-upload and try again.");
+      return;
+    }
+
+    // Guard: no participants means parser failed silently
+    if (!stats.participants || stats.participants.length === 0) {
+      onErrorRef.current("api_failed", "No participants found in chat. Please check your export file.");
+      return;
+    }
+
     // Allow larger chats enough time to finish model inference.
-    // 120-300s window based on selected message volume.
     const timeoutMs = Math.min(
       300_000,
       Math.max(120_000, 90_000 + stats.totalMessages * 500)
@@ -73,26 +89,55 @@ export function useAnalysis(onError: OnError) {
     })
       .then(async (res) => {
         clearTimeout(timer);
-        const data = (await res.json()) as ApiResponse;
+        console.log("[useAnalysis] Response status:", res.status);
+
+        // Parse the body — could be HTML on a Vercel 504 timeout
+        let data: ApiResponse = {};
+        try {
+          data = (await res.json()) as ApiResponse;
+        } catch {
+          // Response body wasn't valid JSON (e.g. Vercel gateway timeout returns HTML)
+          console.error("[useAnalysis] Response was not JSON. Status:", res.status);
+          if (res.status === 504 || res.status === 502 || res.status === 524) {
+            onErrorRef.current(
+              "timeout",
+              "Analysis timed out. Try selecting a shorter date range (last 3 days) and retry."
+            );
+          } else {
+            onErrorRef.current(
+              "api_failed",
+              `Server returned status ${res.status}. Please try again.`
+            );
+          }
+          return;
+        }
+
         if (res.ok && data.success) {
+          console.log("[useAnalysis] Analysis complete, saving to sessionStorage");
           sessionStorage.setItem("analysisResult", JSON.stringify(data.analysis));
           sessionStorage.setItem("chatStats",      JSON.stringify(data.metadata));
           sessionStorage.setItem("participants",   JSON.stringify(stats.participants));
           setApiDone(true);
         } else {
+          console.error("[useAnalysis] API error response:", data);
           const [type, msg] = mapError(res, data);
           onErrorRef.current(type, msg);
         }
       })
       .catch((err: Error) => {
         clearTimeout(timer);
+        console.error("[useAnalysis] Fetch error:", err.name, err.message);
         if (err.name === "AbortError") {
           onErrorRef.current(
             "timeout",
-            "Analysis is taking longer than expected. Please wait and retry, or reduce the date range."
+            "Analysis is taking longer than expected. Please retry, or select a shorter date range."
           );
         } else {
-          onErrorRef.current("network_error", "Connection failed. Check your internet and try again.");
+          // Only genuine network failures reach here now
+          onErrorRef.current(
+            "network_error",
+            "Could not reach the server. Please check your internet connection and try again."
+          );
         }
       });
 
