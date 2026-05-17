@@ -11,7 +11,7 @@ interface Props {
   onDismiss: () => void;
 }
 
-const RATE_LIMIT_SECS = 60;
+const RATE_LIMIT_SECS = 15;
 
 const CONFIG: Record<ErrorType, { title: string; action: string; isRetry: boolean }> = {
   chat_too_short: { title: "Not enough messages", action: "Change date range", isRetry: false },

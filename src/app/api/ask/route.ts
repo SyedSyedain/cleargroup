@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server'
 export const maxDuration = 30
 export const dynamic = 'force-dynamic'
 
+const ASK_MODELS = ['gemini-2.0-flash', 'gemini-2.5-flash'] as const
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json() as {
@@ -17,8 +19,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Question is required' }, { status: 400 })
     }
 
-    const apiKey = process.env.GEMINI_API_KEY
-    if (!apiKey) {
+    const API_KEYS = [
+      process.env.GEMINI_API_KEY,
+      process.env.GEMINI_API_KEY_2,
+    ].filter((key): key is string => typeof key === 'string' && key.length > 0)
+
+    if (API_KEYS.length === 0) {
       return NextResponse.json({ error: 'API not configured' }, { status: 500 })
     }
 
@@ -62,37 +68,80 @@ USER QUESTION: ${question}
 
 Answer:`
 
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 25000)
+    let responseText: string | undefined
+    let lastError: Error | undefined
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal: controller.signal,
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.3, maxOutputTokens: 300 }
-        })
+    for (const model of ASK_MODELS) {
+      for (const apiKey of API_KEYS) {
+        try {
+          console.log(`[ask] Trying model: ${model} key: ...${apiKey.slice(-6)}`)
+
+          const controller = new AbortController()
+          const timeoutId  = setTimeout(() => controller.abort(), 25000)
+
+          const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+            {
+              method:  'POST',
+              headers: { 'Content-Type': 'application/json' },
+              signal:  controller.signal,
+              body: JSON.stringify({
+                contents:         [{ parts: [{ text: prompt }] }],
+                generationConfig: { temperature: 0.3, maxOutputTokens: 300 },
+              }),
+            }
+          )
+
+          clearTimeout(timeoutId)
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({})) as { error?: { message?: string } }
+            const errorMsg  = errorData?.error?.message ?? `HTTP ${response.status}`
+            if (
+              response.status === 429 ||
+              response.status === 503 ||
+              errorMsg.includes('quota') ||
+              errorMsg.includes('rate') ||
+              errorMsg.includes('overloaded') ||
+              errorMsg.includes('high demand')
+            ) {
+              console.log(`[ask] Rate limited on ${model} ...${apiKey.slice(-6)}, trying next...`)
+              lastError = new Error(errorMsg)
+              continue
+            }
+            throw new Error(`Gemini API error: ${errorMsg}`)
+          }
+
+          const data = await response.json() as {
+            candidates?: Array<{ content: { parts: Array<{ text: string }> } }>
+          }
+          const text = data.candidates?.[0]?.content?.parts?.[0]?.text
+
+          if (!text) {
+            lastError = new Error('Empty response from Gemini')
+            continue
+          }
+
+          responseText = text
+          break
+
+        } catch (err) {
+          if (err instanceof Error && err.name === 'AbortError') {
+            console.log(`[ask] Timeout on ${model} ...${apiKey.slice(-6)}`)
+            lastError = err
+            continue
+          }
+          throw err
+        }
       }
-    )
-
-    clearTimeout(timeoutId)
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({})) as { error?: { message?: string } }
-      throw new Error(`Gemini API error: ${errorData?.error?.message ?? String(response.status)}`)
+      if (responseText) break
     }
 
-    const data = await response.json() as {
-      candidates?: Array<{ content: { parts: Array<{ text: string }> } }>
+    if (!responseText) {
+      throw lastError ?? new Error('All models unavailable')
     }
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text
 
-    if (!text) throw new Error('Empty response from Gemini')
-
-    return NextResponse.json({ response: text.trim() })
+    return NextResponse.json({ response: responseText.trim() })
 
   } catch (error: unknown) {
     console.error('Ask AI error:', error)
