@@ -1,112 +1,9 @@
-﻿import { NextRequest, NextResponse } from "next/server";
-import { buildAnalysisPrompt } from "@/lib/analysisPrompt";
-import type { AnalysisResult, AnalysisMetadata } from "@/types/analysis";
+import { NextRequest, NextResponse } from 'next/server'
 
 export const maxDuration = 60
 export const dynamic = 'force-dynamic'
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
-interface RequestStats {
-  totalMessages: number;
-  participants:  string[];
-  dateRange:     { start: string; end: string };
-}
-
-interface RequestBody {
-  formattedChat: string;
-  stats:         RequestStats;
-}
-
-interface GeminiPart      { text: string; }
-interface GeminiCandidate { content: { parts: GeminiPart[] }; }
-interface GeminiResponse  {
-  candidates?: GeminiCandidate[];
-  error?:      { code: number; message: string; status: string };
-}
-
-function sanitizeModelJson(raw: string): string {
-  const withoutFences = raw
-    .replace(/```json\s*/gi, "")
-    .replace(/```\s*/g, "")
-    .trim();
-
-  // Keep only outer JSON object when model adds prose before/after.
-  const start = withoutFences.indexOf("{");
-  const end = withoutFences.lastIndexOf("}");
-  if (start >= 0 && end > start) return withoutFences.slice(start, end + 1).trim();
-  return withoutFences;
-}
-
-function removeTrailingCommas(input: string): string {
-  return input.replace(/,\s*([}\]])/g, "$1");
-}
-
-function extractBalancedObjects(input: string): string[] {
-  const objects: string[] = [];
-  let start = -1;
-  let depth = 0;
-  let inString = false;
-  let escaped = false;
-
-  for (let i = 0; i < input.length; i += 1) {
-    const ch = input[i];
-
-    if (inString) {
-      if (escaped) {
-        escaped = false;
-      } else if (ch === "\\") {
-        escaped = true;
-      } else if (ch === "\"") {
-        inString = false;
-      }
-      continue;
-    }
-
-    if (ch === "\"") {
-      inString = true;
-      continue;
-    }
-
-    if (ch === "{") {
-      if (depth === 0) start = i;
-      depth += 1;
-      continue;
-    }
-
-    if (ch === "}") {
-      if (depth > 0) depth -= 1;
-      if (depth === 0 && start >= 0) {
-        objects.push(input.slice(start, i + 1));
-        start = -1;
-      }
-    }
-  }
-
-  return objects;
-}
-
-function parseAnalysisResult(raw: string): AnalysisResult | null {
-  const cleaned = sanitizeModelJson(raw);
-  const candidates = [
-    cleaned,
-    removeTrailingCommas(cleaned),
-    ...extractBalancedObjects(cleaned),
-    ...extractBalancedObjects(removeTrailingCommas(cleaned)),
-  ];
-
-  for (const candidate of candidates) {
-    try {
-      return JSON.parse(candidate) as AnalysisResult;
-    } catch {
-      // try next candidate
-    }
-  }
-
-  return null;
-}
-
-// ── Gemini config ─────────────────────────────────────────────────────────────
+// ── Models & keys ──────────────────────────────────────────────────────────────
 
 const GEMINI_MODELS = [
   'gemini-2.0-flash',
@@ -115,73 +12,73 @@ const GEMINI_MODELS = [
   'gemini-1.5-flash-8b',
 ] as const
 
-function geminiUrl(model: string) {
-  return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
-}
+// ── In-memory cache ────────────────────────────────────────────────────────────
 
-const GENERATION_CONFIG = {
-  temperature:       0.1,
-  topP:              0.95,
-  maxOutputTokens:   16384,
-  responseMimeType:  "application/json",
-} as const;
+const analysisCache = new Map<string, { result: unknown; timestamp: number }>()
+const CACHE_TTL = 5 * 60 * 1000
 
-async function callGeminiWithFallback(prompt: string): Promise<string> {
+// ── Gemini caller (model × key fallback, 25s per attempt) ─────────────────────
+
+async function callGemini(prompt: string): Promise<string> {
   const API_KEYS = [
     process.env.GEMINI_API_KEY,
     process.env.GEMINI_API_KEY_2,
   ].filter((key): key is string => typeof key === 'string' && key.length > 0)
 
-  if (API_KEYS.length === 0) {
-    throw new Error('No Gemini API keys configured')
-  }
+  if (API_KEYS.length === 0) throw new Error('No API keys configured')
 
-  let lastError: Error | undefined
+  let lastError: Error | null = null
 
   for (const model of GEMINI_MODELS) {
     for (const apiKey of API_KEYS) {
       try {
-        console.log(`[analyze] Trying model: ${model} key: ...${apiKey.slice(-6)}`)
-
         const controller = new AbortController()
-        const timeoutId  = setTimeout(() => controller.abort(), 55000)
+        const timeoutId  = setTimeout(() => controller.abort(), 25000)
 
-        const response = await fetch(`${geminiUrl(model)}?key=${apiKey}`, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          signal:  controller.signal,
-          body: JSON.stringify({
-            contents:         [{ parts: [{ text: prompt }] }],
-            generationConfig: GENERATION_CONFIG,
-          }),
-        })
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal:  controller.signal,
+            body: JSON.stringify({
+              contents:         [{ parts: [{ text: prompt }] }],
+              generationConfig: {
+                temperature:      0.1,
+                topP:             0.95,
+                maxOutputTokens:  8192,
+                responseMimeType: 'application/json',
+              },
+            }),
+          }
+        )
 
         clearTimeout(timeoutId)
 
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({})) as { error?: { message?: string } }
-          const errorMsg  = errorData?.error?.message ?? `HTTP ${response.status}`
+          const errData = await response.json().catch(() => ({})) as { error?: { message?: string } }
+          const msg     = errData?.error?.message ?? `HTTP ${response.status}`
           if (
             response.status === 429 ||
             response.status === 503 ||
-            errorMsg.includes('high demand') ||
-            errorMsg.includes('overloaded') ||
-            errorMsg.includes('quota') ||
-            errorMsg.includes('rate')
+            msg.includes('high demand') ||
+            msg.includes('quota') ||
+            msg.includes('rate')
           ) {
-            console.log(`[analyze] Rate limited on ${model} ...${apiKey.slice(-6)}, trying next...`)
-            lastError = new Error(errorMsg)
+            console.log(`[analyze] Rate limited on ${model} ...${apiKey.slice(-6)}, trying next`)
+            lastError = new Error(msg)
             continue
           }
-          throw new Error(`Gemini error: ${errorMsg}`)
+          throw new Error(msg)
         }
 
-        const data  = (await response.json()) as GeminiResponse
-        const parts = data.candidates?.[0]?.content?.parts ?? []
-        const text  = parts.map((p) => p.text ?? '').join('').trim()
+        const data = await response.json() as {
+          candidates?: Array<{ content: { parts: Array<{ text: string }> } }>
+        }
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text
 
         if (!text) {
-          lastError = new Error('Empty response from Gemini')
+          lastError = new Error('Empty response')
           continue
         }
 
@@ -189,18 +86,14 @@ async function callGeminiWithFallback(prompt: string): Promise<string> {
         return text
 
       } catch (err) {
+        const msg = err instanceof Error ? err.message : ''
         if (err instanceof Error && err.name === 'AbortError') {
           console.log(`[analyze] Timeout on ${model} ...${apiKey.slice(-6)}`)
-          lastError = err
+          lastError = new Error('Model timed out')
           continue
         }
-        const message = err instanceof Error ? err.message : 'Unknown error'
-        if (
-          message.includes('high demand') || message.includes('overloaded') ||
-          message.includes('quota')       || message.includes('rate') ||
-          message.includes('503')         || message.includes('429')
-        ) {
-          lastError = new Error(message)
+        if (msg.includes('429') || msg.includes('503') || msg.includes('quota') || msg.includes('rate')) {
+          lastError = new Error(msg)
           continue
         }
         throw err
@@ -208,152 +101,409 @@ async function callGeminiWithFallback(prompt: string): Promise<string> {
     }
   }
 
-  throw lastError ?? new Error('All Gemini models and keys unavailable')
+  throw lastError ?? new Error('All models failed')
 }
 
-// ── In-memory cache ───────────────────────────────────────────────────────────
-const analysisCache = new Map<string, { result: unknown; timestamp: number }>()
-const CACHE_TTL = 5 * 60 * 1000
+// ── JSON parser with fallbacks ─────────────────────────────────────────────────
 
-// ── Route handler ─────────────────────────────────────────────────────────────
-
-export async function POST(req: NextRequest) {
-  // Guard: at least one API key must be configured
-  const anyKeySet = [process.env.GEMINI_API_KEY, process.env.GEMINI_API_KEY_2]
-    .some((k) => typeof k === 'string' && k.length > 0)
-  if (!anyKeySet) {
-    return NextResponse.json({ error: "API not configured" }, { status: 500 });
-  }
-
-  // Parse + validate request body
-  let body: RequestBody;
+function parseJSON(text: string): unknown {
   try {
-    body = (await req.json()) as RequestBody;
+    return JSON.parse(text)
   } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    const match = text.match(/\{[\s\S]*\}/)
+    if (match) {
+      try {
+        return JSON.parse(match[0])
+      } catch {
+        const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim()
+        try { return JSON.parse(cleaned) } catch { /* fall through */ }
+      }
+    }
+    throw new Error('Could not parse JSON from model response')
   }
+}
 
-  const { formattedChat, stats } = body;
+// ── Type helpers ───────────────────────────────────────────────────────────────
 
-  console.log('=== ANALYZE ROUTE START ===')
-  console.log('[analyze] Chat length:', formattedChat?.length ?? 0)
-  console.log('[analyze] Participants:', stats?.participants)
-  console.log('[analyze] Time:', new Date().toISOString())
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === 'object' && v !== null && !Array.isArray(v)
+}
 
-  if (!formattedChat || formattedChat.trim() === "") {
-    return NextResponse.json({ error: "formattedChat is required" }, { status: 400 });
+function safeArray(v: unknown): unknown[] {
+  return Array.isArray(v) ? v : []
+}
+
+// ── Prompts ────────────────────────────────────────────────────────────────────
+
+const PROMPT_1 = (chat: string, participants: string[]) => `
+You are analyzing a WhatsApp group project chat.
+Extract project data and return ONLY valid JSON.
+No markdown. No explanation. Raw JSON only.
+
+PARTICIPANTS: ${participants.join(', ')}
+
+HINGLISH PATTERNS:
+Task: "kar le/do/karo", "main kar leta hun",
+"mujhe de do", "dekh leta hun", "ho jayega",
+"pakka", "kal tak kar dunga"
+Done: "ho gaya", "kar diya", "done", "ready hai"
+Progress: "chal raha hai", "almost done"
+Decision: "decided", "use karenge", "okay" after
+suggestion, "agreed", "final hai", "yahi karenge"
+Deadline: "kal tak", "friday tak", "aaj tak"
+
+CHAT:
+${chat}
+
+Return this EXACT JSON structure:
+{
+  "tasks": [
+    {
+      "id": "task_1",
+      "assignee": "name",
+      "task": "detailed description",
+      "status": "pending|in_progress|done|overdue",
+      "deadline": "date or null",
+      "assignedBy": "name or self",
+      "assignedAt": "timestamp",
+      "completedAt": "timestamp or null",
+      "confidence": 0.9,
+      "evidence": "exact message",
+      "updates": []
+    }
+  ],
+  "decisions": [
+    {
+      "id": "decision_1",
+      "decision": "what was decided",
+      "decidedBy": "name or group",
+      "timestamp": "when",
+      "context": "what led to this",
+      "evidence": "exact message",
+      "agreedBy": [],
+      "category": "technology|approach|deadline|responsibility|other"
+    }
+  ],
+  "deadlines": [
+    {
+      "id": "deadline_1",
+      "description": "what is due",
+      "date": "exact date",
+      "mentionedBy": "name",
+      "isConfirmed": true
+    }
+  ],
+  "openQuestions": [
+    {
+      "id": "question_1",
+      "question": "exact question",
+      "askedBy": "name",
+      "answered": false,
+      "evidence": "exact message"
+    }
+  ]
+}
+`
+
+const PROMPT_2 = (
+  chat: string,
+  participants: string[],
+  tasksCount: number,
+  decisionsCount: number
+) => `
+You are analyzing a WhatsApp group project chat.
+The chat already has ${tasksCount} tasks and
+${decisionsCount} decisions extracted.
+Now extract people and team data.
+Return ONLY valid JSON. No markdown. Raw JSON only.
+
+PARTICIPANTS: ${participants.join(', ')}
+
+HINGLISH PATTERNS:
+Appreciation: "good work", "nice", "shukriya",
+"well done", "mast hai", "perfect", "kamaal hai"
+Concern: "yaar ye sahi nahi", "problem hai",
+"worried hun", "nahi chalega", "stuck hun"
+Blocker: No response for many messages,
+"kaise karein" without answer, argument no resolution
+Silent member: Multiple "guys??" with no response
+
+CHAT:
+${chat}
+
+Return this EXACT JSON structure:
+{
+  "blockers": [
+    {
+      "id": "blocker_1",
+      "type": "silent_member|unresolved_conflict|missing_response|unclear_ownership|technical_issue",
+      "description": "detailed description",
+      "involvedPerson": "name",
+      "affectedTask": "which task",
+      "severity": "low|medium|high",
+      "duration": "how long",
+      "evidence": "exact messages",
+      "suggestedAction": "what to do"
+    }
+  ],
+  "compliments": [
+    {
+      "id": "compliment_1",
+      "from": "name",
+      "to": "name",
+      "message": "exact message",
+      "timestamp": "when",
+      "context": "what for",
+      "type": "appreciation|encouragement|praise|gratitude"
+    }
+  ],
+  "concerns": [
+    {
+      "id": "concern_1",
+      "raisedBy": "name",
+      "concern": "what they worried about",
+      "timestamp": "when",
+      "addressed": false,
+      "resolution": null,
+      "evidence": "exact message"
+    }
+  ],
+  "teamDynamics": {
+    "mostSupportive": "name",
+    "mostProactive": "name",
+    "mostResponsive": "name",
+    "leastEngaged": "name",
+    "naturalLeader": "name",
+    "conflictCount": 0,
+    "collaborationMoments": [],
+    "tensionMoments": [],
+    "overallMood": "positive|neutral|stressed|tense|motivated"
+  },
+  "timeline": [
+    {
+      "timestamp": "time",
+      "event": "what happened",
+      "type": "task_assigned|decision_made|blocker_detected|deadline_set|compliment|concern|completion",
+      "person": "name"
+    }
+  ],
+  "chatHighlights": [
+    {
+      "type": "funny_moment|key_decision|breakthrough|conflict_resolved|great_teamwork|concern_raised",
+      "description": "what happened",
+      "timestamp": "when",
+      "involvedPeople": [],
+      "quote": "exact message"
+    }
+  ],
+  "summary": {
+    "overallStatus": "on_track|at_risk|critical",
+    "progressPercentage": 0,
+    "keyInsight": "specific insight about this project",
+    "mostActiveParticipant": "name",
+    "leastActiveParticipant": "name",
+    "collaborationScore": 65,
+    "teamHealthScore": 70,
+    "riskLevel": "low|medium|high",
+    "topRisk": "biggest risk right now",
+    "biggestContributor": "name and what they did",
+    "projectMomentum": "accelerating|steady|slowing|stalled"
+  },
+  "participationStats": {
+    "perPerson": [
+      {
+        "name": "name",
+        "messageCount": 0,
+        "tasksAssigned": 0,
+        "tasksCompleted": 0,
+        "tasksInProgress": 0,
+        "tasksPending": 0,
+        "participationPercentage": 0,
+        "lastActive": "timestamp",
+        "firstActive": "timestamp",
+        "averageResponseTime": "fast|medium|slow",
+        "communicationStyle": "brief|detailed|emoji-heavy|formal",
+        "complimentsGiven": 0,
+        "complimentsReceived": 0,
+        "decisionsInitiated": 0,
+        "questionsAsked": 0,
+        "questionsAnswered": 0,
+        "role": "leader|contributor|supporter|silent"
+      }
+    ]
   }
+}
+`
 
-  // Truncate if over Gemini's safe limit
-  const MAX = 900_000;
-  let chat = formattedChat.length > MAX
-    ? formattedChat.slice(0, MAX) + "\n[Chat truncated due to length]"
-    : formattedChat;
+// ── Route handler ──────────────────────────────────────────────────────────────
 
-  // Smart truncation for very large chats — keep first 100k + last 480k
-  if (chat.length > 600_000) {
-    const firstPart = chat.slice(0, 100_000)
-    const lastPart  = chat.slice(-480_000)
-    chat = firstPart + '\n[...middle section trimmed for length...]\n' + lastPart
-  }
+interface RequestStats {
+  totalMessages: number
+  participants:  string[]
+  dateRange:     { start: string; end: string }
+}
 
-  // In-memory cache check
-  const cacheKey = formattedChat.slice(0, 500)
-  const cached = analysisCache.get(cacheKey)
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    console.log('[analyze] Returning cached analysis')
+interface RequestBody {
+  formattedChat: string
+  stats:         RequestStats
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json() as RequestBody
+    const { formattedChat, stats } = body
+
+    if (!formattedChat?.trim()) {
+      return NextResponse.json({ error: 'Chat data required' }, { status: 400 })
+    }
+
+    console.log('=== ANALYZE ROUTE START ===')
+    console.log('[analyze] Chat length:', formattedChat.length)
+    console.log('[analyze] Participants:', stats?.participants)
+    console.log('[analyze] Time:', new Date().toISOString())
+
+    // In-memory cache check
+    const cacheKey = formattedChat.slice(0, 500)
+    const cached   = analysisCache.get(cacheKey)
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      console.log('[analyze] Returning cached analysis')
+      return NextResponse.json({
+        success:  true,
+        analysis: cached.result,
+        metadata: {
+          messagesAnalyzed: stats?.totalMessages ?? 0,
+          participants:     stats?.participants  ?? [],
+          analyzedAt:       new Date().toISOString(),
+        },
+      })
+    }
+
+    const participants = stats?.participants ?? []
+
+    // Build both prompts
+    const prompt1 = PROMPT_1(formattedChat, participants)
+    const prompt2 = PROMPT_2(formattedChat, participants, 0, 0)
+
+    console.log('[analyze] Firing parallel calls — Call 1 (tasks/decisions) + Call 2 (team/summary)')
+
+    // Both calls in parallel — each half the output size of the old single call
+    const [result1Text, result2Text] = await Promise.all([
+      callGemini(prompt1),
+      callGemini(prompt2),
+    ])
+
+    console.log('=== GEMINI RESPONDED ===')
+    console.log('[analyze] Time:', new Date().toISOString())
+    console.log('[analyze] Result1 length:', result1Text.length)
+    console.log('[analyze] Result2 length:', result2Text.length)
+
+    const r1 = parseJSON(result1Text)
+    const r2 = parseJSON(result2Text)
+    const result1 = isRecord(r1) ? r1 : {}
+    const result2 = isRecord(r2) ? r2 : {}
+
+    // Default fallback for summary
+    const defaultSummary = {
+      overallStatus:          'on_track',
+      progressPercentage:     0,
+      keyInsight:             'Analysis complete',
+      mostActiveParticipant:  participants[0] ?? '',
+      leastActiveParticipant: participants[participants.length - 1] ?? null,
+      collaborationScore:     50,
+      teamHealthScore:        60,
+      riskLevel:              'low',
+      topRisk:                null,
+      biggestContributor:     '',
+      projectMomentum:        'steady',
+    }
+
+    const defaultTeamDynamics = {
+      mostSupportive:       '',
+      mostProactive:        '',
+      mostResponsive:       '',
+      leastEngaged:         '',
+      naturalLeader:        '',
+      conflictCount:        0,
+      collaborationMoments: [],
+      tensionMoments:       [],
+      overallMood:          'neutral',
+    }
+
+    const defaultPerPerson = participants.map((name) => ({
+      name,
+      messageCount:            0,
+      tasksAssigned:           0,
+      tasksCompleted:          0,
+      tasksInProgress:         0,
+      tasksPending:            0,
+      participationPercentage: Math.round(100 / Math.max(participants.length, 1)),
+      lastActive:              '',
+      firstActive:             '',
+      averageResponseTime:     'medium',
+      communicationStyle:      'brief',
+      complimentsGiven:        0,
+      complimentsReceived:     0,
+      decisionsInitiated:      0,
+      questionsAsked:          0,
+      questionsAnswered:       0,
+      role:                    'contributor',
+    }))
+
+    const merged = {
+      tasks:         safeArray(result1.tasks),
+      decisions:     safeArray(result1.decisions),
+      deadlines:     safeArray(result1.deadlines),
+      openQuestions: safeArray(result1.openQuestions),
+      blockers:      safeArray(result2.blockers),
+      compliments:   safeArray(result2.compliments),
+      concerns:      safeArray(result2.concerns),
+      teamDynamics:  isRecord(result2.teamDynamics)   ? result2.teamDynamics   : defaultTeamDynamics,
+      timeline:      safeArray(result2.timeline),
+      chatHighlights: safeArray(result2.chatHighlights),
+      summary:       isRecord(result2.summary)         ? result2.summary        : defaultSummary,
+      participationStats: {
+        perPerson: isRecord(result2.participationStats) &&
+                   Array.isArray(result2.participationStats.perPerson)
+                     ? result2.participationStats.perPerson
+                     : defaultPerPerson,
+      },
+    }
+
+    analysisCache.set(cacheKey, { result: merged, timestamp: Date.now() })
+
+    console.log('[analyze] Analysis complete:', {
+      tasks:     merged.tasks.length,
+      decisions: merged.decisions.length,
+      blockers:  merged.blockers.length,
+    })
+
     return NextResponse.json({
       success:  true,
-      analysis: cached.result,
+      analysis: merged,
       metadata: {
         messagesAnalyzed: stats?.totalMessages ?? 0,
         participants:     stats?.participants  ?? [],
         analyzedAt:       new Date().toISOString(),
       },
     })
-  }
 
-  // Build prompt and call Gemini
-  try {
-    const prompt = buildAnalysisPrompt(chat, stats?.participants ?? []);
+  } catch (error: unknown) {
+    console.error('[analyze] Error:', error)
+    const message = error instanceof Error ? error.message : 'Unknown error'
 
-    let rawText = '';
-    try {
-      rawText = await callGeminiWithFallback(prompt)
-      console.log('=== GEMINI RESPONDED ===')
-      console.log('[analyze] Time:', new Date().toISOString())
-      console.log('[analyze] Response length:', rawText.length)
-    } catch (fetchErr: unknown) {
-      const msg = fetchErr instanceof Error ? fetchErr.message : ''
-      if (msg.includes('unavailable') || msg.includes('timed out') ||
-          (fetchErr instanceof Error && fetchErr.name === 'AbortError')) {
-        // retry with short chat (last 150 lines)
-        const shortChat   = chat.split('\n').slice(-150).join('\n')
-        const retryPrompt = buildAnalysisPrompt(shortChat, stats?.participants ?? [])
-        try {
-          rawText = await callGeminiWithFallback(retryPrompt)
-        } catch {
-          return NextResponse.json({
-            error:   'Analysis timed out',
-            message: 'Your chat is very large. Please try selecting a shorter date range (last 24 hours or last 3 days) and try again.'
-          }, { status: 408 })
-        }
-      } else {
-        throw fetchErr
-      }
+    if (message.includes('timed out') || message.includes('abort') || message.includes('All models failed')) {
+      return NextResponse.json(
+        {
+          error:   'Analysis timed out',
+          message: 'Please try again. Large chats may take a moment.',
+        },
+        { status: 408 }
+      )
     }
 
-    if (!rawText) {
-      console.error("[analyze] Empty response from Gemini");
-      return NextResponse.json({ error: "AI returned empty response" }, { status: 500 });
-    }
-
-    // Case C — parse Gemini JSON safely with multiple fallbacks
-    let analysis = parseAnalysisResult(rawText);
-    if (!analysis) {
-      // Last resort: ask model to convert its own output into strict JSON
-      const repairPrompt = `Convert the text below into one valid JSON object only. No markdown, no commentary.\n\n${rawText}`;
-      const repairedText = await callGeminiWithFallback(repairPrompt)
-      analysis = parseAnalysisResult(repairedText);
-    }
-
-    if (!analysis) {
-      console.error("[analyze] Invalid response after parse + repair. Raw:", rawText.slice(0, 300));
-      return NextResponse.json({ error: "AI returned invalid response" }, { status: 500 });
-    }
-
-    // Case D — required shape check
-    if (!Array.isArray(analysis.tasks)) {
-      console.error("[analyze] Missing tasks array in parsed response");
-      return NextResponse.json({ error: "Invalid AI response" }, { status: 500 });
-    }
-
-    // Store in cache
-    analysisCache.set(cacheKey, { result: analysis, timestamp: Date.now() })
-
-    const metadata: AnalysisMetadata = {
-      messagesAnalyzed: stats?.totalMessages ?? 0,
-      participants:     stats?.participants  ?? [],
-      analyzedAt:       new Date().toISOString(),
-    };
-
-    console.log("[analyze] Analysis complete, returning response");
-    return NextResponse.json({ success: true, analysis, metadata });
-
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    console.error("[analyze] Unexpected error:", message);
-    if (message.includes('quota') || message.includes('rate') || message.includes('429') || message.includes('high demand')) {
-      return NextResponse.json({
-        error:   "Rate limit reached",
-        message: "AI is busy. Trying backup systems automatically...",
-      }, { status: 429 });
-    }
     return NextResponse.json(
-      { error: "AI analysis failed", details: message },
+      { error: 'Analysis failed', message },
       { status: 500 }
-    );
+    )
   }
 }
-
-
