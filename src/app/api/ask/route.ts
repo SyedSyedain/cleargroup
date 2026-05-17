@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export const maxDuration = 30
 export const dynamic = 'force-dynamic'
 
-const ASK_MODELS = ['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-1.5-flash-latest'] as const
+const GEMINI_MODELS = ['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'] as const
 
 export async function POST(request: NextRequest) {
   try {
@@ -71,7 +71,7 @@ Answer:`
     let responseText: string | undefined
     let lastError: Error | undefined
 
-    for (const model of ASK_MODELS) {
+    for (const model of GEMINI_MODELS) {
       for (const apiKey of API_KEYS) {
         try {
           console.log(`[ask] Trying model: ${model} key: ...${apiKey.slice(-6)}`)
@@ -79,9 +79,10 @@ Answer:`
           const controller = new AbortController()
           const timeoutId  = setTimeout(() => controller.abort(), 25000)
 
-          const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-            {
+          const apiVersion = model.includes('2.0') || model.includes('2.5') ? 'v1beta' : 'v1'
+          const url = `https://generativelanguage.googleapis.com/${apiVersion}/models/${model}:generateContent?key=${apiKey}`
+
+          const response = await fetch(url, {
               method:  'POST',
               headers: { 'Content-Type': 'application/json' },
               signal:  controller.signal,

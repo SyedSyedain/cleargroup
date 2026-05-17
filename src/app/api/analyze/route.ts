@@ -9,7 +9,7 @@ const GEMINI_MODELS = [
   'gemini-2.0-flash',
   'gemini-2.5-flash',
   'gemini-1.5-flash',
-  'gemini-1.5-flash-latest',
+  'gemini-1.5-pro',
 ] as const
 
 // ── In-memory cache ────────────────────────────────────────────────────────────
@@ -35,20 +35,19 @@ async function callGemini(prompt: string): Promise<string> {
         const controller = new AbortController()
         const timeoutId  = setTimeout(() => controller.abort(), 25000)
 
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-          {
+        const apiVersion = model.includes('2.0') || model.includes('2.5') ? 'v1beta' : 'v1'
+        const url = `https://generativelanguage.googleapis.com/${apiVersion}/models/${model}:generateContent?key=${apiKey}`
+        const generationConfig = model.includes('2.0') || model.includes('2.5')
+          ? { temperature: 0.1, topP: 0.95, maxOutputTokens: 8192, responseMimeType: 'application/json' }
+          : { temperature: 0.1, topP: 0.95, maxOutputTokens: 8192 }
+
+        const response = await fetch(url, {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
             signal:  controller.signal,
             body: JSON.stringify({
               contents:         [{ parts: [{ text: prompt }] }],
-              generationConfig: {
-                temperature:      0.1,
-                topP:             0.95,
-                maxOutputTokens:  8192,
-                responseMimeType: 'application/json',
-              },
+              generationConfig,
             }),
           }
         )
