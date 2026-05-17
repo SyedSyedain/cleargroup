@@ -33,10 +33,12 @@ function mapError(res: Response, data: ApiResponse): [ErrorType, string] {
 export function useAnalysis(onError: OnError) {
   const [apiDone,     setApiDone]     = useState(false);
   const [retryCount,  setRetryCount]  = useState(0);
-  const onErrorRef = useRef(onError);
+  const onErrorRef    = useRef(onError);
+  const autoRetryDone = useRef(false);
   useEffect(() => { onErrorRef.current = onError; }, [onError]);
 
   const retry = useCallback(() => {
+    autoRetryDone.current = false; // reset on manual retry so auto-retry is available again
     setApiDone(false);
     setRetryCount((c) => c + 1);
   }, []);
@@ -99,6 +101,12 @@ export function useAnalysis(onError: OnError) {
           // Response body wasn't valid JSON (e.g. Vercel gateway timeout returns HTML)
           console.error("[useAnalysis] Response was not JSON. Status:", res.status);
           if (res.status === 504 || res.status === 502 || res.status === 524) {
+            if (!autoRetryDone.current) {
+              autoRetryDone.current = true;
+              console.log('[useAnalysis] Timeout on first attempt — auto-retrying in 2s...')
+              setTimeout(() => setRetryCount((c) => c + 1), 2000)
+              return;
+            }
             onErrorRef.current(
               "timeout",
               "Analysis timed out. Try selecting a shorter date range (last 3 days) and retry."
@@ -128,6 +136,12 @@ export function useAnalysis(onError: OnError) {
         clearTimeout(timer);
         console.error("[useAnalysis] Fetch error:", err.name, err.message);
         if (err.name === "AbortError") {
+          if (!autoRetryDone.current) {
+            autoRetryDone.current = true;
+            console.log('[useAnalysis] AbortError on first attempt — auto-retrying in 2s...')
+            setTimeout(() => setRetryCount((c) => c + 1), 2000)
+            return;
+          }
           onErrorRef.current(
             "timeout",
             "Analysis is taking longer than expected. Please retry, or select a shorter date range."

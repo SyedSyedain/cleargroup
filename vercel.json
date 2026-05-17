@@ -4,5 +4,13 @@
   "outputDirectory": ".next",
   "installCommand": "npm install",
   "devCommand": "npm run dev",
-  "regions": ["bom1"]
+  "regions": ["bom1"],
+  "functions": {
+    "src/app/api/analyze/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/ask/route.ts": {
+      "maxDuration": 30
+    }
+  }
 }

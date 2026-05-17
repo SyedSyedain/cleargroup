@@ -144,7 +144,7 @@ async function callGeminiWithFallback(prompt: string): Promise<string> {
         console.log(`[analyze] Trying model: ${model} key: ...${apiKey.slice(-6)}`)
 
         const controller = new AbortController()
-        const timeoutId  = setTimeout(() => controller.abort(), 50000)
+        const timeoutId  = setTimeout(() => controller.abort(), 55000)
 
         const response = await fetch(`${geminiUrl(model)}?key=${apiKey}`, {
           method:  'POST',
@@ -235,9 +235,10 @@ export async function POST(req: NextRequest) {
 
   const { formattedChat, stats } = body;
 
-  console.log("[analyze] Route called");
-  console.log("[analyze] Chat length:", formattedChat?.length ?? 0);
-  console.log("[analyze] Participants:", stats?.participants);
+  console.log('=== ANALYZE ROUTE START ===')
+  console.log('[analyze] Chat length:', formattedChat?.length ?? 0)
+  console.log('[analyze] Participants:', stats?.participants)
+  console.log('[analyze] Time:', new Date().toISOString())
 
   if (!formattedChat || formattedChat.trim() === "") {
     return NextResponse.json({ error: "formattedChat is required" }, { status: 400 });
@@ -279,6 +280,9 @@ export async function POST(req: NextRequest) {
     let rawText = '';
     try {
       rawText = await callGeminiWithFallback(prompt)
+      console.log('=== GEMINI RESPONDED ===')
+      console.log('[analyze] Time:', new Date().toISOString())
+      console.log('[analyze] Response length:', rawText.length)
     } catch (fetchErr: unknown) {
       const msg = fetchErr instanceof Error ? fetchErr.message : ''
       if (msg.includes('unavailable') || msg.includes('timed out') ||
